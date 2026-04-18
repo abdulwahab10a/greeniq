@@ -83,6 +83,19 @@ function App() {
           </Routes>
         </AnimatePresence>
       </main>
+      <footer style={{
+        textAlign: 'center',
+        padding: '1.25rem 1rem',
+        borderTop: '1px solid rgba(144,169,85,0.15)',
+        marginTop: 'auto',
+      }}>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginBottom: '0.25rem', fontWeight: 500 }}>
+          Developed &amp; Engineered by Abdulwahab H.Murad
+        </p>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem' }}>
+          جميع الحقوق محفوظة &copy; GreenIQ 2026
+        </p>
+      </footer>
     </div>
   );
 }
