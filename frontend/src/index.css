@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Palette ─────────────────────────────────────────────────
+   --frosted-mint:  #e9f5db   brightest highlight / main text
+   --tea-green:     #cfe1b9   body text / secondary text
+   --muted-olive:   #b5c99a   muted accents
+   --muted-olive-2: #97a97c   subtler accents
+   --palm-leaf:     #87986a   primary accent / icons / active
+   --dusty-olive:   #718355   buttons / primary action / borders
+   --hunter:        #4a5e33   card mid-ground
+   --evergreen:     #1e2e14   deep card / dark bg
+──────────────────────────────────────────────────────────── */
+:root {
+  --frosted-mint:  #e9f5db;
+  --tea-green:     #cfe1b9;
+  --muted-olive:   #b5c99a;
+  --muted-olive-2: #97a97c;
+  --palm-leaf:     #87986a;
+  --dusty-olive:   #718355;
+  --hunter:        #4a5e33;
+  --evergreen:     #1e2e14;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background:
+      radial-gradient(ellipse at 15% 8%,   rgba(113,131,85,0.13)  0%, transparent 52%),
+      radial-gradient(ellipse at 84% 88%,  rgba(74,94,51,0.16)    0%, transparent 52%),
+      radial-gradient(ellipse at 50% 48%,  rgba(135,152,106,0.04) 0%, transparent 68%),
+      linear-gradient(160deg, #0f1a0b 0%, #1a2a0f 38%, #111d0c 65%, #090f06 100%);
+    background-attachment: fixed;
+    color: #cfe1b9;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(30,46,20,0.6); }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(135,152,106,0.5);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(135,152,106,0.75); }
+}
+
+@layer components {
+
+  /* ── Glass surfaces ─────────────────────────────────────── */
+  .glass {
+    background: rgba(74, 94, 51, 0.18);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(135, 152, 106, 0.18);
+  }
+
+  .glass-card {
+    background: rgba(74, 94, 51, 0.22);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(135, 152, 106, 0.2);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.38),
+      inset 0 1px 0 rgba(233, 245, 219, 0.06);
+  }
+
+  /* ── Inputs ─────────────────────────────────────────────── */
+  .glass-input {
+    background: rgba(15, 26, 11, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(135, 152, 106, 0.22);
+    color: #cfe1b9;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .glass-input:focus {
+    border-color: rgba(135, 152, 106, 0.7);
+    box-shadow: 0 0 0 3px rgba(135, 152, 106, 0.12);
+    outline: none;
+  }
+  .glass-input::placeholder { color: rgba(207, 225, 185, 0.3); }
+
+  /* ── Primary button ─────────────────────────────────────── */
+  .btn-primary {
+    background: linear-gradient(135deg, #3d5528 0%, #718355 55%, #87986a 100%);
+    color: #e9f5db;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 22px rgba(113, 131, 85, 0.4);
+    letter-spacing: 0.01em;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(233,245,219,0.07) 100%);
+    pointer-events: none;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(135, 152, 106, 0.45);
+  }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* ── Gradient text ──────────────────────────────────────── */
+  .gradient-text {
+    background: linear-gradient(135deg, #87986a, #e9f5db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-palm {
+    box-shadow: 0 0 24px rgba(135, 152, 106, 0.32);
+  }
+}
+
+/* ── Leaflet map ────────────────────────────────────────── */
+.leaflet-container {
+  width: 100%;
+  height: 600px;
+  border-radius: 1rem;
+  z-index: 1 !important;
+}
+
+@media (max-width: 640px) {
+  .leaflet-container {
+    height: 420px;
+    border-radius: 0.75rem;
+  }
+}
+
+/* ── Responsive 2-column grid (collapses on small screens) ── */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .grid-2-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Touch-friendly tap targets on mobile ── */
+@media (max-width: 768px) {
+  .btn-primary {
+    min-height: 44px;
+  }
+}
+
+/* ── Auth card responsive padding ── */
+.auth-card {
+  padding: 2.75rem 2.25rem;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.75rem 1.1rem;
+  }
+}
+
+/* ── Skeleton shimmer ───────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(74,94,51,0.25)    25%,
+    rgba(135,152,106,0.15) 50%,
+    rgba(74,94,51,0.25)    75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: 8px;
+}
+
+/* ── Floating icon ──────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-7px); }
+}
+.float-icon { animation: float 3s ease-in-out infinite; }
