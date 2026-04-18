@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── html5-qrcode dark theme override ── */
+#qr-scanner-container { color-scheme: dark; }
+#qr-scanner-container video { border-radius: 10px; }
+#qr-scanner-container img { border-radius: 10px; }
+#qr-scanner-container__scan_region { border-radius: 10px; overflow: hidden; }
+#qr-scanner-container__dashboard { background: transparent !important; padding: 0.5rem 0 0 !important; }
+#qr-scanner-container__dashboard_section_csr button,
+#qr-scanner-container__dashboard_section_swaplink {
+  background: rgba(135,152,106,0.15) !important;
+  color: #cfe1b9 !important;
+  border: 1px solid rgba(135,152,106,0.3) !important;
+  border-radius: 8px !important;
+  padding: 6px 14px !important;
+  font-family: 'Cairo', sans-serif !important;
+  cursor: pointer !important;
+}
+#qr-scanner-container__status_span { color: #87986a !important; font-size: 0.8rem !important; }
+
 /* ── Palette ─────────────────────────────────────────────────
    --frosted-mint:  #e9f5db   brightest highlight / main text
    --tea-green:     #cfe1b9   body text / secondary text

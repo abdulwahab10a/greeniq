@@ -1,13 +1,14 @@
-import { useState, useContext, useRef } from 'react';
+import { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Lock, X, CheckCircle2, AlertCircle, Loader2,
-  TreePine, AtSign, User, Phone, Link2, Camera, Edit3, ExternalLink,
+  TreePine, AtSign, User, Phone, Link2, Camera, Edit3, ExternalLink, QrCode,
 } from 'lucide-react';
 import { FaInstagram, FaFacebook, FaSnapchatGhost, FaTelegram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 /* ── Platform detection ──────────────────────────────────── */
 function detectPlatform(url) {
@@ -147,6 +148,71 @@ function ModalShell({ children, onClose, title, titleIcon, wide }) {
   );
 }
 
+/* ── QR Scanner Modal ───────────────────────────────────── */
+function QRScannerModal({ onClose, onResult }) {
+  const scannerId = 'qr-scanner-container';
+
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(
+      scannerId,
+      { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
+      false
+    );
+    scanner.render(
+      (text) => {
+        scanner.clear().catch(() => {});
+        onResult(text);
+        onClose();
+      },
+      () => {}
+    );
+    return () => { scanner.clear().catch(() => {}); };
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(8,14,5,0.85)',
+        backdropFilter: 'blur(14px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 3000, padding: '1rem',
+      }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 24, scale: 0.95 }}
+        transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}
+        className="glass-card"
+        style={{ borderRadius: '24px', padding: '1.5rem', width: '100%', maxWidth: '380px' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: T.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <QrCode size={16} color={T.palm} /> امسح رمز QR
+          </h2>
+          <button onClick={onClose} style={{
+            background: T.huntBg, border: `1px solid ${T.huntBd}`,
+            borderRadius: '8px', cursor: 'pointer', padding: '5px',
+            color: T.muted, display: 'flex', alignItems: 'center',
+          }}>
+            <X size={15} />
+          </button>
+        </div>
+        <p style={{ color: T.muted, fontSize: '0.82rem', marginBottom: '1rem', textAlign: 'center' }}>
+          وجّه الكاميرا نحو رمز QR الخاص بحسابك
+        </p>
+        <div
+          id={scannerId}
+          style={{ borderRadius: '14px', overflow: 'hidden' }}
+        />
+      </motion.div>
+    </motion.div>
+  );
+}
+
 /* ── Change Password Modal ──────────────────────────────── */
 function ChangePasswordModal({ onClose }) {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -208,6 +274,7 @@ function ChangePasswordModal({ onClose }) {
 /* ── Edit Profile Modal ─────────────────────────────────── */
 function EditProfileModal({ user, onClose, onSaved }) {
   const fileInputRef = useRef(null);
+  const [qrTarget, setQrTarget] = useState(null); // which field is being scanned
   const [form, setForm] = useState({
     displayName:   user.displayName   || '',
     phone:         user.phone         || '',
@@ -246,6 +313,18 @@ function EditProfileModal({ user, onClose, onSaved }) {
   };
 
   return (
+    <>
+    <AnimatePresence>
+      {qrTarget && (
+        <QRScannerModal
+          onClose={() => setQrTarget(null)}
+          onResult={(url) => {
+            setForm(f => ({ ...f, [qrTarget]: url }));
+            setQrTarget(null);
+          }}
+        />
+      )}
+    </AnimatePresence>
     <ModalShell onClose={onClose} title="تعديل الملف الشخصي" titleIcon={<Edit3 size={16} color={T.palm} />} wide>
       <form onSubmit={handleSubmit}>
         {error && <ErrorBanner msg={error} />}
@@ -333,6 +412,20 @@ function EditProfileModal({ user, onClose, onSaved }) {
                   placeholder={placeholder} className="glass-input" dir="ltr"
                   style={{ flex: 1, padding: '0.58rem 0.8rem', borderRadius: '9px', fontSize: '0.8rem', boxSizing: 'border-box' }}
                 />
+                <motion.button
+                  type="button"
+                  onClick={() => setQrTarget(key)}
+                  whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
+                  title="امسح رمز QR"
+                  style={{
+                    width: '33px', height: '33px', borderRadius: '8px', flexShrink: 0,
+                    background: 'rgba(135,152,106,0.12)', border: '1px solid rgba(135,152,106,0.28)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: T.palm,
+                  }}
+                >
+                  <QrCode size={15} />
+                </motion.button>
               </div>
             ))}
           </div>
@@ -341,6 +434,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
         <SubmitBtn loading={loading}>حفظ التغييرات</SubmitBtn>
       </form>
     </ModalShell>
+    </>
   );
 }
 
