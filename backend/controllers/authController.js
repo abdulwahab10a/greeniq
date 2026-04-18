@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { uploadToImgBB } = require('../services/imgbbService');
+const { containsProfanity } = require('../services/profanityService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -14,6 +15,10 @@ const register = async (req, res) => {
 
     if (!userId || !displayName || !password) {
       return res.status(400).json({ message: 'الرجاء تعبئة جميع الحقول المطلوبة' });
+    }
+
+    if (containsProfanity(displayName) || containsProfanity(userId)) {
+      return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
     }
 
     const existingUser = await User.findOne({ userId: userId.toLowerCase() });

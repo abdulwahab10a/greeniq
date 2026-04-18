@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Tree = require('../models/Tree');
 const { calculateImpact } = require('../services/impactService');
 const { uploadToImgBB } = require('../services/imgbbService');
+const { containsProfanity } = require('../services/profanityService');
 
 const getMe = async (req, res) => {
   try {
@@ -15,6 +16,10 @@ const getMe = async (req, res) => {
 const updateMe = async (req, res) => {
   try {
     const { displayName, phone, instagramLink, facebookLink, snapchatLink, telegramLink, twitterLink } = req.body;
+    if (displayName && containsProfanity(displayName)) {
+      return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
+    }
+
     const updateData = {};
     if (displayName) updateData.displayName = displayName;
     if (phone !== undefined) updateData.phone = phone;

@@ -2,12 +2,17 @@ const Tree = require('../models/Tree');
 const User = require('../models/User');
 const { calculateImpact } = require('../services/impactService');
 const { uploadToImgBB } = require('../services/imgbbService');
+const { containsProfanity } = require('../services/profanityService');
 const plantTree = async (req, res) => {
   try {
     const { name, notes, latitude, longitude } = req.body;
 
     if (!latitude || !longitude) {
       return res.status(400).json({ message: 'Location is required' });
+    }
+
+    if (containsProfanity(name) || containsProfanity(notes)) {
+      return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
     }
 
     const nearby = await Tree.findOne({
@@ -85,6 +90,11 @@ const updateTree = async (req, res) => {
     }
 
     const { name, notes } = req.body;
+
+    if (containsProfanity(name) || containsProfanity(notes)) {
+      return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
+    }
+
     if (name !== undefined) tree.name = name;
     if (notes !== undefined) tree.notes = notes;
 
