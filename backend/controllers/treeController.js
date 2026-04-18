@@ -188,12 +188,19 @@ const getGovTopContributors = async (req, res) => {
     const gov = GOVERNORATES.find(g => g.name === govName);
     if (!gov) return res.status(404).json({ message: 'Governorate not found' });
 
-    const trees = await Tree.find().populate('userId', 'displayName profileImage userId');
+    const trees = await Tree.find({
+      location: {
+        $geoWithin: {
+          $box: [
+            [gov.lngMin, gov.latMin],
+            [gov.lngMax, gov.latMax],
+          ],
+        },
+      },
+    }).populate('userId', 'displayName profileImage userId');
 
     const userMap = {};
     trees.forEach((tree) => {
-      const [lng, lat] = tree.location.coordinates;
-      if (lng < gov.lngMin || lng > gov.lngMax || lat < gov.latMin || lat > gov.latMax) return;
       if (!tree.userId) return;
       const uid = tree.userId._id.toString();
       if (!userMap[uid]) {

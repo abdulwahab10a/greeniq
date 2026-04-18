@@ -1,5 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import L from 'leaflet';
 import api from '../api/axios';
 
@@ -10,36 +10,79 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Module-level cache: fetched once per session, never re-downloaded
+let cachedIraqBorder = null;
+
+const treeIcon = L.divIcon({
+  className: '',
+  html: `<div style="font-size:22px;line-height:1;">🌳</div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+const userIcon = L.divIcon({
+  className: '',
+  html: `<div style="font-size:22px;line-height:1;">📍</div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 24],
+});
+
+const iraqStyle = {
+  fillColor: '#87986a',
+  weight: 2,
+  opacity: 1,
+  color: '#718355',
+  fillOpacity: 0.1,
+};
+
+// Lightweight Iraq-only GeoJSON (bounding box polygon — no heavy download)
+const IRAQ_BBOX = {
+  type: 'FeatureCollection',
+  features: [{
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: [[
+        [38.79, 29.06], [48.57, 29.06],
+        [48.57, 37.38], [38.79, 37.38],
+        [38.79, 29.06],
+      ]],
+    },
+    properties: {},
+  }],
+};
+
+async function fetchIraqBorder() {
+  if (cachedIraqBorder) return cachedIraqBorder;
+  try {
+    // Specific Iraq GeoJSON — much smaller than fetching all countries
+    const res = await fetch('https://nominatim.openstreetmap.org/search.php?country=iraq&polygon_geojson=1&format=json');
+    const data = await res.json();
+    if (data[0]?.geojson) {
+      cachedIraqBorder = {
+        type: 'FeatureCollection',
+        features: [{ type: 'Feature', geometry: data[0].geojson, properties: {} }],
+      };
+      return cachedIraqBorder;
+    }
+  } catch {
+    // ignore
+  }
+  cachedIraqBorder = IRAQ_BBOX;
+  return cachedIraqBorder;
+}
+
 export default function MapComponent({ onTreeSelect, onViewProfile, refreshKey = 0 }) {
   const [trees, setTrees] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
-  const [iraqBorder, setIraqBorder] = useState(null);
+  const [iraqBorder, setIraqBorder] = useState(cachedIraqBorder);
+  const geolocationDone = useRef(false);
 
   useEffect(() => {
-    fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-      .then(res => res.json())
-      .then(data => {
-        const iraq = {
-          type: 'FeatureCollection',
-          features: data.features.filter(f => f.properties.ADMIN === 'Iraq')
-        };
-        setIraqBorder(iraq);
-      })
-      .catch(() => {
-        fetch('https://nominatim.openstreetmap.org/search.php?country=iraq&polygon_geojson=1&format=json')
-          .then(res => res.json())
-          .then(data => {
-            if (data[0]?.geojson) {
-              setIraqBorder({
-                type: 'FeatureCollection',
-                features: [{ type: 'Feature', geometry: data[0].geojson, properties: {} }]
-              });
-            }
-          })
-          .catch(err => console.log('فشل تحميل الحدود:', err));
-      });
+    fetchIraqBorder().then(setIraqBorder);
 
-    if (navigator.geolocation) {
+    if (!geolocationDone.current && navigator.geolocation) {
+      geolocationDone.current = true;
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserLocation([pos.coords.latitude, pos.coords.longitude]),
         () => {}
@@ -52,28 +95,6 @@ export default function MapComponent({ onTreeSelect, onViewProfile, refreshKey =
       .then(res => setTrees(res.data))
       .catch(err => console.log('خطأ في جلب الأشجار:', err));
   }, [refreshKey]);
-
-  const iraqStyle = {
-    fillColor: '#87986a',
-    weight: 2,
-    opacity: 1,
-    color: '#718355',
-    fillOpacity: 0.1,
-  };
-
-  const treeIcon = L.divIcon({
-    className: '',
-    html: `<div style="font-size:22px;line-height:1;">🌳</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-  });
-
-  const userIcon = L.divIcon({
-    className: '',
-    html: `<div style="font-size:22px;line-height:1;">📍</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 24],
-  });
 
   return (
     <MapContainer
@@ -90,19 +111,16 @@ export default function MapComponent({ onTreeSelect, onViewProfile, refreshKey =
         attribution='&copy; OpenStreetMap contributors'
       />
 
-      {/* حدود العراق الدقيقة */}
       {iraqBorder && (
         <GeoJSON data={iraqBorder} style={iraqStyle} />
       )}
 
-      {/* موقع المستخدم */}
       {userLocation && (
         <Marker position={userLocation} icon={userIcon}>
           <Popup>📍 موقعك الحالي</Popup>
         </Marker>
       )}
 
-      {/* علامات الأشجار */}
       {trees.map((tree) => {
         const [lng, lat] = tree.location.coordinates;
         return (
