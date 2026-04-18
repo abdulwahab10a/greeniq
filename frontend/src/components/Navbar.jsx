@@ -57,7 +57,7 @@ export default function Navbar() {
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text', letterSpacing: '-0.01em',
               }}>
-                Green Iraq
+                GreenIQ
               </span>
             </motion.div>
           </Link>
