@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
 const sanitizeBody = require('./middleware/sanitizeMiddleware');
 require('dotenv').config();
@@ -40,10 +39,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10kb' }));
 
-// NoSQL injection prevention
-app.use(mongoSanitize());
-
-// XSS sanitization for all string inputs
+// XSS + NoSQL injection sanitization
 app.use(sanitizeBody);
 
 // Apply rate limiting

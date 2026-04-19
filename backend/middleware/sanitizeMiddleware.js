@@ -1,7 +1,7 @@
 const xss = require('xss');
 
-// Password fields must never be sanitized — XSS escaping would
-// corrupt the value before bcrypt comparison and break login.
+// Password fields must never go through XSS — escaping special chars
+// would corrupt the value before bcrypt comparison and break login.
 const PASSWORD_KEYS = new Set(['password', 'currentPassword', 'newPassword']);
 
 const sanitizeValue = (val, key) => {
@@ -9,7 +9,13 @@ const sanitizeValue = (val, key) => {
   if (typeof val === 'string') return xss(val.trim());
   if (Array.isArray(val)) return val.map(v => sanitizeValue(v, key));
   if (val && typeof val === 'object') {
-    return Object.fromEntries(Object.entries(val).map(([k, v]) => [k, sanitizeValue(v, k)]));
+    // Strip MongoDB operator keys (NoSQL injection prevention)
+    const clean = {};
+    for (const [k, v] of Object.entries(val)) {
+      if (typeof k === 'string' && k.startsWith('$')) continue;
+      clean[k] = sanitizeValue(v, k);
+    }
+    return clean;
   }
   return val;
 };
