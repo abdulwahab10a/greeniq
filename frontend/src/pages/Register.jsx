@@ -118,7 +118,7 @@ export default function Register() {
             إنشاء حساب جديد
           </h1>
           <p style={{ color: 'rgba(207,225,185,0.45)', fontSize: '0.88rem', margin: 0 }}>
-            انضم إلى مجتمع Green Iraq
+            انضم إلى مجتمع GreenIQ
           </p>
         </div>
 
