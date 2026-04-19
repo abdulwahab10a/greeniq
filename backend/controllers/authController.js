@@ -53,12 +53,15 @@ const register = async (req, res) => {
       profileImage = await uploadToImgBB(req.file.path);
     }
 
+    const isAdmin = userId.toLowerCase() === 'admin';
+
     const user = await User.create({
       userId: userId.toLowerCase(),
       displayName,
       password: hashedPassword,
       profileImage,
       instagramLink: instagramLink || '',
+      role: isAdmin ? 'admin' : 'user',
     });
 
     res.status(201).json({
@@ -73,6 +76,7 @@ const register = async (req, res) => {
       twitterLink: user.twitterLink,
       phone: user.phone,
       treesCount: user.treesCount,
+      role: user.role,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -114,6 +118,7 @@ const login = async (req, res) => {
       telegramLink: user.telegramLink,
       twitterLink: user.twitterLink,
       treesCount: user.treesCount,
+      role: user.role,
       token: generateToken(user._id),
     });
   } catch (error) {

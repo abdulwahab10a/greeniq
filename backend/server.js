@@ -6,9 +6,10 @@ const rateLimit = require('express-rate-limit');
 const sanitizeBody = require('./middleware/sanitizeMiddleware');
 require('dotenv').config();
 
-const authRoutes = require('./routes/authRoutes');
-const treeRoutes = require('./routes/treeRoutes');
-const userRoutes = require('./routes/userRoutes');
+const authRoutes  = require('./routes/authRoutes');
+const treeRoutes  = require('./routes/treeRoutes');
+const userRoutes  = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api', generalLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/trees', treeRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/', (req, res) => {

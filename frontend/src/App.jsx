@@ -9,9 +9,18 @@ import MapPage from './pages/MapPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import GovernoratesPage from './pages/GovernoratesPage';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Components
 import Navbar from './components/Navbar';
+
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/map" replace />;
+  return children;
+}
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -79,6 +88,9 @@ function App() {
             } />
             <Route path="/governorates" element={
               <ProtectedRoute><AnimatedPage><GovernoratesPage /></AnimatedPage></ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <AdminRoute><AnimatedPage><AdminDashboard /></AnimatedPage></AdminRoute>
             } />
           </Routes>
         </AnimatePresence>

@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Map, Trophy, Building2, Menu, X } from 'lucide-react';
+import { LogOut, Map, Trophy, Building2, Menu, X, LayoutDashboard } from 'lucide-react';
 
 /* ── Color tokens ── */
 const C = {
@@ -24,9 +24,12 @@ export default function Navbar() {
   const handleLogout = () => { logout(); navigate('/login'); };
 
   const navLinks = [
-    { to: '/map',          label: 'الخريطة',       icon: Map       },
-    { to: '/leaderboard',  label: 'أفضل الزارعين', icon: Trophy    },
-    { to: '/governorates', label: 'المحافظات',      icon: Building2 },
+    { to: '/map',          label: 'الخريطة',       icon: Map             },
+    { to: '/leaderboard',  label: 'أفضل الزارعين', icon: Trophy          },
+    { to: '/governorates', label: 'المحافظات',      icon: Building2       },
+    ...(user?.role === 'admin'
+      ? [{ to: '/admin', label: 'لوحة التحكم', icon: LayoutDashboard }]
+      : []),
   ];
 
   return (
