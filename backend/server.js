@@ -1,6 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
+const sanitizeBody = require('./middleware/sanitizeMiddleware');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -9,12 +13,42 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
+// Security headers
+app.use(helmet());
+
+// Rate limiting — strict for auth, relaxed for general API
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'محاولات كثيرة جداً، يرجى المحاولة بعد 15 دقيقة' },
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 150,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'طلبات كثيرة جداً، يرجى المحاولة لاحقاً' },
+});
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+
+// NoSQL injection prevention
+app.use(mongoSanitize());
+
+// XSS sanitization for all string inputs
+app.use(sanitizeBody);
+
+// Apply rate limiting
+app.use('/api/auth', authLimiter);
+app.use('/api', generalLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);

@@ -11,6 +11,18 @@ const plantTree = async (req, res) => {
       return res.status(400).json({ message: 'Location is required' });
     }
 
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ message: 'إحداثيات الموقع غير صالحة' });
+    }
+    if (name && name.length > 100) {
+      return res.status(400).json({ message: 'اسم الشجرة يجب ألا يتجاوز 100 حرف' });
+    }
+    if (notes && notes.length > 500) {
+      return res.status(400).json({ message: 'الملاحظات يجب ألا تتجاوز 500 حرف' });
+    }
+
     if (containsProfanity(name) || containsProfanity(notes)) {
       return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
     }
@@ -90,6 +102,13 @@ const updateTree = async (req, res) => {
     }
 
     const { name, notes } = req.body;
+
+    if (name && name.length > 100) {
+      return res.status(400).json({ message: 'اسم الشجرة يجب ألا يتجاوز 100 حرف' });
+    }
+    if (notes && notes.length > 500) {
+      return res.status(400).json({ message: 'الملاحظات يجب ألا تتجاوز 500 حرف' });
+    }
 
     if (containsProfanity(name) || containsProfanity(notes)) {
       return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });

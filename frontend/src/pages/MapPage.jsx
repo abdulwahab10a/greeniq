@@ -35,6 +35,8 @@ export default function MapPage() {
   const handlePlantSubmit = async (e) => {
     e.preventDefault();
     if (!plantData.latitude || !plantData.longitude) { setLocError('لم يتم تحديد موقعك بعد'); return; }
+    if (plantData.name.length > 100) { setLocError('اسم الشجرة يجب ألا يتجاوز 100 حرف'); return; }
+    if (plantData.notes.length > 500) { setLocError('الملاحظات يجب ألا تتجاوز 500 حرف'); return; }
     setLoading(true);
     try {
       const formData = new FormData();
@@ -238,61 +240,115 @@ export default function MapPage() {
               transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               style={{
                 position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem',
-                maxWidth: '320px', marginLeft: 'auto',
-                borderRadius: '20px', padding: '1.25rem', zIndex: 1000,
+                maxWidth: '340px', marginLeft: 'auto',
+                borderRadius: '20px', zIndex: 1000,
                 background: '#111827',
-                border: '1px solid rgba(75,85,99,0.6)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                border: '1px solid rgba(135,152,106,0.35)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                overflow: 'hidden',
+                direction: 'rtl',
               }}
             >
+              {/* زر الإغلاق */}
               <button onClick={() => setSelectedTree(null)} style={{
-                position: 'absolute', top: '12px', left: '12px',
-                background: 'rgba(31,41,55,0.9)', border: '1px solid rgba(75,85,99,0.5)',
+                position: 'absolute', top: '10px', left: '10px', zIndex: 10,
+                background: 'rgba(17,24,39,0.85)', border: '1px solid rgba(75,85,99,0.5)',
                 cursor: 'pointer', color: '#9ca3af', borderRadius: '8px', padding: '4px',
                 display: 'flex', alignItems: 'center',
               }}>
                 <X size={15} />
               </button>
 
+              {/* صورة الشجرة */}
               {selectedTree.image && (
-                <img src={selectedTree.image} alt={selectedTree.name}
-                  style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '12px', marginBottom: '0.85rem' }}
-                />
+                <div style={{
+                  width: '100%',
+                  background: 'rgba(0,0,0,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderBottom: '1px solid rgba(135,152,106,0.2)',
+                }}>
+                  <img
+                    src={selectedTree.image}
+                    alt={selectedTree.name || 'شجرة'}
+                    style={{
+                      width: '100%',
+                      maxHeight: '220px',
+                      objectFit: 'contain',
+                      display: 'block',
+                    }}
+                  />
+                </div>
               )}
 
-              <p style={{ fontSize: '0.73rem', color: '#9ca3af', margin: '0 0 4px' }}>
-                زُرعت بواسطة:{' '}
-                <span style={{ fontWeight: '700', color: '#4ade80' }}>
-                  {selectedTree.userId?.displayName || 'مستخدم'}
-                </span>
-              </p>
-              <h4 style={{
-                fontWeight: '700', fontSize: '1.05rem', margin: '0 0 0.5rem',
-                color: '#f9fafb', display: 'flex', alignItems: 'center', gap: '6px',
-              }}>
-                <TreePine size={17} color="#4ade80" /> {selectedTree.name || 'شجرة'}
-              </h4>
-              {selectedTree.notes && (
-                <p style={{ fontSize: '0.83rem', color: '#d1d5db', margin: '0 0 0.75rem' }}>
-                  {selectedTree.notes}
+              {/* محتوى الكارت */}
+              <div style={{ padding: '1rem 1.1rem' }}>
+                {/* اسم الشجرة */}
+                <h4 style={{
+                  fontWeight: '800', fontSize: '1.05rem', margin: '0 0 0.35rem',
+                  color: '#f9fafb', display: 'flex', alignItems: 'center', gap: '6px',
+                }}>
+                  <TreePine size={17} color="#4ade80" />
+                  {selectedTree.name || 'شجرة'}
+                </h4>
+
+                {/* زُرعت بواسطة */}
+                <p style={{ fontSize: '0.78rem', color: '#9ca3af', margin: '0 0 0.7rem' }}>
+                  زُرعت بواسطة:{' '}
+                  <span style={{ fontWeight: '700', color: '#4ade80' }}>
+                    {selectedTree.userId?.displayName || 'مستخدم'}
+                  </span>
                 </p>
-              )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{
-                  background: '#14532d', border: '1px solid rgba(74,222,128,0.25)',
-                  borderRadius: '10px', padding: '0.5rem 0.85rem', fontSize: '0.83rem',
-                  display: 'flex', alignItems: 'center', gap: '8px', color: '#86efac',
-                }}>
-                  <Leaf size={13} /> CO₂ المختزل: <strong>{selectedTree.co2Absorbed} كجم</strong>
+                {/* الملاحظات */}
+                {selectedTree.notes && (
+                  <p style={{
+                    fontSize: '0.82rem', color: '#d1d5db',
+                    margin: '0 0 0.8rem', lineHeight: '1.5',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: '8px', padding: '0.5rem 0.75rem',
+                  }}>
+                    {selectedTree.notes}
+                  </p>
+                )}
+
+                {/* CO₂ و O₂ */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginBottom: '0.85rem' }}>
+                  <div style={{
+                    background: 'rgba(20,83,45,0.6)', border: '1px solid rgba(74,222,128,0.2)',
+                    borderRadius: '10px', padding: '0.45rem 0.85rem', fontSize: '0.82rem',
+                    display: 'flex', alignItems: 'center', gap: '7px', color: '#86efac',
+                  }}>
+                    <Leaf size={13} />
+                    <span>CO₂ المختزل: <strong>{selectedTree.co2Absorbed} كجم</strong></span>
+                  </div>
+                  <div style={{
+                    background: 'rgba(30,58,95,0.6)', border: '1px solid rgba(147,197,253,0.2)',
+                    borderRadius: '10px', padding: '0.45rem 0.85rem', fontSize: '0.82rem',
+                    display: 'flex', alignItems: 'center', gap: '7px', color: '#93c5fd',
+                  }}>
+                    <Wind size={13} />
+                    <span>O₂ المنبعث: <strong>{selectedTree.o2Produced} كجم</strong></span>
+                  </div>
                 </div>
-                <div style={{
-                  background: '#1e3a5f', border: '1px solid rgba(147,197,253,0.25)',
-                  borderRadius: '10px', padding: '0.5rem 0.85rem', fontSize: '0.83rem',
-                  display: 'flex', alignItems: 'center', gap: '8px', color: '#93c5fd',
-                }}>
-                  <Wind size={13} /> O₂ المنبعث: <strong>{selectedTree.o2Produced} كجم</strong>
-                </div>
+
+                {/* زر الملف الشخصي */}
+                {selectedTree.userId?._id && (
+                  <button
+                    onClick={() => { setProfileUserId(selectedTree.userId._id); setSelectedTree(null); }}
+                    style={{
+                      width: '100%',
+                      background: 'rgba(74,222,128,0.1)',
+                      border: '1px solid rgba(74,222,128,0.3)',
+                      borderRadius: '10px', padding: '0.6rem 1rem',
+                      color: '#4ade80', fontSize: '0.85rem', fontWeight: '700',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', gap: '6px',
+                    }}
+                  >
+                    👤 عرض الملف الشخصي
+                  </button>
+                )}
               </div>
             </motion.div>
           )}

@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, GeoJSON } from 'react-leaflet';
 import { useEffect, useState, useRef } from 'react';
 import L from 'leaflet';
 import api from '../api/axios';
@@ -72,7 +72,7 @@ async function fetchIraqBorder() {
   return cachedIraqBorder;
 }
 
-export default function MapComponent({ onTreeSelect, onViewProfile, refreshKey = 0 }) {
+export default function MapComponent({ onTreeSelect, refreshKey = 0 }) {
   const [trees, setTrees] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [iraqBorder, setIraqBorder] = useState(cachedIraqBorder);
@@ -116,9 +116,7 @@ export default function MapComponent({ onTreeSelect, onViewProfile, refreshKey =
       )}
 
       {userLocation && (
-        <Marker position={userLocation} icon={userIcon}>
-          <Popup>📍 موقعك الحالي</Popup>
-        </Marker>
+        <Marker position={userLocation} icon={userIcon} />
       )}
 
       {trees.map((tree) => {
@@ -129,46 +127,7 @@ export default function MapComponent({ onTreeSelect, onViewProfile, refreshKey =
             position={[lat, lng]}
             icon={treeIcon}
             eventHandlers={{ click: () => onTreeSelect?.(tree) }}
-          >
-            <Popup>
-              <div style={{ minWidth: '200px', direction: 'rtl', fontFamily: 'inherit', background: '#1f2937', borderRadius: '8px', padding: '10px', margin: '-10px' }}>
-                <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '6px' }}>
-                  تمت زراعة هذه الشجرة بواسطة:{' '}
-                  <strong style={{ color: '#4ade80' }}>{tree.userId?.displayName || 'مستخدم'}</strong>
-                </p>
-                <h4 style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', color: '#f9fafb' }}>
-                  🌳 {tree.name || 'شجرة'}
-                </h4>
-                {tree.notes && (
-                  <p style={{ fontSize: '11px', marginBottom: '6px', color: '#d1d5db' }}>
-                    {tree.notes}
-                  </p>
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
-                  <span style={{ background: '#14532d', color: '#86efac', padding: '3px 8px', borderRadius: '6px', fontSize: '11px' }}>
-                    🌿 CO₂ المختزل: <strong>{tree.co2Absorbed} كجم</strong>
-                  </span>
-                  <span style={{ background: '#1e3a5f', color: '#93c5fd', padding: '3px 8px', borderRadius: '6px', fontSize: '11px' }}>
-                    💨 O₂ المنبعث: <strong>{tree.o2Produced} كجم</strong>
-                  </span>
-                </div>
-                {tree.userId?._id && (
-                  <button
-                    onClick={() => onViewProfile?.(tree.userId._id)}
-                    style={{
-                      marginTop: '8px', width: '100%',
-                      background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)',
-                      borderRadius: '7px', padding: '5px 10px',
-                      color: '#4ade80', fontSize: '11px', fontWeight: '700',
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
-                    }}
-                  >
-                    👤 عرض الملف الشخصي
-                  </button>
-                )}
-              </div>
-            </Popup>
-          </Marker>
+          />
         );
       })}
     </MapContainer>

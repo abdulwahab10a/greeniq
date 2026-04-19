@@ -17,11 +17,18 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const userId = form.userId.trim();
+    const password = form.password;
+
+    if (userId.length < 3) return setError('المعرف يجب أن يكون 3 أحرف على الأقل');
+    if (password.length < 8) return setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', {
-        userId: form.userId.toLowerCase(),
-        password: form.password,
+        userId: userId.toLowerCase(),
+        password,
       });
       login(data);
       navigate('/map');
@@ -69,7 +76,7 @@ export default function Login() {
             تسجيل الدخول
           </h1>
           <p style={{ color: 'rgba(207,225,185,0.45)', fontSize: '0.9rem', margin: 0 }}>
-            أهلاً بك في Green Iraq
+            أهلاً بك في <span dir="ltr" style={{ unicodeBidi: 'embed' }}>GreenIQ</span>
           </p>
         </div>
 

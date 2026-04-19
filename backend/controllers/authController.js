@@ -8,6 +8,9 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
+const USER_ID_REGEX = /^[a-zA-Z0-9_]+$/;
+const URL_REGEX = /^https?:\/\/.+\..+/;
+
 // @route POST /api/auth/register
 const register = async (req, res) => {
   try {
@@ -15,6 +18,22 @@ const register = async (req, res) => {
 
     if (!userId || !displayName || !password) {
       return res.status(400).json({ message: 'الرجاء تعبئة جميع الحقول المطلوبة' });
+    }
+
+    if (userId.length < 3 || userId.length > 20) {
+      return res.status(400).json({ message: 'المعرف يجب أن يكون بين 3 و 20 حرفاً' });
+    }
+    if (!USER_ID_REGEX.test(userId)) {
+      return res.status(400).json({ message: 'المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ فقط' });
+    }
+    if (displayName.length < 2 || displayName.length > 30) {
+      return res.status(400).json({ message: 'الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' });
+    }
+    if (instagramLink && !URL_REGEX.test(instagramLink)) {
+      return res.status(400).json({ message: 'رابط التواصل الاجتماعي غير صالح' });
     }
 
     if (containsProfanity(displayName) || containsProfanity(userId)) {
@@ -68,6 +87,9 @@ const login = async (req, res) => {
 
     if (!userId || !password) {
       return res.status(400).json({ message: 'الرجاء إدخال المعرف وكلمة المرور' });
+    }
+    if (typeof userId !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'بيانات غير صالحة' });
     }
 
     const user = await User.findOne({ userId: userId.toLowerCase() });

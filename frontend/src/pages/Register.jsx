@@ -36,17 +36,26 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const userId = form.userId.trim();
+    const displayName = form.displayName.trim();
+    const socialLink = form.socialLink.trim();
+
+    if (userId.length < 3 || userId.length > 20) return setError('المعرف يجب أن يكون بين 3 و 20 حرفاً');
+    if (!/^[a-zA-Z0-9_]+$/.test(userId)) return setError('المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ فقط');
+    if (displayName.length < 2 || displayName.length > 30) return setError('الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً');
+    if (form.password.length < 8) return setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
     if (form.password !== form.confirmPassword) return setError('كلمتا المرور غير متطابقتين');
-    if (form.userId.length < 3) return setError('المعرف يجب أن يكون 3 أحرف على الأقل');
-    if (!/^[a-zA-Z0-9_]+$/.test(form.userId)) return setError('المعرف يجب أن يحتوي على أحرف وأرقام فقط');
+    if (socialLink && !/^https?:\/\/.+\..+/.test(socialLink)) return setError('رابط التواصل الاجتماعي يجب أن يبدأ بـ https://');
+
 
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append('userId', form.userId.toLowerCase());
-      formData.append('displayName', form.displayName);
+      formData.append('userId', userId.toLowerCase());
+      formData.append('displayName', displayName);
       formData.append('password', form.password);
-      if (form.socialLink) formData.append('instagramLink', form.socialLink);
+      if (socialLink) formData.append('instagramLink', socialLink);
       if (profileImage) formData.append('profileImage', profileImage);
 
       const { data } = await api.post('/auth/register', formData, {

@@ -13,11 +13,29 @@ const getMe = async (req, res) => {
   }
 };
 
+const URL_REGEX = /^https?:\/\/.+\..+/;
+
 const updateMe = async (req, res) => {
   try {
     const { displayName, phone, instagramLink, facebookLink, snapchatLink, telegramLink, twitterLink } = req.body;
-    if (displayName && containsProfanity(displayName)) {
-      return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
+
+    if (displayName !== undefined) {
+      if (displayName.length < 2 || displayName.length > 30) {
+        return res.status(400).json({ message: 'الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً' });
+      }
+      if (containsProfanity(displayName)) {
+        return res.status(400).json({ message: 'يحتوي النص على كلمات غير لائقة، يرجى تعديله' });
+      }
+    }
+    if (phone && phone.length > 20) {
+      return res.status(400).json({ message: 'رقم الهاتف غير صالح' });
+    }
+
+    const socialLinks = { instagramLink, facebookLink, snapchatLink, telegramLink, twitterLink };
+    for (const [key, val] of Object.entries(socialLinks)) {
+      if (val && val.trim() !== '' && !URL_REGEX.test(val)) {
+        return res.status(400).json({ message: 'صيغة الرابط غير صالحة، يجب أن يبدأ بـ http أو https' });
+      }
     }
 
     const updateData = {};
@@ -108,8 +126,8 @@ const changePassword = async (req, res) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ message: 'يرجى تعبئة جميع الحقول' });
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل' });
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل' });
     }
 
     const user = await User.findById(req.user._id);
