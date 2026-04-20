@@ -2,15 +2,56 @@ import { useState, useEffect } from 'react';
 import MapComponent from '../components/MapComponent';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf } from 'lucide-react';
+import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf, Clock } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
+
+const PROVINCES = [
+  { name: 'بغداد', lat: 33.3152, lng: 44.3661 },
+  { name: 'البصرة', lat: 30.5085, lng: 47.7804 },
+  { name: 'نينوى', lat: 36.3566, lng: 43.1584 },
+  { name: 'أربيل', lat: 36.1912, lng: 44.0092 },
+  { name: 'النجف', lat: 31.9971, lng: 44.3318 },
+  { name: 'كربلاء', lat: 32.6160, lng: 44.0249 },
+  { name: 'السليمانية', lat: 35.5571, lng: 45.4367 },
+  { name: 'دهوك', lat: 36.8669, lng: 42.9503 },
+  { name: 'الأنبار', lat: 33.4258, lng: 43.3000 },
+  { name: 'ديالى', lat: 33.7732, lng: 44.6880 },
+  { name: 'كركوك', lat: 35.4681, lng: 44.3922 },
+  { name: 'واسط', lat: 32.4926, lng: 45.8268 },
+  { name: 'بابل', lat: 32.4740, lng: 44.4220 },
+  { name: 'ميسان', lat: 31.8290, lng: 47.1504 },
+  { name: 'ذي قار', lat: 31.0603, lng: 46.2754 },
+  { name: 'المثنى', lat: 29.3685, lng: 45.2899 },
+  { name: 'القادسية', lat: 32.0449, lng: 44.9259 },
+  { name: 'صلاح الدين', lat: 34.5338, lng: 43.4759 },
+];
+
+function nearestProvince(lat, lng) {
+  let best = PROVINCES[0], bestDist = Infinity;
+  for (const p of PROVINCES) {
+    const d = (p.lat - lat) ** 2 + (p.lng - lng) ** 2;
+    if (d < bestDist) { bestDist = d; best = p; }
+  }
+  return best.name;
+}
+
+function treeAge(createdAt) {
+  if (!createdAt) return null;
+  const days = Math.floor((Date.now() - new Date(createdAt)) / 86400000);
+  if (days < 1)   return 'أقل من يوم';
+  if (days < 30)  return `${days} يوم`;
+  if (days < 365) return `${Math.floor(days / 30)} شهر`;
+  const yrs = Math.floor(days / 365);
+  const rem = Math.floor((days % 365) / 30);
+  return rem > 0 ? `${yrs} سنة و${rem} شهر` : `${yrs} سنة`;
+}
 
 export default function MapPage() {
   const [selectedTree, setSelectedTree] = useState(null);
   const [showPlantForm, setShowPlantForm] = useState(false);
   const [plantData, setPlantData] = useState({ name: '', notes: '', latitude: '', longitude: '', image: null });
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState(false);
+  const [successMsg, setSuccessMsg] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState('');
@@ -46,11 +87,12 @@ export default function MapPage() {
       formData.append('longitude', plantData.longitude);
       if (plantData.image) formData.append('image', plantData.image);
       await api.post('/trees', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const prov = nearestProvince(plantData.latitude, plantData.longitude);
       setShowPlantForm(false);
       setPlantData({ name: '', notes: '', latitude: '', longitude: '', image: null });
       setRefreshKey(k => k + 1);
-      setSuccessMsg(true);
-      setTimeout(() => setSuccessMsg(false), 4000);
+      setSuccessMsg(prov);
+      setTimeout(() => setSuccessMsg(null), 5000);
     } catch (err) {
       setLocError(err.response?.data?.message || 'حدث خطأ');
     } finally {
@@ -70,31 +112,37 @@ export default function MapPage() {
       <AnimatePresence>
         {successMsg && (
           <motion.div
-            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            initial={{ opacity: 0, y: -20, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -16, scale: 0.95 }}
-            transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-            className="glass-card"
+            exit={{ opacity: 0, y: -20, scale: 0.92 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '1rem 1.25rem', borderRadius: '16px',
-              borderColor: 'rgba(135,152,106,0.35)',
+              display: 'flex', alignItems: 'center', gap: '14px',
+              padding: '1rem 1.25rem', borderRadius: '18px',
+              background: 'linear-gradient(135deg, rgba(20,50,15,0.95), rgba(30,70,20,0.95))',
+              border: '1px solid rgba(74,222,128,0.4)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(74,222,128,0.1)',
+              backdropFilter: 'blur(16px)',
             }}
           >
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
-              background: 'rgba(144,169,85,0.15)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
-              <CheckCircle2 size={20} color="#87986a" />
+            <motion.div
+              initial={{ scale: 0 }} animate={{ scale: 1 }}
+              transition={{ delay: 0.15, type: 'spring', stiffness: 300 }}
+              style={{ fontSize: '2.2rem', lineHeight: 1, flexShrink: 0 }}
+            >
+              🌳
+            </motion.div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: '800', fontSize: '1rem', color: '#4ade80', margin: '0 0 3px' }}>
+                أحسنت! زرعت شجرتك في {successMsg} 🎉
+              </p>
+              <p style={{ fontSize: '0.78rem', color: 'rgba(134,239,172,0.6)', margin: 0 }}>
+                تم إضافة شجرتك على الخارطة — استمر في المساهمة!
+              </p>
             </div>
-            <div>
-              <p style={{ fontWeight: '700', fontSize: '0.93rem', color: '#87986a', margin: 0 }}>تمت عملية الزراعة بنجاح</p>
-              <p style={{ fontSize: '0.78rem', color: paleText, margin: '2px 0 0' }}>تم إضافة شجرتك على الخارطة</p>
-            </div>
-            <button onClick={() => setSuccessMsg(false)}
-              style={{ marginRight: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: paleText }}>
-              <X size={18} />
+            <button onClick={() => setSuccessMsg(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(134,239,172,0.4)', flexShrink: 0 }}>
+              <X size={16} />
             </button>
           </motion.div>
         )}
@@ -292,12 +340,25 @@ export default function MapPage() {
                 </h4>
 
                 {/* زُرعت بواسطة */}
-                <p style={{ fontSize: '0.78rem', color: '#9ca3af', margin: '0 0 0.7rem' }}>
+                <p style={{ fontSize: '0.78rem', color: '#9ca3af', margin: '0 0 0.5rem' }}>
                   زُرعت بواسطة:{' '}
                   <span style={{ fontWeight: '700', color: '#4ade80' }}>
                     {selectedTree.userId?.displayName || 'مستخدم'}
                   </span>
                 </p>
+
+                {/* عمر الشجرة */}
+                {selectedTree.createdAt && (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '5px',
+                    background: 'rgba(144,169,85,0.1)', border: '1px solid rgba(144,169,85,0.25)',
+                    borderRadius: '99px', padding: '2px 10px', marginBottom: '0.7rem',
+                    fontSize: '0.75rem', color: '#90a955', fontWeight: '600',
+                  }}>
+                    <Clock size={11} />
+                    عمر الشجرة: {treeAge(selectedTree.createdAt)}
+                  </div>
+                )}
 
                 {/* الملاحظات */}
                 {selectedTree.notes && (

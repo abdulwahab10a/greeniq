@@ -1,6 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { TreePine, Wind } from 'lucide-react';
+
+function useCountUp(target, duration = 1400) {
+  const [count, setCount] = useState(0);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    if (target == null || target === 0) { setCount(0); return; }
+    const start = performance.now();
+    const animate = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutExpo
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(ease * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+      else setCount(target);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, duration]);
+
+  return count;
+}
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import MapComponent from '../components/MapComponent';
@@ -108,6 +131,7 @@ function AqiGauge({ aqi }) {
 
 // ── Tree Card ────────────────────────────────────────────────────────────────
 function TreeCard({ count, province, loading }) {
+  const animated = useCountUp(loading ? 0 : (count ?? 0));
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
@@ -142,7 +166,7 @@ function TreeCard({ count, province, loading }) {
         <div className="skeleton" style={{ width: '70px', height: '36px', borderRadius: '8px' }} />
       ) : (
         <div style={{ fontSize: '2.4rem', fontWeight: '900', color: '#4ade80', lineHeight: 1 }}>
-          {count ?? 0}
+          {animated}
         </div>
       )}
 
