@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage';
 import GovernoratesPage from './pages/GovernoratesPage';
 import AirQualityPage from './pages/AirQualityPage';
 import AdminDashboard from './pages/AdminDashboard';
+import HomePage from './pages/HomePage';
 
 // Components
 import Navbar from './components/Navbar';
@@ -75,7 +76,9 @@ function App() {
       <main className="flex-1 container mx-auto px-4 py-6">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Navigate to="/map" replace />} />
+            <Route path="/" element={
+              <ProtectedRoute><AnimatedPage><HomePage /></AnimatedPage></ProtectedRoute>
+            } />
             <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
             <Route path="/register" element={<AnimatedPage><Register /></AnimatedPage>} />
             <Route path="/map" element={

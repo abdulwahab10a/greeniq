@@ -72,7 +72,7 @@ async function fetchIraqBorder() {
   return cachedIraqBorder;
 }
 
-export default function MapComponent({ onTreeSelect, refreshKey = 0 }) {
+export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '600px' }) {
   const [trees, setTrees] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [iraqBorder, setIraqBorder] = useState(cachedIraqBorder);
@@ -104,7 +104,7 @@ export default function MapComponent({ onTreeSelect, refreshKey = 0 }) {
       maxZoom={18}
       maxBounds={[[28.5, 38.0], [38.0, 49.5]]}
       maxBoundsViscosity={1.0}
-      style={{ height: '600px', borderRadius: '12px', zIndex: 0 }}
+      style={{ height, borderRadius: '12px', zIndex: 0 }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -31,7 +31,7 @@ export default function Login() {
         password,
       });
       login(data);
-      navigate('/map');
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
     } finally {
