@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { TreePine, Wind } from 'lucide-react';
+import { TreePine, Wind, Sprout } from 'lucide-react';
 import { useColors } from '../context/ThemeContext';
 
 function useCountUp(target, duration = 1400) {
@@ -258,6 +259,7 @@ function AirCard({ aqi, province, loading }) {
 export default function HomePage() {
   const C = useColors();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [province, setProvince]     = useState(null);
   const [treeCount, setTreeCount]   = useState(null);
   const [aqi, setAqi]               = useState(null);
@@ -440,6 +442,28 @@ export default function HomePage() {
         </div>
 
         <MapComponent height="340px" />
+
+        {/* ── Plant CTA button ── */}
+        <motion.button
+          onClick={() => navigate('/map')}
+          whileHover={{ scale: 1.04, y: -2 }}
+          whileTap={{ scale: 0.96 }}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '10px',
+            width: '100%', marginTop: '1rem',
+            padding: '0.85rem 1.5rem',
+            background: 'linear-gradient(135deg, #4f772d, #90a955)',
+            border: 'none', borderRadius: '14px',
+            color: '#f0f9e8', fontSize: '1rem', fontWeight: '700',
+            cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(144,169,85,0.35)',
+            letterSpacing: '0.01em',
+          }}
+        >
+          <Sprout size={20} />
+          ازرع شجرة الآن
+        </motion.button>
       </motion.div>
     </div>
   );
