@@ -255,102 +255,158 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mobile dropdown menu ── */}
+      {/* ── Mobile sidebar drawer ── */}
       <AnimatePresence>
         {mobileOpen && user && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
-            className="md:hidden"
-            style={{
-              overflow: 'hidden',
-              position: 'sticky', top: '64px', zIndex: 999,
-              background: isLight ? 'rgba(235,245,222,0.98)' : 'rgba(9, 18, 6, 0.97)',
-              backdropFilter: 'blur(22px)',
-              WebkitBackdropFilter: 'blur(22px)',
-              borderBottom: isLight ? '1px solid rgba(113,131,85,0.18)' : '1px solid rgba(135,152,106,0.14)',
-              transition: 'background 0.3s',
-            }}
-          >
-            <div style={{ padding: '0.6rem 1rem 0.75rem' }}>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMobileOpen(false)}
+              className="md:hidden"
+              style={{
+                position: 'fixed', inset: 0, zIndex: 1001,
+                background: 'rgba(0,0,0,0.45)',
+                backdropFilter: 'blur(2px)',
+              }}
+            />
 
-              {navLinks.map(({ to, label, icon: Icon }) => {
-                const active = location.pathname === to;
-                return (
-                  <Link key={to} to={to} style={{ textDecoration: 'none', display: 'block' }}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: '12px',
-                      padding: '0.72rem 0.9rem', borderRadius: '12px', marginBottom: '4px',
-                      background: active ? 'rgba(135,152,106,0.14)' : 'transparent',
-                      border: active ? '1px solid rgba(135,152,106,0.3)' : '1px solid transparent',
-                      color: active
-                        ? (isLight ? '#1a3d0a' : C.frostedMint)
-                        : (isLight ? 'rgba(45,58,31,0.75)' : 'rgba(207,225,185,0.72)'),
-                      fontSize: '0.95rem', fontWeight: active ? '700' : '500',
-                    }}>
-                      <Icon size={18} color={active ? C.palmLeaf : 'rgba(135,152,106,0.55)'} />
-                      {label}
-                    </div>
-                  </Link>
-                );
-              })}
-
-              <div style={{ height: '1px', background: 'rgba(135,152,106,0.1)', margin: '0.4rem 0' }} />
-
-              {/* Profile */}
-              <Link to="/profile" style={{ textDecoration: 'none', display: 'block' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '0.72rem 0.9rem', borderRadius: '12px', marginBottom: '4px',
-                  background: location.pathname === '/profile'
-                    ? 'rgba(135,152,106,0.14)' : 'rgba(74,94,51,0.2)',
-                  border: '1px solid rgba(135,152,106,0.15)',
+            {/* Drawer panel (slides from right for RTL) */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className="md:hidden"
+              style={{
+                position: 'fixed', top: 0, right: 0, bottom: 0,
+                width: '72vw', maxWidth: '280px',
+                zIndex: 1002,
+                background: isLight ? 'rgba(235,245,222,0.99)' : 'rgba(9,18,6,0.98)',
+                backdropFilter: 'blur(28px)',
+                WebkitBackdropFilter: 'blur(28px)',
+                borderLeft: isLight ? '1px solid rgba(113,131,85,0.22)' : '1px solid rgba(135,152,106,0.18)',
+                display: 'flex', flexDirection: 'column',
+                overflowY: 'auto',
+              }}
+            >
+              {/* Drawer header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '1rem 1rem 0.75rem',
+                borderBottom: isLight ? '1px solid rgba(113,131,85,0.15)' : '1px solid rgba(135,152,106,0.12)',
+              }}>
+                <span style={{
+                  fontSize: '1rem', fontWeight: '800',
+                  background: isLight
+                    ? 'linear-gradient(135deg, #1a3d0a, #4a8c25)'
+                    : `linear-gradient(135deg, ${C.palmLeaf}, ${C.frostedMint})`,
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
                 }}>
-                  {user.profileImage ? (
-                    <img src={user.profileImage} alt={user.displayName} style={{
-                      width: '34px', height: '34px', borderRadius: '50%',
-                      objectFit: 'cover', border: '2px solid rgba(135,152,106,0.4)', flexShrink: 0,
-                    }} />
-                  ) : (
-                    <div style={{
-                      width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
-                      background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: '700', color: C.frostedMint, fontSize: '0.85rem',
-                      border: '2px solid rgba(135,152,106,0.4)',
-                    }}>
-                      {user.displayName?.[0]?.toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <p style={{ margin: 0, color: isLight ? '#1a3d0a' : C.teaGreen, fontWeight: '600', fontSize: '0.9rem' }}>
-                      {user.displayName}
-                    </p>
-                    <p style={{ margin: 0, color: isLight ? 'rgba(45,58,31,0.55)' : 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
-                      الملف الشخصي
-                    </p>
-                  </div>
-                </div>
-              </Link>
+                  🌿 GreenIQ
+                </span>
+                <motion.button
+                  onClick={() => setMobileOpen(false)}
+                  whileTap={{ scale: 0.88 }}
+                  style={{
+                    background: 'rgba(135,152,106,0.12)',
+                    border: '1px solid rgba(135,152,106,0.25)',
+                    borderRadius: '8px', padding: '6px', cursor: 'pointer',
+                    color: isLight ? '#4a5e33' : C.teaGreen,
+                    display: 'flex', alignItems: 'center',
+                  }}
+                >
+                  <X size={18} />
+                </motion.button>
+              </div>
 
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '0.72rem 0.9rem', borderRadius: '12px',
-                  background: 'rgba(200,60,60,0.08)',
-                  border: '1px solid rgba(200,60,60,0.2)',
-                  color: '#f87171', fontSize: '0.9rem', fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                <LogOut size={18} /> خروج من الحساب
-              </button>
-            </div>
-          </motion.div>
+              {/* Nav links */}
+              <div style={{ padding: '0.75rem 0.75rem 0', flex: 1 }}>
+                {navLinks.map(({ to, label, icon: Icon }) => {
+                  const active = location.pathname === to;
+                  return (
+                    <Link key={to} to={to} style={{ textDecoration: 'none', display: 'block' }}>
+                      <motion.div
+                        whileHover={{ x: -3 }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '12px',
+                          padding: '0.78rem 0.9rem', borderRadius: '12px', marginBottom: '4px',
+                          background: active ? 'rgba(135,152,106,0.16)' : 'transparent',
+                          border: active ? '1px solid rgba(135,152,106,0.32)' : '1px solid transparent',
+                          color: active
+                            ? (isLight ? '#1a3d0a' : C.frostedMint)
+                            : (isLight ? 'rgba(45,58,31,0.75)' : 'rgba(207,225,185,0.72)'),
+                          fontSize: '0.95rem', fontWeight: active ? '700' : '500',
+                          transition: 'background 0.2s, border-color 0.2s',
+                        }}
+                      >
+                        <Icon size={18} color={active ? C.palmLeaf : 'rgba(135,152,106,0.55)'} />
+                        {label}
+                      </motion.div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Bottom: Profile + Logout */}
+              <div style={{ padding: '0.75rem' }}>
+                <div style={{ height: '1px', background: 'rgba(135,152,106,0.12)', marginBottom: '0.6rem' }} />
+
+                <Link to="/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '0.72rem 0.9rem', borderRadius: '12px',
+                    background: location.pathname === '/profile'
+                      ? 'rgba(135,152,106,0.16)' : 'rgba(74,94,51,0.15)',
+                    border: '1px solid rgba(135,152,106,0.18)',
+                  }}>
+                    {user.profileImage ? (
+                      <img src={user.profileImage} alt={user.displayName} style={{
+                        width: '34px', height: '34px', borderRadius: '50%',
+                        objectFit: 'cover', border: '2px solid rgba(135,152,106,0.4)', flexShrink: 0,
+                      }} />
+                    ) : (
+                      <div style={{
+                        width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
+                        background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: '700', color: C.frostedMint, fontSize: '0.85rem',
+                        border: '2px solid rgba(135,152,106,0.4)',
+                      }}>
+                        {user.displayName?.[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p style={{ margin: 0, color: isLight ? '#1a3d0a' : C.teaGreen, fontWeight: '600', fontSize: '0.9rem' }}>
+                        {user.displayName}
+                      </p>
+                      <p style={{ margin: 0, color: isLight ? 'rgba(45,58,31,0.55)' : 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
+                        الملف الشخصي
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '0.72rem 0.9rem', borderRadius: '12px',
+                    background: 'rgba(200,60,60,0.08)',
+                    border: '1px solid rgba(200,60,60,0.2)',
+                    color: '#f87171', fontSize: '0.9rem', fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <LogOut size={18} /> خروج من الحساب
+                </button>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
