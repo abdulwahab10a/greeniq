@@ -1,8 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind } from 'lucide-react';
+import { LogOut, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon } from 'lucide-react';
 
 /* ── Color tokens ── */
 const C = {
@@ -13,8 +14,42 @@ const C = {
   hunter:      '#4a5e33',
 };
 
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const isLight = theme === 'light';
+  return (
+    <motion.button
+      onClick={toggle}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      title={isLight ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح'}
+      style={{
+        background: isLight ? 'rgba(113,131,85,0.15)' : 'rgba(233,245,219,0.08)',
+        border: isLight ? '1px solid rgba(113,131,85,0.3)' : '1px solid rgba(233,245,219,0.15)',
+        borderRadius: '10px', padding: '7px', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: isLight ? '#4a5e33' : '#cfe1b9',
+        transition: 'all 0.25s',
+        flexShrink: 0,
+      }}
+    >
+      <motion.div
+        key={theme}
+        initial={{ rotate: -30, opacity: 0 }}
+        animate={{ rotate: 0,   opacity: 1 }}
+        exit={{ rotate: 30, opacity: 0 }}
+        transition={{ duration: 0.25 }}
+      >
+        {isLight ? <Moon size={16} /> : <Sun size={16} />}
+      </motion.div>
+    </motion.button>
+  );
+}
+
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,10 +71,11 @@ export default function Navbar() {
   return (
     <>
       <nav style={{
-        background: 'rgba(10, 18, 7, 0.92)',
+        background: isLight ? 'rgba(235,245,222,0.95)' : 'rgba(10, 18, 7, 0.92)',
         backdropFilter: 'blur(22px)',
         WebkitBackdropFilter: 'blur(22px)',
-        borderBottom: '1px solid rgba(135,152,106,0.18)',
+        borderBottom: isLight ? '1px solid rgba(113,131,85,0.22)' : '1px solid rgba(135,152,106,0.18)',
+        transition: 'background 0.3s, border-color 0.3s',
         padding: '0 1.25rem',
         position: 'sticky',
         top: 0,
@@ -69,6 +105,7 @@ export default function Navbar() {
           {/* ── Desktop nav (logged in) ── hidden below md */}
           {user && (
             <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.4rem' }}>
+              <ThemeToggle />
               {navLinks.map(({ to, label, icon: Icon }) => {
                 const active = location.pathname === to;
                 return (
@@ -147,7 +184,8 @@ export default function Navbar() {
           {/* ── Desktop auth (not logged in) ── */}
           {!user && (
             <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.75rem' }}>
-              <Link to="/login" style={{ textDecoration: 'none', color: 'rgba(207,225,185,0.65)', fontSize: '0.92rem' }}>
+              <ThemeToggle />
+              <Link to="/login" style={{ textDecoration: 'none', color: isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)', fontSize: '0.92rem' }}>
                 دخول
               </Link>
               <Link to="/register" style={{ textDecoration: 'none' }}>
@@ -190,8 +228,10 @@ export default function Navbar() {
 
           {/* ── Mobile hamburger (logged in) ── */}
           {user && (
+            <div className="flex md:hidden" style={{ alignItems: 'center', gap: '8px' }}>
+            <ThemeToggle />
             <motion.button
-              className="flex md:hidden"
+              className="flex"
               onClick={() => setMobileOpen(o => !o)}
               whileTap={{ scale: 0.9 }}
               style={{
@@ -205,6 +245,7 @@ export default function Navbar() {
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </motion.button>
+            </div>
           )}
         </div>
       </nav>
@@ -221,10 +262,11 @@ export default function Navbar() {
             style={{
               overflow: 'hidden',
               position: 'sticky', top: '64px', zIndex: 999,
-              background: 'rgba(9, 18, 6, 0.97)',
+              background: isLight ? 'rgba(235,245,222,0.98)' : 'rgba(9, 18, 6, 0.97)',
               backdropFilter: 'blur(22px)',
               WebkitBackdropFilter: 'blur(22px)',
-              borderBottom: '1px solid rgba(135,152,106,0.14)',
+              borderBottom: isLight ? '1px solid rgba(113,131,85,0.18)' : '1px solid rgba(135,152,106,0.14)',
+              transition: 'background 0.3s',
             }}
           >
             <div style={{ padding: '0.6rem 1rem 0.75rem' }}>
