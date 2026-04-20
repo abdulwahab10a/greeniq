@@ -93,7 +93,9 @@ export default function Navbar() {
               <span className="float-icon" style={{ fontSize: '1.55rem' }}>🌿</span>
               <span style={{
                 fontSize: '1.2rem', fontWeight: '800',
-                background: `linear-gradient(135deg, ${C.palmLeaf}, ${C.frostedMint})`,
+                background: isLight
+                  ? 'linear-gradient(135deg, #1a3d0a, #4a8c25)'
+                  : `linear-gradient(135deg, ${C.palmLeaf}, ${C.frostedMint})`,
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text', letterSpacing: '-0.01em',
               }}>
@@ -117,7 +119,9 @@ export default function Navbar() {
                         padding: '6px 14px', borderRadius: '10px',
                         background: active ? 'rgba(135,152,106,0.18)' : 'transparent',
                         border: active ? '1px solid rgba(135,152,106,0.38)' : '1px solid transparent',
-                        color: active ? C.frostedMint : 'rgba(207,225,185,0.65)',
+                        color: active
+                          ? (isLight ? '#1a3d0a' : C.frostedMint)
+                          : (isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)'),
                         fontSize: '0.88rem', fontWeight: active ? '700' : '400',
                         transition: 'all 0.2s', cursor: 'pointer',
                       }}
@@ -158,7 +162,7 @@ export default function Navbar() {
                       {user.displayName?.[0]?.toUpperCase()}
                     </div>
                   )}
-                  <span style={{ color: C.teaGreen, fontWeight: '600', fontSize: '0.88rem' }}>
+                  <span style={{ color: isLight ? '#2d3a1f' : C.teaGreen, fontWeight: '600', fontSize: '0.88rem' }}>
                     {user.displayName}
                   </span>
                 </motion.div>
@@ -280,7 +284,9 @@ export default function Navbar() {
                       padding: '0.72rem 0.9rem', borderRadius: '12px', marginBottom: '4px',
                       background: active ? 'rgba(135,152,106,0.14)' : 'transparent',
                       border: active ? '1px solid rgba(135,152,106,0.3)' : '1px solid transparent',
-                      color: active ? C.frostedMint : 'rgba(207,225,185,0.72)',
+                      color: active
+                        ? (isLight ? '#1a3d0a' : C.frostedMint)
+                        : (isLight ? 'rgba(45,58,31,0.75)' : 'rgba(207,225,185,0.72)'),
                       fontSize: '0.95rem', fontWeight: active ? '700' : '500',
                     }}>
                       <Icon size={18} color={active ? C.palmLeaf : 'rgba(135,152,106,0.55)'} />
@@ -318,10 +324,10 @@ export default function Navbar() {
                     </div>
                   )}
                   <div>
-                    <p style={{ margin: 0, color: C.teaGreen, fontWeight: '600', fontSize: '0.9rem' }}>
+                    <p style={{ margin: 0, color: isLight ? '#1a3d0a' : C.teaGreen, fontWeight: '600', fontSize: '0.9rem' }}>
                       {user.displayName}
                     </p>
-                    <p style={{ margin: 0, color: 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
+                    <p style={{ margin: 0, color: isLight ? 'rgba(45,58,31,0.55)' : 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
                       الملف الشخصي
                     </p>
                   </div>

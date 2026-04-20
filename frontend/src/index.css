@@ -255,7 +255,10 @@
 }
 .float-icon { animation: float 3s ease-in-out infinite; }
 
-/* ── Light mode overrides ───────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   LIGHT MODE OVERRIDES
+   ══════════════════════════════════════════════════════════ */
+
 [data-theme="light"] .glass {
   background: rgba(255,255,255,0.6);
   border-color: rgba(113,131,85,0.2);
@@ -273,6 +276,94 @@
 [data-theme="light"] footer {
   border-top-color: var(--footer-border) !important;
 }
+
+/* ── Headings: replace light gradient with dark green gradient ── */
+[data-theme="light"] h1,
+[data-theme="light"] h2 {
+  background: linear-gradient(135deg, #1a3d0a 0%, #3d7010 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #1a3d0a !important;
+}
+
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5 {
+  color: #1a3d0a !important;
+  -webkit-text-fill-color: #1a3d0a !important;
+  background: none !important;
+}
+
+/* ── Paragraph & label text ── */
+[data-theme="light"] p {
+  color: #2d3a1f !important;
+}
+
+[data-theme="light"] label {
+  color: #3d5028 !important;
+}
+
+/* ── Glass card inner text ── */
+[data-theme="light"] .glass-card h2,
+[data-theme="light"] .glass-card h3,
+[data-theme="light"] .glass-card h4 {
+  color: #1a3d0a !important;
+  -webkit-text-fill-color: #1a3d0a !important;
+  background: none !important;
+}
+
+/* ── Common light color overrides on spans (muted labels, tags) ── */
+[data-theme="light"] span[style*="rgba(207,225,185"],
+[data-theme="light"] span[style*="rgba(255,255,255"],
+[data-theme="light"] div[style*="color: rgba(207,225,185"],
+[data-theme="light"] div[style*="color: rgba(255,255,255"],
+[data-theme="light"] p[style*="rgba(207,225,185"],
+[data-theme="light"] p[style*="rgba(255,255,255"] {
+  color: #3d5028 !important;
+}
+
+/* ── White/light text in cards & modals ── */
+[data-theme="light"] span[style*="color: #e9f5db"],
+[data-theme="light"] span[style*="color: #cfe1b9"],
+[data-theme="light"] span[style*="color: #dde8c4"],
+[data-theme="light"] span[style*="color: #f9fafb"],
+[data-theme="light"] div[style*="color: #e9f5db"],
+[data-theme="light"] div[style*="color: #cfe1b9"],
+[data-theme="light"] div[style*="color: #dde8c4"],
+[data-theme="light"] div[style*="color: #f9fafb"],
+[data-theme="light"] p[style*="color: #e9f5db"],
+[data-theme="light"] p[style*="color: #cfe1b9"],
+[data-theme="light"] p[style*="color: #f9fafb"] {
+  color: #2d3a1f !important;
+}
+
+/* ── Modal / overlay content ── */
+[data-theme="light"] [style*="background: #111827"] p,
+[data-theme="light"] [style*="background: #111827"] h2,
+[data-theme="light"] [style*="background: #111827"] h3,
+[data-theme="light"] [style*="background: #111827"] h4,
+[data-theme="light"] [style*="background: #111827"] span {
+  color: #f9fafb !important;
+  -webkit-text-fill-color: #f9fafb !important;
+}
+[data-theme="light"] [style*="background: #111827"] {
+  background: #1f2937 !important;
+}
+
+/* ── Footer text ── */
+[data-theme="light"] footer p {
+  color: #3d5028 !important;
+}
+
+/* ── Input text ── */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  color: #2d3a1f !important;
+}
+
+/* ── Scrollbar ── */
 [data-theme="light"] ::-webkit-scrollbar-track {
   background: var(--scroll-track);
 }
