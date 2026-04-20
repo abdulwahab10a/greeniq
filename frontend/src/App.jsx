@@ -119,7 +119,9 @@ function App() {
             تواصل معنا ✉️ greeniq964@gmail.com
           </span>
           <a
-            href="mailto:greeniq964@gmail.com?subject=GreenIQ%20%E2%80%94%20%D9%85%D9%84%D8%A7%D8%AD%D8%B8%D8%A9%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AE%D8%AF%D9%85"
+            href="https://mail.google.com/mail/?view=cm&to=greeniq964@gmail.com&su=GreenIQ%20%E2%80%94%20%D9%85%D9%84%D8%A7%D8%AD%D8%B8%D8%A9%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AE%D8%AF%D9%85"
+            target="_blank"
+            rel="noreferrer"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '5px',
               background: 'rgba(144,169,85,0.1)', border: '1px solid rgba(144,169,85,0.28)',
