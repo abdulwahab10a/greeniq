@@ -111,9 +111,34 @@ function App() {
         <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginBottom: '0.25rem', fontWeight: 500 }}>
           Developed &amp; Engineered by Abdulwahab H.Murad
         </p>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', marginBottom: '0.6rem' }}>
           جميع الحقوق محفوظة &copy; GreenIQ 2026
         </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.78rem' }}>
+            تواصل معنا ✉️ greeniq964@gmail.com
+          </span>
+          <a
+            href="mailto:greeniq964@gmail.com?subject=GreenIQ%20%E2%80%94%20%D9%85%D9%84%D8%A7%D8%AD%D8%B8%D8%A9%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AE%D8%AF%D9%85"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              background: 'rgba(144,169,85,0.1)', border: '1px solid rgba(144,169,85,0.28)',
+              color: '#90a955', borderRadius: '99px', padding: '3px 13px',
+              fontSize: '0.78rem', fontWeight: '600', textDecoration: 'none',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(144,169,85,0.2)';
+              e.currentTarget.style.borderColor = 'rgba(144,169,85,0.5)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(144,169,85,0.1)';
+              e.currentTarget.style.borderColor = 'rgba(144,169,85,0.28)';
+            }}
+          >
+            ✉️ أرسل ملاحظة
+          </a>
+        </div>
       </footer>
     </div>
   );
