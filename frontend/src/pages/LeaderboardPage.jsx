@@ -70,12 +70,13 @@ export default function LeaderboardPage() {
       >
         <h1 style={{
           fontSize: '1.9rem', fontWeight: '800', margin: '0 0 0.4rem',
-          background: C.headingGrad,
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
         }}>
-          <Trophy size={26} color="#90a955" style={{ WebkitTextFillColor: 'unset' }} />
-          أفضل الزارعين
+          <Trophy size={26} color="#90a955" />
+          <span key={String(C.L)} style={{
+            background: C.headingGrad, WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
+          }}>أفضل الزارعين</span>
         </h1>
         <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: 0 }}>
           أفضل 100 مستخدم حسب عدد الأشجار المزروعة

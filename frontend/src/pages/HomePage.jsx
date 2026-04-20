@@ -318,6 +318,7 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <div style={{ textAlign: 'center', padding: '2rem 1rem 1.75rem' }}>
         <motion.h1
+          key={String(C.L)}
           initial={{ opacity: 0, y: -24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease: [0.23, 1, 0.32, 1] }}
@@ -331,6 +332,7 @@ export default function HomePage() {
             backgroundClip: 'text',
             lineHeight: 1.1,
             marginBottom: '1rem',
+            display: 'inline-block',
           }}
         >
           GreenIQ

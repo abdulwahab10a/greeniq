@@ -70,10 +70,11 @@ export default function Login() {
           <motion.div className="float-icon" style={{ fontSize: '3rem', display: 'inline-block', marginBottom: '0.85rem' }}>
             🌿
           </motion.div>
-          <h1 style={{
+          <h1 key={String(C.L)} style={{
             fontSize: '1.7rem', fontWeight: '800', margin: '0 0 0.4rem',
             background: C.headingGrad,
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            display: 'inline-block',
           }}>
             تسجيل الدخول
           </h1>

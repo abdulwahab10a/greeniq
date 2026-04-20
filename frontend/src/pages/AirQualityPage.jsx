@@ -177,12 +177,13 @@ export default function AirQualityPage() {
       >
         <h1 style={{
           fontSize: '1.9rem', fontWeight: '800', margin: '0 0 0.4rem',
-          background: C.headingGrad,
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
         }}>
-          <Wind size={26} color="#90a955" style={{ WebkitTextFillColor: 'unset' }} />
-          جودة الهواء في العراق
+          <Wind size={26} color="#90a955" />
+          <span key={String(C.L)} style={{
+            background: C.headingGrad, WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
+          }}>جودة الهواء في العراق</span>
         </h1>
         <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: '0 0 1rem' }}>
           قراءات حية للمحافظات الـ 18 · مصدر: Open-Meteo Air Quality API

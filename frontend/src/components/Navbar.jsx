@@ -91,13 +91,14 @@ export default function Navbar() {
           <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <motion.div whileHover={{ scale: 1.04 }} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span className="float-icon" style={{ fontSize: '1.55rem' }}>🌿</span>
-              <span style={{
+              <span key={theme} style={{
                 fontSize: '1.2rem', fontWeight: '800',
                 background: isLight
                   ? 'linear-gradient(135deg, #1a3d0a, #4a8c25)'
                   : `linear-gradient(135deg, ${C.palmLeaf}, ${C.frostedMint})`,
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text', letterSpacing: '-0.01em',
+                display: 'inline-block',
               }}>
                 GreenIQ
               </span>

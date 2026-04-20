@@ -155,12 +155,13 @@ export default function MapPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 style={{
           fontSize: '1.5rem', fontWeight: '800', margin: 0,
-          background: C.headingGrad,
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', gap: '8px',
         }}>
-          <MapPin size={22} color="#87986a" style={{ WebkitTextFillColor: 'unset' }} />
-          خريطة الأشجار
+          <MapPin size={22} color="#87986a" />
+          <span key={String(C.L)} style={{
+            background: C.headingGrad, WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
+          }}>خريطة الأشجار</span>
         </h1>
         <motion.button
           onClick={() => { setShowPlantForm(!showPlantForm); setLocError(''); }}
