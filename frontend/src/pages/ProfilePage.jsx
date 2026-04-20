@@ -1,5 +1,6 @@
 import { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useColors } from '../context/ThemeContext';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -44,8 +45,9 @@ const T = {
 
 /* ── Small helpers ──────────────────────────────────────── */
 function FieldLabel({ children }) {
+  const C = useColors();
   return (
-    <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: '600', color: T.muted, fontSize: '0.8rem' }}>
+    <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: '600', color: C.textMuted, fontSize: '0.8rem' }}>
       {children}
     </label>
   );
@@ -103,6 +105,7 @@ function SubmitBtn({ loading, children }) {
 }
 
 function ModalShell({ children, onClose, title, titleIcon, wide }) {
+  const C = useColors();
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -131,14 +134,14 @@ function ModalShell({ children, onClose, title, titleIcon, wide }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h2 style={{
             fontSize: '1.08rem', fontWeight: '700', margin: 0,
-            color: T.text, display: 'flex', alignItems: 'center', gap: '8px',
+            color: C.text, display: 'flex', alignItems: 'center', gap: '8px',
           }}>
             {titleIcon} {title}
           </h2>
           <button onClick={onClose} style={{
             background: T.huntBg, border: `1px solid ${T.huntBd}`,
             borderRadius: '8px', cursor: 'pointer', padding: '5px',
-            color: T.muted, display: 'flex', alignItems: 'center',
+            color: C.textMuted, display: 'flex', alignItems: 'center',
           }}>
             <X size={15} />
           </button>
@@ -151,6 +154,7 @@ function ModalShell({ children, onClose, title, titleIcon, wide }) {
 
 /* ── QR Scanner Modal ───────────────────────────────────── */
 function QRScannerModal({ onClose, onResult }) {
+  const C = useColors();
   const scannerId = 'qr-scanner-container';
 
   useEffect(() => {
@@ -191,18 +195,18 @@ function QRScannerModal({ onClose, onResult }) {
         onClick={e => e.stopPropagation()}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: T.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <QrCode size={16} color={T.palm} /> امسح رمز QR
           </h2>
           <button onClick={onClose} style={{
             background: T.huntBg, border: `1px solid ${T.huntBd}`,
             borderRadius: '8px', cursor: 'pointer', padding: '5px',
-            color: T.muted, display: 'flex', alignItems: 'center',
+            color: C.textMuted, display: 'flex', alignItems: 'center',
           }}>
             <X size={15} />
           </button>
         </div>
-        <p style={{ color: T.muted, fontSize: '0.82rem', marginBottom: '1rem', textAlign: 'center' }}>
+        <p style={{ color: C.textMuted, fontSize: '0.82rem', marginBottom: '1rem', textAlign: 'center' }}>
           وجّه الكاميرا نحو رمز QR الخاص بحسابك
         </p>
         <div
@@ -274,6 +278,7 @@ function ChangePasswordModal({ onClose }) {
 
 /* ── Edit Profile Modal ─────────────────────────────────── */
 function EditProfileModal({ user, onClose, onSaved }) {
+  const C = useColors();
   const fileInputRef = useRef(null);
   const [qrTarget, setQrTarget] = useState(null); // which field is being scanned
   const [form, setForm] = useState({
@@ -392,7 +397,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
           borderRadius: '14px', padding: '1rem', marginBottom: '1.25rem',
         }}>
           <p style={{
-            color: T.subtle, fontSize: '0.72rem', fontWeight: '700',
+            color: C.textFaint, fontSize: '0.72rem', fontWeight: '700',
             margin: '0 0 0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em',
           }}>
             روابط التواصل الاجتماعي
@@ -474,12 +479,13 @@ const BADGES = [
 ];
 
 function BadgesSection({ treesCount, isProvChamp }) {
+  const C = useColors();
   const earned = BADGES.filter(b => b.check(treesCount, isProvChamp));
   const locked = BADGES.filter(b => !b.check(treesCount, isProvChamp));
 
   return (
     <div style={{ marginBottom: '1.25rem' }}>
-      <p style={{ color: T.subtle, fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+      <p style={{ color: C.textFaint, fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
         الشارات
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -495,7 +501,7 @@ function BadgesSection({ treesCount, isProvChamp }) {
               background: 'linear-gradient(135deg, rgba(74,94,51,0.5), rgba(113,131,85,0.3))',
               border: '1px solid rgba(144,169,85,0.4)',
               borderRadius: '99px', padding: '5px 12px',
-              fontSize: '0.78rem', fontWeight: '700', color: T.text,
+              fontSize: '0.78rem', fontWeight: '700', color: C.text,
               boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             }}
           >
@@ -511,7 +517,7 @@ function BadgesSection({ treesCount, isProvChamp }) {
               display: 'flex', alignItems: 'center', gap: '6px',
               background: 'rgba(30,46,20,0.3)', border: '1px solid rgba(135,152,106,0.1)',
               borderRadius: '99px', padding: '5px 12px',
-              fontSize: '0.78rem', fontWeight: '600', color: 'rgba(207,225,185,0.2)',
+              fontSize: '0.78rem', fontWeight: '600', color: C.textFaint,
               filter: 'grayscale(1)',
             }}
           >
@@ -526,6 +532,7 @@ function BadgesSection({ treesCount, isProvChamp }) {
 
 /* ── Main ProfilePage ───────────────────────────────────── */
 export default function ProfilePage() {
+  const C = useColors();
   const { user, updateUser } = useContext(AuthContext);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -699,16 +706,16 @@ export default function ProfilePage() {
                 style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   padding: '0.78rem 1rem',
-                  background: 'rgba(30,46,20,0.4)', border: `1px solid rgba(135,152,106,0.1)`,
+                  background: C.rowBg, border: `1px solid ${C.rowBorder}`,
                   borderRadius: '12px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: T.muted, fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: C.textMuted, fontSize: '0.85rem' }}>
                   <Icon size={14} color={T.palm} /> {label}
                 </div>
                 <span style={{
                   fontWeight: '700',
-                  color: accent ? T.palm : T.text,
+                  color: accent ? T.palm : C.text,
                   fontSize: accent ? '1.05rem' : '0.9rem',
                   display: 'flex', alignItems: 'center', gap: '5px',
                   ...(dir ? { direction: dir } : {}),
@@ -738,8 +745,8 @@ export default function ProfilePage() {
               whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
               style={{
                 width: '100%', padding: '0.78rem',
-                background: 'rgba(30,46,20,0.5)', color: T.muted,
-                border: `1px solid rgba(135,152,106,0.15)`,
+                background: C.rowBg, color: C.textMuted,
+                border: `1px solid ${C.rowBorder}`,
                 borderRadius: '12px', fontSize: '0.88rem', fontWeight: '600',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
                 transition: 'all 0.2s',

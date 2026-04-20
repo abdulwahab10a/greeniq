@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, TreePine, Leaf, Wind } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
+import { useColors } from '../context/ThemeContext';
 
 const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
@@ -25,6 +26,7 @@ function LoadingSkeleton() {
 }
 
 export default function LeaderboardPage() {
+  const C = useColors();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,20 +70,20 @@ export default function LeaderboardPage() {
       >
         <h1 style={{
           fontSize: '1.9rem', fontWeight: '800', margin: '0 0 0.4rem',
-          background: 'linear-gradient(135deg, #87986a, #e9f5db)',
+          background: C.headingGrad,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
         }}>
           <Trophy size={26} color="#90a955" style={{ WebkitTextFillColor: 'unset' }} />
           أفضل الزارعين
         </h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(207,225,185,0.4)', margin: 0 }}>
+        <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: 0 }}>
           أفضل 100 مستخدم حسب عدد الأشجار المزروعة
         </p>
       </motion.div>
 
       {leaders.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'rgba(221,232,196,0.3)' }}>
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: C.textFaint }}>
           لا يوجد زارعون بعد، كن الأول! 🌱
         </div>
       )}
@@ -101,7 +103,8 @@ export default function LeaderboardPage() {
               whileHover={{ x: 4, transition: { duration: 0.15 } }}
               onClick={() => setSelectedUserId(user._id)}
               style={{
-                background: s.bg, border: `1px solid ${s.border}`,
+                background: C.L ? 'rgba(235,245,222,0.75)' : s.bg,
+                border: `1px solid ${C.L ? 'rgba(113,131,85,0.25)' : s.border}`,
                 borderRadius: '16px', padding: '0.85rem 1.1rem',
                 display: 'flex', alignItems: 'center', gap: '14px',
                 backdropFilter: 'blur(12px)',
@@ -145,7 +148,7 @@ export default function LeaderboardPage() {
 
               {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontWeight: '700', color: '#cfe1b9', margin: '0 0 5px', fontSize: '0.93rem' }}>
+                <p style={{ fontWeight: '700', color: C.text, margin: '0 0 5px', fontSize: '0.93rem' }}>
                   {user.displayName}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>

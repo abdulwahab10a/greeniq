@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, TreePine, Leaf, Wind, X, Users, ChevronLeft } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
+import { useColors } from '../context/ThemeContext';
 
 const RANK_STYLES = [
   { bg: 'rgba(233,245,219,0.07)', border: 'rgba(233,245,219,0.22)', accent: '#e9f5db', medal: '🥇' },
@@ -24,6 +25,7 @@ function LoadingSkeleton() {
 }
 
 function GovContributorsModal({ gov, onClose }) {
+  const C = useColors();
   const [contributors, setContributors] = useState([]);
   const [loading, setLoading]           = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -51,7 +53,7 @@ function GovContributorsModal({ gov, onClose }) {
           exit={{ opacity: 0, y: 28, scale: 0.95 }}
           transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
           style={{
-            background: '#111827', border: '1px solid rgba(75,85,99,0.55)',
+            background: C.modalBg, border: `1px solid ${C.modalBorder}`,
             boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
             borderRadius: '24px', width: '100%', maxWidth: '400px',
             overflow: 'hidden',
@@ -60,8 +62,8 @@ function GovContributorsModal({ gov, onClose }) {
         >
           {/* Header */}
           <div style={{
-            background: 'linear-gradient(135deg, #0f1f0a 0%, #1a3010 50%, #243d16 100%)',
-            borderBottom: '1px solid rgba(75,85,99,0.4)',
+            background: C.modalHeader,
+            borderBottom: `1px solid ${C.modalBorder}`,
             padding: '1.5rem 1.75rem', position: 'relative',
           }}>
             <button onClick={onClose} style={{
@@ -82,10 +84,10 @@ function GovContributorsModal({ gov, onClose }) {
                 <Building2 size={20} color="#4ade80" />
               </div>
               <div>
-                <h2 style={{ color: '#f9fafb', fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px' }}>
+                <h2 style={{ color: C.modalText, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px' }}>
                   {gov.name}
                 </h2>
-                <p style={{ color: '#6b7280', fontSize: '0.78rem', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <p style={{ color: C.modalMuted, fontSize: '0.78rem', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <Users size={11} /> أفضل 3 مساهمين في تحسين جو المحافظة
                 </p>
               </div>
@@ -134,7 +136,7 @@ function GovContributorsModal({ gov, onClose }) {
                     onClick={() => setSelectedUserId(user._id)}
                     style={{
                       width: '100%', textAlign: 'right',
-                      background: '#1f2937', border: '1px solid rgba(75,85,99,0.4)',
+                      background: C.rowBg, border: `1px solid ${C.rowBorder}`,
                       borderRadius: '14px', padding: '0.85rem 1rem',
                       display: 'flex', alignItems: 'center', gap: '12px',
                       cursor: 'pointer', transition: 'all 0.2s',
@@ -161,7 +163,7 @@ function GovContributorsModal({ gov, onClose }) {
 
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ color: '#f9fafb', fontWeight: '700', fontSize: '0.9rem', margin: '0 0 3px' }}>
+                      <p style={{ color: C.modalText, fontWeight: '700', fontSize: '0.9rem', margin: '0 0 3px' }}>
                         {user.displayName}
                       </p>
                       <span style={{
@@ -178,7 +180,7 @@ function GovContributorsModal({ gov, onClose }) {
               </div>
             )}
 
-            <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#374151', marginTop: '1rem', marginBottom: 0 }}>
+            <p style={{ textAlign: 'center', fontSize: '0.72rem', color: C.textFaint, marginTop: '1rem', marginBottom: 0 }}>
               اضغط على اسم أي شخص لعرض ملفه الشخصي
             </p>
           </div>
@@ -195,6 +197,7 @@ function GovContributorsModal({ gov, onClose }) {
 }
 
 export default function GovernoratesPage() {
+  const C = useColors();
   const [data, setData]       = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
@@ -238,20 +241,20 @@ export default function GovernoratesPage() {
       >
         <h1 style={{
           fontSize: '1.9rem', fontWeight: '800', margin: '0 0 0.4rem',
-          background: 'linear-gradient(135deg, #87986a, #e9f5db)',
+          background: C.headingGrad,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
         }}>
           <Building2 size={26} color="#90a955" style={{ WebkitTextFillColor: 'unset' }} />
           أفضل المحافظات
         </h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(207,225,185,0.4)', margin: 0 }}>
+        <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: 0 }}>
           اضغط على أي محافظة لعرض أفضل المساهمين فيها
         </p>
       </motion.div>
 
       {data.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'rgba(221,232,196,0.3)' }}>
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: C.textFaint }}>
           لا توجد بيانات بعد — كن أول من يزرع! 🌱
         </div>
       )}
@@ -271,7 +274,8 @@ export default function GovernoratesPage() {
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedGov(gov)}
               style={{
-                background: s.bg, border: `1px solid ${s.border}`,
+                background: C.L ? 'rgba(235,245,222,0.8)' : s.bg,
+                border: `1px solid ${C.L ? 'rgba(113,131,85,0.28)' : s.border}`,
                 borderRadius: '16px', padding: '1rem 1.25rem',
                 display: 'flex', alignItems: 'center', gap: '14px',
                 backdropFilter: 'blur(12px)', cursor: 'pointer',
@@ -298,7 +302,7 @@ export default function GovernoratesPage() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '7px' }}>
                   <Building2 size={15} color={s.accent} />
-                  <h2 style={{ fontWeight: '700', color: '#cfe1b9', fontSize: '0.97rem', margin: 0 }}>
+                  <h2 style={{ fontWeight: '700', color: C.heading, fontSize: '0.97rem', margin: 0 }}>
                     {gov.name}
                   </h2>
                 </div>

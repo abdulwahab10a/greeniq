@@ -1,12 +1,14 @@
 import { useState, useContext, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useColors } from '../context/ThemeContext';
 import api from '../api/axios';
 import { motion } from 'framer-motion';
 import { User, Lock, AtSign, Link2, Camera, AlertCircle, Loader2, X } from 'lucide-react';
 
 export default function Register() {
   const { login } = useContext(AuthContext);
+  const C = useColors();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -112,12 +114,12 @@ export default function Register() {
           </motion.div>
           <h1 style={{
             fontSize: '1.65rem', fontWeight: '800', margin: '0 0 0.4rem',
-            background: 'linear-gradient(135deg, #87986a, #e9f5db)',
+            background: C.headingGrad,
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
             إنشاء حساب جديد
           </h1>
-          <p style={{ color: 'rgba(207,225,185,0.45)', fontSize: '0.88rem', margin: 0 }}>
+          <p style={{ color: C.textSubtle, fontSize: '0.88rem', margin: 0 }}>
             انضم إلى مجتمع GreenIQ
           </p>
         </div>
@@ -170,7 +172,7 @@ export default function Register() {
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '0.78rem', color: 'rgba(207,225,185,0.4)' }}>
+              <span style={{ fontSize: '0.78rem', color: C.textSubtle }}>
                 {imagePreview ? 'تم اختيار الصورة' : 'صورة الملف الشخصي (اختياري)'}
               </span>
               {imagePreview && (
@@ -194,7 +196,7 @@ export default function Register() {
             >
               <label style={{
                 display: 'block', marginBottom: '0.45rem',
-                fontWeight: '600', color: 'rgba(207,225,185,0.65)', fontSize: '0.85rem',
+                fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
               }}>
                 {label}
               </label>
@@ -211,7 +213,7 @@ export default function Register() {
                   }}
                 />
               </div>
-              {hint && <p style={{ fontSize: '0.73rem', color: 'rgba(207,225,185,0.3)', marginTop: '0.3rem' }}>{hint}</p>}
+              {hint && <p style={{ fontSize: '0.73rem', color: C.textFaint, marginTop: '0.3rem' }}>{hint}</p>}
             </motion.div>
           ))}
 
@@ -223,10 +225,10 @@ export default function Register() {
           >
             <label style={{
               display: 'block', marginBottom: '0.45rem',
-              fontWeight: '600', color: 'rgba(207,225,185,0.65)', fontSize: '0.85rem',
+              fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
             }}>
               رابط التواصل الاجتماعي{' '}
-              <span style={{ color: 'rgba(207,225,185,0.3)', fontWeight: '400' }}>(اختياري)</span>
+              <span style={{ color: C.textFaint, fontWeight: '400' }}>(اختياري)</span>
             </label>
             <div style={{ position: 'relative' }}>
               <div style={inputIconStyle}><Link2 size={16} /></div>
@@ -241,7 +243,7 @@ export default function Register() {
                 }}
               />
             </div>
-            <p style={{ fontSize: '0.72rem', color: 'rgba(207,225,185,0.28)', marginTop: '0.3rem' }}>
+            <p style={{ fontSize: '0.72rem', color: C.textFaint, marginTop: '0.3rem' }}>
               Instagram · Facebook · Snapchat · Telegram · X
             </p>
           </motion.div>
@@ -267,7 +269,7 @@ export default function Register() {
           </motion.button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.25rem', color: 'rgba(207,225,185,0.4)', fontSize: '0.88rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.25rem', color: C.textSubtle, fontSize: '0.88rem' }}>
           لديك حساب؟{' '}
           <Link to="/login" style={{ color: '#87986a', fontWeight: '700', textDecoration: 'none' }}>سجّل دخول</Link>
         </p>

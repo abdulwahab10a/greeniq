@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TreePine, Leaf, Wind, ExternalLink } from 'lucide-react';
+import { useColors } from '../context/ThemeContext';
 import { FaInstagram, FaFacebook, FaSnapchatGhost, FaTelegram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -16,6 +17,7 @@ function detectPlatform(url) {
 }
 
 export default function UserProfileModal({ userId, onClose }) {
+  const C = useColors();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +48,7 @@ export default function UserProfileModal({ userId, onClose }) {
         exit={{ opacity: 0, y: 28, scale: 0.95 }}
         transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
         style={{
-          background: '#111827', border: '1px solid rgba(75,85,99,0.55)',
+          background: C.modalBg, border: `1px solid ${C.modalBorder}`,
           boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
           borderRadius: '24px', width: '100%', maxWidth: '380px',
           overflow: 'hidden',
@@ -55,8 +57,8 @@ export default function UserProfileModal({ userId, onClose }) {
       >
         {/* Header */}
         <div style={{
-          background: 'linear-gradient(135deg, #0f1f0a 0%, #1a3010 50%, #243d16 100%)',
-          borderBottom: '1px solid rgba(75,85,99,0.4)',
+          background: C.modalHeader,
+          borderBottom: `1px solid ${C.modalBorder}`,
           padding: '2rem 1.75rem 1.5rem', textAlign: 'center', position: 'relative',
         }}>
           <button onClick={onClose} style={{
@@ -84,13 +86,13 @@ export default function UserProfileModal({ userId, onClose }) {
           </div>
 
           {loading ? (
-            <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>جاري التحميل...</div>
+            <div style={{ color: C.modalMuted, fontSize: '0.9rem' }}>جاري التحميل...</div>
           ) : (
             <>
-              <h2 style={{ color: '#f9fafb', fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.2rem' }}>
+              <h2 style={{ color: C.modalText, fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.2rem' }}>
                 {profile?.displayName}
               </h2>
-              <p style={{ color: '#6b7280', fontSize: '0.82rem', margin: 0 }}>@{profile?.userId}</p>
+              <p style={{ color: C.modalMuted, fontSize: '0.82rem', margin: 0 }}>@{profile?.userId}</p>
             </>
           )}
         </div>
@@ -109,7 +111,7 @@ export default function UserProfileModal({ userId, onClose }) {
                   borderRadius: '12px', padding: '0.65rem 1rem',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '7px', color: '#9ca3af', fontSize: '0.83rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '7px', color: C.modalMuted, fontSize: '0.83rem' }}>
                     <Icon size={13} color={color} /> {label}
                   </div>
                   <strong style={{ color, fontSize: '0.88rem' }}>{value}</strong>
@@ -119,7 +121,7 @@ export default function UserProfileModal({ userId, onClose }) {
 
             {socialLinks.length > 0 && (
               <div>
-                <p style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.6rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <p style={{ color: C.modalMuted, fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.6rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   التواصل الاجتماعي
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { TreePine, Wind } from 'lucide-react';
+import { useColors } from '../context/ThemeContext';
 
 function useCountUp(target, duration = 1400) {
   const [count, setCount] = useState(0);
@@ -131,6 +132,7 @@ function AqiGauge({ aqi }) {
 
 // ── Tree Card ────────────────────────────────────────────────────────────────
 function TreeCard({ count, province, loading }) {
+  const C = useColors();
   const animated = useCountUp(loading ? 0 : (count ?? 0));
   return (
     <motion.div
@@ -138,8 +140,8 @@ function TreeCard({ count, province, loading }) {
       transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       style={{
         flex: 1, minWidth: 0,
-        background: 'rgba(15,25,10,0.75)',
-        border: '1px solid rgba(144,169,85,0.22)',
+        background: C.cardBg,
+        border: `1px solid ${C.cardBorder}`,
         borderRadius: '20px',
         padding: '1.4rem 1.2rem',
         backdropFilter: 'blur(14px)',
@@ -148,7 +150,7 @@ function TreeCard({ count, province, loading }) {
       }}
     >
       <div style={{
-        fontSize: '0.75rem', fontWeight: '700', color: 'rgba(207,225,185,0.55)',
+        fontSize: '0.75rem', fontWeight: '700', color: C.textMuted,
         textTransform: 'uppercase', letterSpacing: '0.08em',
       }}>
         زراعة الأشجار
@@ -170,7 +172,7 @@ function TreeCard({ count, province, loading }) {
         </div>
       )}
 
-      <div style={{ fontSize: '0.78rem', color: 'rgba(207,225,185,0.5)' }}>
+      <div style={{ fontSize: '0.78rem', color: C.textMuted }}>
         شجرة مزروعة
       </div>
 
@@ -190,6 +192,7 @@ function TreeCard({ count, province, loading }) {
 
 // ── Air Quality Card ─────────────────────────────────────────────────────────
 function AirCard({ aqi, province, loading }) {
+  const C = useColors();
   const { color, label } = aqiMeta(aqi);
 
   return (
@@ -198,8 +201,8 @@ function AirCard({ aqi, province, loading }) {
       transition={{ duration: 0.5, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
       style={{
         flex: 1, minWidth: 0,
-        background: 'rgba(15,25,10,0.75)',
-        border: `1px solid ${aqi != null ? color + '30' : 'rgba(107,114,128,0.25)'}`,
+        background: C.cardBg,
+        border: `1px solid ${aqi != null ? color + '30' : C.cardBorder}`,
         borderRadius: '20px',
         padding: '1.4rem 1.2rem',
         backdropFilter: 'blur(14px)',
@@ -208,7 +211,7 @@ function AirCard({ aqi, province, loading }) {
       }}
     >
       <div style={{
-        fontSize: '0.75rem', fontWeight: '700', color: 'rgba(207,225,185,0.55)',
+        fontSize: '0.75rem', fontWeight: '700', color: C.textMuted,
         textTransform: 'uppercase', letterSpacing: '0.08em',
       }}>
         مؤشر جودة الهواء
@@ -221,7 +224,7 @@ function AirCard({ aqi, province, loading }) {
       )}
 
       {province && (
-        <div style={{ fontSize: '0.72rem', color: 'rgba(207,225,185,0.45)' }}>
+        <div style={{ fontSize: '0.72rem', color: C.textSubtle }}>
           {province}
         </div>
       )}
@@ -253,6 +256,7 @@ function AirCard({ aqi, province, loading }) {
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const C = useColors();
   const { user } = useAuth();
   const [province, setProvince]     = useState(null);
   const [treeCount, setTreeCount]   = useState(null);
@@ -338,7 +342,7 @@ export default function HomePage() {
           transition={{ duration: 0.6, delay: 0.18, ease: [0.23, 1, 0.32, 1] }}
           style={{
             fontSize: 'clamp(0.95rem, 2.8vw, 1.25rem)',
-            color: 'rgba(255,255,255,0.7)',
+            color: C.textMuted,
             fontWeight: 400,
             maxWidth: '480px',
             margin: '0 auto',
@@ -353,7 +357,7 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
-            style={{ marginTop: '1.25rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem' }}
+            style={{ marginTop: '1.25rem', color: C.textFaint, fontSize: '0.9rem' }}
           >
             أهلاً بك،{' '}
             <span style={{ color: '#90a955', fontWeight: 600 }}>{user.displayName}</span>
@@ -381,23 +385,23 @@ export default function HomePage() {
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexWrap: 'wrap', gap: '6px 18px',
-            background: 'rgba(15,25,10,0.6)',
-            border: '1px solid rgba(144,169,85,0.15)',
+            background: C.cardBg,
+            border: `1px solid ${C.cardBorder}`,
             borderRadius: '14px', padding: '0.7rem 1.2rem',
             marginBottom: '1.5rem', fontSize: '0.8rem',
           }}
         >
-          <span style={{ color: 'rgba(207,225,185,0.45)', fontWeight: '500' }}>
+          <span style={{ color: C.textMuted, fontWeight: '500' }}>
             🌍 إجمالي الأشجار في العراق:
             <span style={{ color: '#4ade80', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalTrees.toLocaleString('ar-IQ')}</span>
           </span>
-          <span style={{ color: 'rgba(144,169,85,0.3)' }}>|</span>
-          <span style={{ color: 'rgba(207,225,185,0.45)', fontWeight: '500' }}>
+          <span style={{ color: C.textFaint }}>|</span>
+          <span style={{ color: C.textMuted, fontWeight: '500' }}>
             CO₂ ممتص:
             <span style={{ color: '#86efac', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalCO2.toLocaleString('ar-IQ')} كجم</span>
           </span>
-          <span style={{ color: 'rgba(144,169,85,0.3)' }}>|</span>
-          <span style={{ color: 'rgba(207,225,185,0.45)', fontWeight: '500' }}>
+          <span style={{ color: C.textFaint }}>|</span>
+          <span style={{ color: C.textMuted, fontWeight: '500' }}>
             O₂ منتج:
             <span style={{ color: '#93c5fd', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalO2.toLocaleString('ar-IQ')} كجم</span>
           </span>
@@ -410,8 +414,8 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, delay: 0.45, ease: [0.23, 1, 0.32, 1] }}
         style={{
-          background: 'rgba(15,25,10,0.75)',
-          border: '1px solid rgba(144,169,85,0.18)',
+          background: C.cardBg,
+          border: `1px solid ${C.cardBorder}`,
           borderRadius: '20px',
           padding: '1.1rem',
           backdropFilter: 'blur(14px)',
@@ -421,7 +425,7 @@ export default function HomePage() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           marginBottom: '0.9rem', padding: '0 0.2rem',
         }}>
-          <span style={{ fontWeight: '700', color: 'rgba(207,225,185,0.85)', fontSize: '0.95rem' }}>
+          <span style={{ fontWeight: '700', color: C.heading, fontSize: '0.95rem' }}>
             خريطة العراق الأخضر
           </span>
           <span style={{

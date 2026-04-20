@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { useColors } from './context/ThemeContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // Pages
@@ -69,6 +70,7 @@ function AnimatedPage({ children }) {
 
 function App() {
   const location = useLocation();
+  const C = useColors();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -108,14 +110,14 @@ function App() {
         borderTop: '1px solid rgba(144,169,85,0.15)',
         marginTop: 'auto',
       }}>
-        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginBottom: '0.25rem', fontWeight: 500 }}>
+        <p style={{ color: C.textMuted, fontSize: '0.85rem', marginBottom: '0.25rem', fontWeight: 500 }}>
           Developed &amp; Engineered by Abdulwahab H.Murad
         </p>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', marginBottom: '0.6rem' }}>
+        <p style={{ color: C.textSubtle, fontSize: '0.78rem', marginBottom: '0.6rem' }}>
           جميع الحقوق محفوظة &copy; GreenIQ 2026
         </p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.78rem' }}>
+          <span style={{ color: C.textFaint, fontSize: '0.78rem' }}>
             تواصل معنا ✉️ greeniq964@gmail.com
           </span>
           <a

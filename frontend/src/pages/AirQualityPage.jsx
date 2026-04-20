@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Wind, RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
 import api from '../api/axios';
+import { useColors } from '../context/ThemeContext';
 
 // EPA formula: PM2.5 µg/m³ → AQI
 function pm25ToAqi(pm) {
@@ -49,7 +50,7 @@ function PurityBar({ purity, color }) {
   );
 }
 
-function ProvinceCard({ province, index }) {
+function ProvinceCard({ province, index, C }) {
   const aqi = province.aqi;
   const { label, color, barColor, purity, emoji } = getAqiCategory(aqi);
 
@@ -59,8 +60,8 @@ function ProvinceCard({ province, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.04, 0.7), duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
       style={{
-        background: 'rgba(15,25,10,0.7)',
-        border: `1px solid ${aqi !== null ? color + '28' : 'rgba(75,85,99,0.3)'}`,
+        background: C.cardBg,
+        border: `1px solid ${aqi !== null ? color + '35' : C.cardBorder}`,
         borderRadius: '16px',
         padding: '1rem 1.1rem',
         backdropFilter: 'blur(12px)',
@@ -69,11 +70,11 @@ function ProvinceCard({ province, index }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h3 style={{ color: '#e9f5db', fontWeight: '700', fontSize: '0.95rem', margin: '0 0 4px' }}>
+          <h3 style={{ color: C.heading, fontWeight: '700', fontSize: '0.95rem', margin: '0 0 4px' }}>
             {province.name}
           </h3>
           {province.pm25 !== null && (
-            <p style={{ color: 'rgba(207,225,185,0.35)', fontSize: '0.68rem', margin: 0 }}>
+            <p style={{ color: C.textFaint, fontSize: '0.68rem', margin: 0 }}>
               PM2.5: {province.pm25} µg/m³
               {province.pm10 !== null && `  ·  PM10: ${province.pm10} µg/m³`}
             </p>
@@ -126,6 +127,7 @@ function LoadingSkeleton() {
 }
 
 export default function AirQualityPage() {
+  const C = useColors();
   const [provinces, setProvinces] = useState([]);
   const [updatedAt, setUpdatedAt] = useState(null);
   const [loading, setLoading]     = useState(true);
@@ -175,14 +177,14 @@ export default function AirQualityPage() {
       >
         <h1 style={{
           fontSize: '1.9rem', fontWeight: '800', margin: '0 0 0.4rem',
-          background: 'linear-gradient(135deg, #87986a, #e9f5db)',
+          background: C.headingGrad,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
         }}>
           <Wind size={26} color="#90a955" style={{ WebkitTextFillColor: 'unset' }} />
           جودة الهواء في العراق
         </h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(207,225,185,0.4)', margin: '0 0 1rem' }}>
+        <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: '0 0 1rem' }}>
           قراءات حية للمحافظات الـ 18 · مصدر: Open-Meteo Air Quality API
         </p>
 
@@ -225,6 +227,7 @@ export default function AirQualityPage() {
               ? `آخر تحديث: ${updatedAt.toLocaleTimeString('ar-IQ')} · البيانات مخزنة مؤقتاً لمدة ساعة في السيرفر`
               : ''}
           </p>
+
           <motion.button
             onClick={() => load(true)}
             disabled={refreshing}
@@ -272,7 +275,7 @@ export default function AirQualityPage() {
       {loading ? <LoadingSkeleton /> : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '10px' }}>
           {provinces.map((prov, i) => (
-            <ProvinceCard key={prov.name} province={prov} index={i} />
+            <ProvinceCard key={prov.name} province={prov} index={i} C={C} />
           ))}
         </div>
       )}

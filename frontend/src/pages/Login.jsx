@@ -1,12 +1,14 @@
 import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useColors } from '../context/ThemeContext';
 import api from '../api/axios';
 import { motion } from 'framer-motion';
 import { User, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function Login() {
   const { login } = useContext(AuthContext);
+  const C = useColors();
   const navigate = useNavigate();
   const [form, setForm] = useState({ userId: '', password: '' });
   const [error, setError] = useState('');
@@ -70,12 +72,12 @@ export default function Login() {
           </motion.div>
           <h1 style={{
             fontSize: '1.7rem', fontWeight: '800', margin: '0 0 0.4rem',
-            background: 'linear-gradient(135deg, #87986a, #e9f5db)',
+            background: C.headingGrad,
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
             تسجيل الدخول
           </h1>
-          <p style={{ color: 'rgba(207,225,185,0.45)', fontSize: '0.9rem', margin: 0 }}>
+          <p style={{ color: C.textMuted, fontSize: '0.9rem', margin: 0 }}>
             أهلاً بك في <span dir="ltr" style={{ unicodeBidi: 'embed' }}>GreenIQ</span>
           </p>
         </div>
@@ -100,7 +102,7 @@ export default function Login() {
           <div style={{ marginBottom: '1.1rem' }}>
             <label style={{
               display: 'block', marginBottom: '0.5rem',
-              fontWeight: '600', color: 'rgba(207,225,185,0.65)', fontSize: '0.85rem',
+              fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
             }}>
               معرف المستخدم
             </label>
@@ -128,7 +130,7 @@ export default function Login() {
           <div style={{ marginBottom: '1.85rem' }}>
             <label style={{
               display: 'block', marginBottom: '0.5rem',
-              fontWeight: '600', color: 'rgba(207,225,185,0.65)', fontSize: '0.85rem',
+              fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
             }}>
               كلمة المرور
             </label>
@@ -173,7 +175,7 @@ export default function Login() {
           </motion.button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.35rem', color: 'rgba(221,232,196,0.4)', fontSize: '0.88rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.35rem', color: C.textSubtle, fontSize: '0.88rem' }}>
           ليس لديك حساب؟{' '}
           <Link to="/register" style={{ color: '#87986a', fontWeight: '700', textDecoration: 'none' }}>
             إنشاء حساب

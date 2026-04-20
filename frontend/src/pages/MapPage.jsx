@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf, Clock } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
+import { useColors } from '../context/ThemeContext';
 
 const PROVINCES = [
   { name: 'بغداد', lat: 33.3152, lng: 44.3661 },
@@ -101,10 +102,11 @@ export default function MapPage() {
     }
   };
 
+  const C = useColors();
   /* shared style tokens */
   const palmBorder  = '1px solid rgba(135,152,106,0.25)';
   const palmBg      = 'rgba(135,152,106,0.08)';
-  const paleText    = 'rgba(207,225,185,0.5)';
+  const paleText    = C.textMuted;
 
   return (
     <div className="space-y-4">
@@ -153,7 +155,7 @@ export default function MapPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 style={{
           fontSize: '1.5rem', fontWeight: '800', margin: 0,
-          background: 'linear-gradient(135deg, #87986a, #e9f5db)',
+          background: C.headingGrad,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           display: 'flex', alignItems: 'center', gap: '8px',
         }}>
@@ -186,7 +188,7 @@ export default function MapPage() {
           >
             <h3 style={{
               fontWeight: '700', fontSize: '1rem', margin: '0 0 1.1rem',
-              color: '#dde8c4', display: 'flex', alignItems: 'center', gap: '8px',
+              color: C.heading, display: 'flex', alignItems: 'center', gap: '8px',
             }}>
               <MapPin size={16} color="#87986a" /> أدخل بيانات الشجرة
             </h3>
@@ -312,7 +314,7 @@ export default function MapPage() {
                 position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem',
                 maxWidth: '340px', marginLeft: 'auto',
                 borderRadius: '20px', zIndex: 1000,
-                background: '#111827',
+                background: C.modalBg,
                 border: '1px solid rgba(135,152,106,0.35)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
                 overflow: 'hidden',
@@ -355,14 +357,14 @@ export default function MapPage() {
                 {/* اسم الشجرة */}
                 <h4 style={{
                   fontWeight: '800', fontSize: '1.05rem', margin: '0 0 0.35rem',
-                  color: '#f9fafb', display: 'flex', alignItems: 'center', gap: '6px',
+                  color: C.modalText, display: 'flex', alignItems: 'center', gap: '6px',
                 }}>
                   <TreePine size={17} color="#4ade80" />
                   {selectedTree.name || 'شجرة'}
                 </h4>
 
                 {/* زُرعت بواسطة */}
-                <p style={{ fontSize: '0.78rem', color: '#9ca3af', margin: '0 0 0.5rem' }}>
+                <p style={{ fontSize: '0.78rem', color: C.modalMuted, margin: '0 0 0.5rem' }}>
                   زُرعت بواسطة:{' '}
                   <span style={{ fontWeight: '700', color: '#4ade80' }}>
                     {selectedTree.userId?.displayName || 'مستخدم'}
@@ -385,10 +387,10 @@ export default function MapPage() {
                 {/* الملاحظات */}
                 {selectedTree.notes && (
                   <p style={{
-                    fontSize: '0.82rem', color: '#d1d5db',
+                    fontSize: '0.82rem', color: C.modalText,
                     margin: '0 0 0.8rem', lineHeight: '1.5',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.07)',
+                    background: C.L ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${C.L ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: '8px', padding: '0.5rem 0.75rem',
                   }}>
                     {selectedTree.notes}
