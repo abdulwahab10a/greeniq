@@ -127,7 +127,7 @@ function TreeCard({ count, province, loading }) {
         fontSize: '0.75rem', fontWeight: '700', color: 'rgba(207,225,185,0.55)',
         textTransform: 'uppercase', letterSpacing: '0.08em',
       }}>
-        Tree planting
+        زراعة الأشجار
       </div>
 
       <div style={{
@@ -147,7 +147,7 @@ function TreeCard({ count, province, loading }) {
       )}
 
       <div style={{ fontSize: '0.78rem', color: 'rgba(207,225,185,0.5)' }}>
-        tree planted
+        شجرة مزروعة
       </div>
 
       {province && (
@@ -187,7 +187,7 @@ function AirCard({ aqi, province, loading }) {
         fontSize: '0.75rem', fontWeight: '700', color: 'rgba(207,225,185,0.55)',
         textTransform: 'uppercase', letterSpacing: '0.08em',
       }}>
-        Air quality index
+        مؤشر جودة الهواء
       </div>
 
       {loading ? (
@@ -316,10 +316,7 @@ export default function HomePage() {
             lineHeight: 1.75,
           }}
         >
-          من قلب بلاد الرافدين، نزرع الأمل شجرةً شجرة —{' '}
-          <span style={{ color: '#90a955', fontWeight: 600 }}>
-            لعراقٍ تتنفّس سماؤه الخضراء.
-          </span>
+          من أجل مستقبل أخضر لعراقنا
         </motion.p>
 
         {user && (
@@ -364,14 +361,14 @@ export default function HomePage() {
           marginBottom: '0.9rem', padding: '0 0.2rem',
         }}>
           <span style={{ fontWeight: '700', color: 'rgba(207,225,185,0.85)', fontSize: '0.95rem' }}>
-            Progress Map
+            خريطة التقدم
           </span>
           <span style={{
             fontSize: '0.72rem', color: '#90a955', fontWeight: '600',
             background: 'rgba(144,169,85,0.1)', border: '1px solid rgba(144,169,85,0.22)',
             borderRadius: '99px', padding: '2px 10px',
           }}>
-            Progress
+            التقدم
           </span>
         </div>
 
