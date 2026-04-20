@@ -31,6 +31,10 @@ const treeSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    ageAtPlanting: {
+      type: Number,
+      default: 0, // بالأيام
+    },
   },
   { timestamps: true }
 );

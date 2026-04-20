@@ -6,10 +6,11 @@
 //   O2 produced = CO2 absorbed × 0.73
 //   Base credit of 5 kg CO2 at planting (sapling grew in nursery before logging)
 
-function calculateImpact(plantingDate) {
+function calculateImpact(plantingDate, ageAtPlantingDays = 0) {
   const now = new Date();
   const planted = new Date(plantingDate);
-  const days = Math.max(0, Math.floor((now - planted) / (1000 * 60 * 60 * 24)));
+  const daysSincePlanting = Math.max(0, Math.floor((now - planted) / (1000 * 60 * 60 * 24)));
+  const days = daysSincePlanting + Math.max(0, Math.floor(ageAtPlantingDays));
 
   const BASE_CO2    = 5;        // kg — immediate nursery-sapling credit
   const PHASE1_RATE = 6  / 365; // kg/day  (year 0–1)

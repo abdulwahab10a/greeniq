@@ -5,7 +5,7 @@ const { uploadToImgBB } = require('../services/imgbbService');
 const { containsProfanity } = require('../services/profanityService');
 const plantTree = async (req, res) => {
   try {
-    const { name, notes, latitude, longitude } = req.body;
+    const { name, notes, latitude, longitude, ageAtPlanting } = req.body;
 
     if (!latitude || !longitude) {
       return res.status(400).json({ message: 'Location is required' });
@@ -45,6 +45,8 @@ const plantTree = async (req, res) => {
       imageUrl = await uploadToImgBB(req.file.path);
     }
 
+    const ageInDays = ageAtPlanting ? Math.round(parseFloat(ageAtPlanting) * 365) : 0;
+
     const tree = await Tree.create({
       name: name || '',
       image: imageUrl,
@@ -54,12 +56,13 @@ const plantTree = async (req, res) => {
         coordinates: [parseFloat(longitude), parseFloat(latitude)],
       },
       userId: req.user._id,
+      ageAtPlanting: ageInDays,
     });
 
     await User.findByIdAndUpdate(req.user._id, { $inc: { treesCount: 1 } });
 
     await tree.populate('userId', 'displayName profileImage');
-    const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt);
+    const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
     res.status(201).json({ ...tree.toObject(), co2Absorbed, o2Produced });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -70,7 +73,7 @@ const getAllTrees = async (req, res) => {
   try {
     const trees = await Tree.find().populate('userId', 'displayName profileImage phone instagramLink');
     const treesWithImpact = trees.map((tree) => {
-      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt);
+      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
       return { ...tree.toObject(), co2Absorbed, o2Produced };
     });
     res.json(treesWithImpact);
@@ -83,7 +86,7 @@ const getMyTrees = async (req, res) => {
   try {
     const trees = await Tree.find({ userId: req.user._id }).sort({ createdAt: -1 });
     const treesWithImpact = trees.map((tree) => {
-      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt);
+      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
       return { ...tree.toObject(), co2Absorbed, o2Produced };
     });
     res.json(treesWithImpact);
@@ -122,7 +125,7 @@ const updateTree = async (req, res) => {
     }
 
     await tree.save();
-    const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt);
+    const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
     res.json({ ...tree.toObject(), co2Absorbed, o2Produced });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -179,7 +182,7 @@ function getGovernorate(lng, lat) {
 
 const getGovernoratesStats = async (req, res) => {
   try {
-    const trees = await Tree.find({}, 'location createdAt');
+    const trees = await Tree.find({}, 'location createdAt ageAtPlanting');
 
     const stats = {};
 
@@ -190,7 +193,7 @@ const getGovernoratesStats = async (req, res) => {
 
       if (!stats[gov]) stats[gov] = { name: gov, treesCount: 0, totalCO2: 0, totalO2: 0 };
 
-      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt);
+      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
       stats[gov].treesCount += 1;
       stats[gov].totalCO2  += co2Absorbed;
       stats[gov].totalO2   += o2Produced;

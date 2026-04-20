@@ -49,7 +49,7 @@ function treeAge(createdAt) {
 export default function MapPage() {
   const [selectedTree, setSelectedTree] = useState(null);
   const [showPlantForm, setShowPlantForm] = useState(false);
-  const [plantData, setPlantData] = useState({ name: '', notes: '', latitude: '', longitude: '', image: null });
+  const [plantData, setPlantData] = useState({ name: '', notes: '', latitude: '', longitude: '', image: null, ageAtPlanting: '' });
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -86,10 +86,11 @@ export default function MapPage() {
       formData.append('latitude', plantData.latitude);
       formData.append('longitude', plantData.longitude);
       if (plantData.image) formData.append('image', plantData.image);
+      if (plantData.ageAtPlanting) formData.append('ageAtPlanting', plantData.ageAtPlanting);
       await api.post('/trees', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       const prov = nearestProvince(plantData.latitude, plantData.longitude);
       setShowPlantForm(false);
-      setPlantData({ name: '', notes: '', latitude: '', longitude: '', image: null });
+      setPlantData({ name: '', notes: '', latitude: '', longitude: '', image: null, ageAtPlanting: '' });
       setRefreshKey(k => k + 1);
       setSuccessMsg(prov);
       setTimeout(() => setSuccessMsg(null), 5000);
@@ -233,6 +234,27 @@ export default function MapPage() {
                   className="glass-input"
                   style={{ padding: '0.7rem 1rem', borderRadius: '10px', fontSize: '0.82rem', width: '100%', boxSizing: 'border-box' }}
                 />
+              </div>
+
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number" min="0" max="200" step="0.5"
+                  placeholder="ادخل العمر التقريبي للشجرة حاليا (بالسنوات)"
+                  value={plantData.ageAtPlanting}
+                  onChange={e => setPlantData({ ...plantData, ageAtPlanting: e.target.value })}
+                  className="glass-input"
+                  style={{ padding: '0.7rem 1rem', borderRadius: '10px', fontSize: '0.88rem', width: '100%', boxSizing: 'border-box' }}
+                />
+                {plantData.ageAtPlanting > 0 && (
+                  <span style={{
+                    position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
+                    fontSize: '0.72rem', color: '#90a955', fontWeight: '600',
+                    background: 'rgba(144,169,85,0.12)', border: '1px solid rgba(144,169,85,0.25)',
+                    borderRadius: '99px', padding: '1px 8px', pointerEvents: 'none',
+                  }}>
+                    ≈ {Math.round(plantData.ageAtPlanting * 365)} يوم
+                  </span>
+                )}
               </div>
               <textarea placeholder="ملاحظات (اختياري)"
                 value={plantData.notes} onChange={e => setPlantData({ ...plantData, notes: e.target.value })}
