@@ -9,6 +9,7 @@ import MapPage from './pages/MapPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import GovernoratesPage from './pages/GovernoratesPage';
+import AirQualityPage from './pages/AirQualityPage';
 import AdminDashboard from './pages/AdminDashboard';
 
 // Components
@@ -88,6 +89,9 @@ function App() {
             } />
             <Route path="/governorates" element={
               <ProtectedRoute><AnimatedPage><GovernoratesPage /></AnimatedPage></ProtectedRoute>
+            } />
+            <Route path="/air-quality" element={
+              <ProtectedRoute><AnimatedPage><AirQualityPage /></AnimatedPage></ProtectedRoute>
             } />
             <Route path="/admin" element={
               <AdminRoute><AnimatedPage><AdminDashboard /></AnimatedPage></AdminRoute>
