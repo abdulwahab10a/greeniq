@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Lock, X, CheckCircle2, AlertCircle, Loader2,
   TreePine, AtSign, User, Phone, Link2, Camera, Edit3, ExternalLink, QrCode,
+  Leaf, Wind,
 } from 'lucide-react';
 import { FaInstagram, FaFacebook, FaSnapchatGhost, FaTelegram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -463,11 +464,98 @@ function SocialChip({ url }) {
   );
 }
 
+/* ── Badges definition ──────────────────────────────────── */
+const BADGES = [
+  { id: 'first',   emoji: '🌱', label: 'أول خطوة',          desc: 'زرعت شجرتك الأولى',         check: (c) => c >= 1  },
+  { id: 'ten',     emoji: '🌳', label: 'عشرة أشجار',         desc: 'وصلت إلى 10 أشجار',          check: (c) => c >= 10 },
+  { id: 'fifty',   emoji: '🌲', label: 'خمسون شجرة',         desc: 'أنجزت 50 شجرة مباركة',       check: (c) => c >= 50 },
+  { id: 'hundred', emoji: '🏅', label: 'مئة شجرة',           desc: 'بطل الغرس! 100 شجرة',        check: (c) => c >= 100 },
+  { id: 'champ',   emoji: '🏆', label: 'أفضل في المحافظة',   desc: 'الأول في محافظتك',           check: (_, isChamp) => isChamp },
+];
+
+function BadgesSection({ treesCount, isProvChamp }) {
+  const earned = BADGES.filter(b => b.check(treesCount, isProvChamp));
+  const locked = BADGES.filter(b => !b.check(treesCount, isProvChamp));
+
+  return (
+    <div style={{ marginBottom: '1.25rem' }}>
+      <p style={{ color: T.subtle, fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        الشارات
+      </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        {earned.map((b, i) => (
+          <motion.div
+            key={b.id}
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.08, type: 'spring', stiffness: 280 }}
+            title={b.desc}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'linear-gradient(135deg, rgba(74,94,51,0.5), rgba(113,131,85,0.3))',
+              border: '1px solid rgba(144,169,85,0.4)',
+              borderRadius: '99px', padding: '5px 12px',
+              fontSize: '0.78rem', fontWeight: '700', color: T.text,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            }}
+          >
+            <span style={{ fontSize: '1rem' }}>{b.emoji}</span>
+            {b.label}
+          </motion.div>
+        ))}
+        {locked.map(b => (
+          <div
+            key={b.id}
+            title={b.desc}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'rgba(30,46,20,0.3)', border: '1px solid rgba(135,152,106,0.1)',
+              borderRadius: '99px', padding: '5px 12px',
+              fontSize: '0.78rem', fontWeight: '600', color: 'rgba(207,225,185,0.2)',
+              filter: 'grayscale(1)',
+            }}
+          >
+            <span style={{ fontSize: '1rem', opacity: 0.3 }}>{b.emoji}</span>
+            {b.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main ProfilePage ───────────────────────────────────── */
 export default function ProfilePage() {
   const { user, updateUser } = useContext(AuthContext);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [impact, setImpact] = useState(null);
+  const [isProvChamp, setIsProvChamp] = useState(false);
+
+  useEffect(() => {
+    api.get('/trees/my').then(res => {
+      const trees = res.data;
+      const totalCO2 = trees.reduce((s, t) => s + (t.co2Absorbed || 0), 0);
+      const totalO2  = trees.reduce((s, t) => s + (t.o2Produced  || 0), 0);
+      setImpact({ totalCO2: totalCO2.toFixed(1), totalO2: totalO2.toFixed(1) });
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    api.get('/trees/governorates').then(async res => {
+      const govs = res.data;
+      for (const gov of govs) {
+        try {
+          const top = await api.get(`/trees/governorates/${encodeURIComponent(gov.name)}/top`);
+          if (top.data[0]?.userId === user.userId || top.data[0]?.displayName === user.displayName) {
+            setIsProvChamp(true);
+            break;
+          }
+        } catch {}
+      }
+    }).catch(() => {});
+  }, [user]);
 
   if (!user) return null;
 
@@ -568,6 +656,40 @@ export default function ProfilePage() {
 
         {/* Info rows */}
         <div style={{ padding: '1.5rem 1.75rem' }}>
+
+          {/* Impact totals */}
+          {impact && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              style={{
+                display: 'flex', gap: '10px', marginBottom: '1.25rem',
+              }}
+            >
+              <div style={{
+                flex: 1, background: 'rgba(20,83,45,0.35)', border: '1px solid rgba(74,222,128,0.2)',
+                borderRadius: '14px', padding: '0.85rem 1rem', textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#4ade80' }}>{impact.totalCO2}</div>
+                <div style={{ fontSize: '0.7rem', color: 'rgba(134,239,172,0.55)', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <Leaf size={10} /> CO₂ ممتص (كجم)
+                </div>
+              </div>
+              <div style={{
+                flex: 1, background: 'rgba(30,58,95,0.35)', border: '1px solid rgba(147,197,253,0.2)',
+                borderRadius: '14px', padding: '0.85rem 1rem', textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#93c5fd' }}>{impact.totalO2}</div>
+                <div style={{ fontSize: '0.7rem', color: 'rgba(147,197,253,0.55)', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <Wind size={10} /> O₂ منتج (كجم)
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Badges */}
+          <BadgesSection treesCount={user.treesCount ?? 0} isProvChamp={isProvChamp} />
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.25rem' }}>
             {infoRows.map(({ icon: Icon, label, value, dir, accent }, i) => (
               <motion.div

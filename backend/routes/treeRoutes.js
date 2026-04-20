@@ -8,10 +8,12 @@ const {
   deleteTree,
   getGovernoratesStats,
   getGovTopContributors,
+  getSiteStats,
 } = require('../controllers/treeController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../services/uploadService');
 
+router.get('/stats', getSiteStats);
 router.get('/governorates', getGovernoratesStats);
 router.get('/governorates/:name/top', getGovTopContributors);
 router.get('/', getAllTrees);

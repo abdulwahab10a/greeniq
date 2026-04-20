@@ -258,6 +258,7 @@ export default function HomePage() {
   const [treeCount, setTreeCount]   = useState(null);
   const [aqi, setAqi]               = useState(null);
   const [loadingCards, setLoadingCards] = useState(true);
+  const [siteStats, setSiteStats]   = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -301,6 +302,10 @@ export default function HomePage() {
     }
 
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    api.get('/trees/stats').then(res => setSiteStats(res.data)).catch(() => {});
   }, []);
 
   return (
@@ -366,6 +371,38 @@ export default function HomePage() {
         <TreeCard count={treeCount} province={province} loading={loadingCards} />
         <AirCard  aqi={aqi}        province={province} loading={loadingCards} />
       </motion.div>
+
+      {/* ── Site Stats Banner ── */}
+      {siteStats && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexWrap: 'wrap', gap: '6px 18px',
+            background: 'rgba(15,25,10,0.6)',
+            border: '1px solid rgba(144,169,85,0.15)',
+            borderRadius: '14px', padding: '0.7rem 1.2rem',
+            marginBottom: '1.5rem', fontSize: '0.8rem',
+          }}
+        >
+          <span style={{ color: 'rgba(207,225,185,0.45)', fontWeight: '500' }}>
+            🌍 إجمالي الأشجار في العراق:
+            <span style={{ color: '#4ade80', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalTrees.toLocaleString('ar-IQ')}</span>
+          </span>
+          <span style={{ color: 'rgba(144,169,85,0.3)' }}>|</span>
+          <span style={{ color: 'rgba(207,225,185,0.45)', fontWeight: '500' }}>
+            CO₂ ممتص:
+            <span style={{ color: '#86efac', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalCO2.toLocaleString('ar-IQ')} كجم</span>
+          </span>
+          <span style={{ color: 'rgba(144,169,85,0.3)' }}>|</span>
+          <span style={{ color: 'rgba(207,225,185,0.45)', fontWeight: '500' }}>
+            O₂ منتج:
+            <span style={{ color: '#93c5fd', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalO2.toLocaleString('ar-IQ')} كجم</span>
+          </span>
+        </motion.div>
+      )}
 
       {/* ── Progress Map ── */}
       <motion.div

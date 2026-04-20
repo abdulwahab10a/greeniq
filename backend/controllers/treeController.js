@@ -257,4 +257,23 @@ const getGovTopContributors = async (req, res) => {
   }
 };
 
-module.exports = { plantTree, getAllTrees, getMyTrees, updateTree, deleteTree, getGovernoratesStats, getGovTopContributors };
+const getSiteStats = async (req, res) => {
+  try {
+    const trees = await Tree.find({}, 'createdAt ageAtPlanting');
+    let totalCO2 = 0, totalO2 = 0;
+    trees.forEach(tree => {
+      const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
+      totalCO2 += co2Absorbed;
+      totalO2  += o2Produced;
+    });
+    res.json({
+      totalTrees: trees.length,
+      totalCO2: parseFloat(totalCO2.toFixed(1)),
+      totalO2:  parseFloat(totalO2.toFixed(1)),
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { plantTree, getAllTrees, getMyTrees, updateTree, deleteTree, getGovernoratesStats, getGovTopContributors, getSiteStats };
