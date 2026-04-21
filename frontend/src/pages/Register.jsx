@@ -44,7 +44,7 @@ export default function Register() {
     const socialLink = form.socialLink.trim();
 
     if (userId.length < 3 || userId.length > 20) return setError('المعرف يجب أن يكون بين 3 و 20 حرفاً');
-    if (!/^[a-zA-Z0-9_]+$/.test(userId)) return setError('المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ فقط');
+    if (!/^[a-zA-Z0-9_.]+$/.test(userId)) return setError('المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ و . فقط');
     if (displayName.length < 2 || displayName.length > 30) return setError('الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً');
     if (form.password.length < 8) return setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
     if (form.password !== form.confirmPassword) return setError('كلمتا المرور غير متطابقتين');
@@ -73,9 +73,9 @@ export default function Register() {
   };
 
   const textFields = [
-    { name: 'userId',          label: 'معرف المستخدم (UserID)', placeholder: 'مثال: ahmed_ali',         type: 'text',     icon: AtSign, hint: 'أحرف إنجليزية وأرقام و _ فقط', dir: 'ltr' },
+    { name: 'userId',          label: 'معرف المستخدم (UserID)', placeholder: 'مثال: ahmed_ali',         type: 'text',     icon: AtSign, hint: 'أحرف إنجليزية وأرقام و _ و . فقط', dir: 'ltr' },
     { name: 'displayName',     label: 'الاسم الظاهر',            placeholder: 'مثال: أحمد علي',           type: 'text',     icon: User   },
-    { name: 'password',        label: 'كلمة المرور',              placeholder: '6 أحرف على الأقل',        type: 'password', icon: Lock   },
+    { name: 'password',        label: 'كلمة المرور',              placeholder: '8 أحرف على الأقل',        type: 'password', icon: Lock   },
     { name: 'confirmPassword', label: 'تأكيد كلمة المرور',        placeholder: 'أعد كتابة كلمة المرور',   type: 'password', icon: Lock   },
   ];
 
