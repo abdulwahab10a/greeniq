@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useColors } from '../context/ThemeContext';
 import api from '../api/axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, AtSign, Link2, Camera, AlertCircle, Loader2, X } from 'lucide-react';
 
 export default function Register() {
@@ -17,10 +17,15 @@ export default function Register() {
   });
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
-  const [error, setError] = useState('');
+  const [fieldError, setFieldError] = useState({ field: '', message: '' });
+  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (fieldError.field === name) setFieldError({ field: '', message: '' });
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -35,21 +40,26 @@ export default function Register() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const setErr = (field, message) => {
+    setFieldError({ field, message });
+    setForm(prev => ({ ...prev, [field]: '' }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setFieldError({ field: '', message: '' });
+    setApiError('');
 
     const userId = form.userId.trim();
     const displayName = form.displayName.trim();
     const socialLink = form.socialLink.trim();
 
-    if (userId.length < 3 || userId.length > 20) return setError('المعرف يجب أن يكون بين 3 و 20 حرفاً');
-    if (!/^[a-zA-Z0-9_.]+$/.test(userId)) return setError('المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ و . فقط');
-    if (displayName.length < 2 || displayName.length > 30) return setError('الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً');
-    if (form.password.length < 8) return setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
-    if (form.password !== form.confirmPassword) return setError('كلمتا المرور غير متطابقتين');
-    if (socialLink && !/^https?:\/\/.+\..+/.test(socialLink)) return setError('رابط التواصل الاجتماعي يجب أن يبدأ بـ https://');
-
+    if (userId.length < 3 || userId.length > 20) return setErr('userId', 'المعرف يجب أن يكون بين 3 و 20 حرفاً');
+    if (!/^[a-zA-Z0-9_.]+$/.test(userId)) return setErr('userId', 'المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ و . فقط');
+    if (displayName.length < 2 || displayName.length > 30) return setErr('displayName', 'الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً');
+    if (form.password.length < 8) return setErr('password', 'كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+    if (form.password !== form.confirmPassword) return setErr('confirmPassword', 'كلمتا المرور غير متطابقتين');
+    if (socialLink && !/^https?:\/\/.+\..+/.test(socialLink)) return setErr('socialLink', 'رابط التواصل الاجتماعي يجب أن يبدأ بـ https://');
 
     setLoading(true);
     try {
@@ -66,7 +76,7 @@ export default function Register() {
       login(data);
       navigate('/map');
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
+      setApiError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
     } finally {
       setLoading(false);
     }
@@ -83,6 +93,35 @@ export default function Register() {
     position: 'absolute', right: '13px', top: '50%', transform: 'translateY(-50%)',
     color: 'rgba(144,169,85,0.5)', display: 'flex',
   };
+
+  const InlineError = ({ field }) => (
+    <AnimatePresence>
+      {fieldError.field === field && (
+        <motion.div
+          key="inline-err"
+          initial={{ opacity: 0, y: -4, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: 'auto' }}
+          exit={{ opacity: 0, y: -4, height: 0 }}
+          transition={{ duration: 0.22 }}
+          style={{
+            background: 'rgba(239,68,68,0.12)',
+            border: '1px solid rgba(239,68,68,0.35)',
+            borderRadius: '10px',
+            padding: '0.55rem 0.85rem',
+            marginTop: '0.45rem',
+            color: '#fca5a5',
+            fontSize: '0.82rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '7px',
+          }}
+        >
+          <AlertCircle size={14} style={{ flexShrink: 0 }} />
+          {fieldError.message}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <div style={{
@@ -125,19 +164,23 @@ export default function Register() {
           </p>
         </div>
 
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-            style={{
-              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.28)',
-              borderRadius: '12px', padding: '0.75rem 1rem', marginBottom: '1.25rem',
-              color: '#fca5a5', fontSize: '0.875rem', textAlign: 'center',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            }}
-          >
-            <AlertCircle size={15} /> {error}
-          </motion.div>
-        )}
+        {/* API / server error banner */}
+        <AnimatePresence>
+          {apiError && (
+            <motion.div
+              key="api-err"
+              initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+              style={{
+                background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.28)',
+                borderRadius: '12px', padding: '0.75rem 1rem', marginBottom: '1.25rem',
+                color: '#fca5a5', fontSize: '0.875rem', textAlign: 'center',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              }}
+            >
+              <AlertCircle size={15} /> {apiError}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleSubmit}>
           {/* Avatar picker */}
@@ -188,35 +231,41 @@ export default function Register() {
             </div>
           </motion.div>
 
-          {textFields.map(({ name, label, placeholder, type, icon: Icon, hint, dir }, i) => (
-            <motion.div
-              key={name}
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: (i + 1) * 0.05, duration: 0.35 }}
-              style={{ marginBottom: '1rem' }}
-            >
-              <label style={{
-                display: 'block', marginBottom: '0.45rem',
-                fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
-              }}>
-                {label}
-              </label>
-              <div style={{ position: 'relative' }}>
-                <div style={inputIconStyle}><Icon size={16} /></div>
-                <input
-                  type={type} name={name} value={form[name]}
-                  onChange={handleChange} placeholder={placeholder} required
-                  className="glass-input"
-                  style={{
-                    width: '100%', padding: '0.8rem 1rem 0.8rem 2.75rem',
-                    borderRadius: '12px', fontSize: '0.92rem',
-                    boxSizing: 'border-box', ...(dir ? { direction: dir } : {}),
-                  }}
-                />
-              </div>
-              {hint && <p style={{ fontSize: '0.73rem', color: C.textFaint, marginTop: '0.3rem' }}>{hint}</p>}
-            </motion.div>
-          ))}
+          {textFields.map(({ name, label, placeholder, type, icon: Icon, hint, dir }, i) => {
+            const hasErr = fieldError.field === name;
+            return (
+              <motion.div
+                key={name}
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: (i + 1) * 0.05, duration: 0.35 }}
+                style={{ marginBottom: '1rem' }}
+              >
+                <label style={{
+                  display: 'block', marginBottom: '0.45rem',
+                  fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
+                }}>
+                  {label}
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <div style={inputIconStyle}><Icon size={16} /></div>
+                  <input
+                    type={type} name={name} value={form[name]}
+                    onChange={handleChange} placeholder={placeholder} required
+                    className="glass-input"
+                    style={{
+                      width: '100%', padding: '0.8rem 1rem 0.8rem 2.75rem',
+                      borderRadius: '12px', fontSize: '0.92rem',
+                      boxSizing: 'border-box',
+                      ...(dir ? { direction: dir } : {}),
+                      ...(hasErr ? { borderColor: 'rgba(239,68,68,0.6)', boxShadow: '0 0 0 2px rgba(239,68,68,0.15)' } : {}),
+                    }}
+                  />
+                </div>
+                {hint && !hasErr && <p style={{ fontSize: '0.73rem', color: C.textFaint, marginTop: '0.3rem' }}>{hint}</p>}
+                <InlineError field={name} />
+              </motion.div>
+            );
+          })}
 
           {/* Social link */}
           <motion.div
@@ -241,12 +290,16 @@ export default function Register() {
                   width: '100%', padding: '0.8rem 1rem 0.8rem 2.75rem',
                   borderRadius: '12px', fontSize: '0.88rem',
                   boxSizing: 'border-box', direction: 'ltr',
+                  ...(fieldError.field === 'socialLink' ? { borderColor: 'rgba(239,68,68,0.6)', boxShadow: '0 0 0 2px rgba(239,68,68,0.15)' } : {}),
                 }}
               />
             </div>
-            <p style={{ fontSize: '0.72rem', color: C.textFaint, marginTop: '0.3rem' }}>
-              Instagram · Facebook · Snapchat · Telegram · X
-            </p>
+            {fieldError.field !== 'socialLink' && (
+              <p style={{ fontSize: '0.72rem', color: C.textFaint, marginTop: '0.3rem' }}>
+                Instagram · Facebook · Snapchat · Telegram · X
+              </p>
+            )}
+            <InlineError field="socialLink" />
           </motion.div>
 
           <motion.button
