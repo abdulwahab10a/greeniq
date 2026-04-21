@@ -26,17 +26,14 @@ const BANNED = [
   'faggot','fag','fags',
 ];
 
-// Normalize: lowercase, remove spaces/dashes/dots/underscores
-function normalize(text) {
-  return text.toLowerCase().replace(/[\s\-_.]/g, '');
-}
-
-const normalizedBanned = BANNED.map(normalize);
-
 function containsProfanity(text) {
   if (!text) return false;
-  const norm = normalize(text);
-  return normalizedBanned.some(word => norm.includes(word));
+  const lower = text.toLowerCase();
+  return BANNED.some(word => {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?<![a-zA-Zء-ي])${escaped}(?![a-zA-Zء-ي])`, 'i');
+    return regex.test(lower);
+  });
 }
 
 module.exports = { containsProfanity };
