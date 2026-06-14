@@ -4,7 +4,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
-const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const sanitizeBody = require('./middleware/sanitizeMiddleware');
 require('dotenv').config();
@@ -39,10 +38,9 @@ app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 // HTTP Parameter Pollution protection
 app.use(hpp());
 
-// NoSQL injection sanitization (strips $ and . from req.body/query/params)
-app.use(mongoSanitize());
-
-// XSS + deep NoSQL sanitization
+// XSS + NoSQL injection sanitization (strips $-prefixed keys, deep-escapes
+// values across body/query/params). Replaces express-mongo-sanitize, which
+// reassigns req.query and crashes on Express 5's read-only query getter.
 app.use(sanitizeBody);
 
 // Rate limiting — strict for auth, relaxed for general API

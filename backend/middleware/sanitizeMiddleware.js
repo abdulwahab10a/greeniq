@@ -21,8 +21,20 @@ const sanitizeValue = (val, key) => {
 };
 
 module.exports = (req, res, next) => {
-  if (req.body)   req.body   = sanitizeValue(req.body,   '');
-  if (req.query)  req.query  = sanitizeValue(req.query,  '');
+  if (req.body) req.body = sanitizeValue(req.body, '');
+
+  // Express 5 exposes req.query as a read-only getter that re-parses the URL on
+  // every access, so a plain assignment throws and an in-place mutation is lost.
+  // Shadow it with an own, sanitized data property via defineProperty.
+  if (req.query) {
+    Object.defineProperty(req, 'query', {
+      value: sanitizeValue(req.query, ''),
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
   if (req.params) req.params = sanitizeValue(req.params, '');
   next();
 };
