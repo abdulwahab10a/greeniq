@@ -20,10 +20,13 @@ export default function UserProfileModal({ userId, onClose }) {
   const C = useColors();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
+    setImgError(false);
     api.get(`/users/${userId}`)
       .then(res => setProfile(res.data))
+      .catch(() => setProfile(null))
       .finally(() => setLoading(false));
   }, [userId]);
 
@@ -79,8 +82,8 @@ export default function UserProfileModal({ userId, onClose }) {
             boxShadow: '0 8px 24px rgba(0,0,0,0.4)', overflow: 'hidden',
             fontSize: '1.8rem', fontWeight: '800', color: '#e9f5db',
           }}>
-            {loading ? '...' : profile?.profileImage
-              ? <img src={profile.profileImage} alt={profile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {loading ? '...' : (profile?.profileImage && !imgError)
+              ? <img src={profile.profileImage} alt={profile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgError(true)} />
               : profile?.displayName?.[0]?.toUpperCase()
             }
           </div>

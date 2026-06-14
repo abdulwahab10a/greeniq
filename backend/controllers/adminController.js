@@ -1,11 +1,15 @@
 const User = require('../models/User');
 
+// Escape special regex chars to prevent ReDoS from user-supplied search strings
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // GET /api/admin/users?search=&page=&limit=
 const getUsers = async (req, res) => {
   try {
     const page  = Math.max(1, parseInt(req.query.page)  || 1);
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
-    const search = (req.query.search || '').trim();
+    const raw   = (req.query.search || '').trim().slice(0, 50);
+    const search = raw ? escapeRegex(raw) : '';
 
     const filter = search
       ? {
@@ -28,7 +32,8 @@ const getUsers = async (req, res) => {
 
     res.json({ users, total, page, pages: Math.ceil(total / limit) });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Admin error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -45,7 +50,8 @@ const getStats = async (req, res) => {
 
     res.json({ total, todayCount, weekCount });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Admin stats error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 

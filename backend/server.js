@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
 const sanitizeBody = require('./middleware/sanitizeMiddleware');
 require('dotenv').config();
 
@@ -14,8 +17,33 @@ const airQualityRoutes = require('./routes/airQualityRoutes');
 
 const app = express();
 
+// Trust first proxy (Render, Vercel) so rate limiting uses real client IP
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet());
+
+// CORS — never fall back to wildcard in production
+const allowedOrigin = process.env.FRONTEND_URL;
+if (!allowedOrigin && process.env.NODE_ENV === 'production') {
+  console.error('❌ FRONTEND_URL env var is not set — CORS will block all origins');
+}
+app.use(cors({
+  origin: allowedOrigin || (process.env.NODE_ENV !== 'production' ? 'http://localhost:5173' : false),
+  credentials: true,
+}));
+
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
+
+// HTTP Parameter Pollution protection
+app.use(hpp());
+
+// NoSQL injection sanitization (strips $ and . from req.body/query/params)
+app.use(mongoSanitize());
+
+// XSS + deep NoSQL sanitization
+app.use(sanitizeBody);
 
 // Rate limiting — strict for auth, relaxed for general API
 const authLimiter = rateLimit({
@@ -26,6 +54,13 @@ const authLimiter = rateLimit({
   message: { message: 'محاولات كثيرة جداً، يرجى المحاولة بعد 15 دقيقة' },
 });
 
+// Progressive slowdown before hard cut-off on auth routes
+const authSlowDown = slowDown({
+  windowMs: 15 * 60 * 1000,
+  delayAfter: 5,
+  delayMs: (used) => (used - 5) * 500,
+});
+
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 150,
@@ -34,18 +69,8 @@ const generalLimiter = rateLimit({
   message: { message: 'طلبات كثيرة جداً، يرجى المحاولة لاحقاً' },
 });
 
-// Middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true,
-}));
-app.use(express.json({ limit: '10kb' }));
-
-// XSS + NoSQL injection sanitization
-app.use(sanitizeBody);
-
 // Apply rate limiting
-app.use('/api/auth', authLimiter);
+app.use('/api/auth', authSlowDown, authLimiter);
 app.use('/api', generalLimiter);
 
 // Routes

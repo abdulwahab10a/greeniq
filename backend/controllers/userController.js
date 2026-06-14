@@ -9,7 +9,8 @@ const getMe = async (req, res) => {
     const user = await User.findById(req.user._id).select('-password');
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -57,7 +58,8 @@ const updateMe = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -91,7 +93,8 @@ const getLeaderboard = async (req, res) => {
 
     res.json(leaderboard);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -115,7 +118,8 @@ const getUserById = async (req, res) => {
       totalO2: parseFloat(totalO2.toFixed(2)),
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -142,7 +146,8 @@ const changePassword = async (req, res) => {
 
     res.json({ message: 'تم تغيير كلمة المرور بنجاح' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 

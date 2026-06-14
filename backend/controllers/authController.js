@@ -53,15 +53,13 @@ const register = async (req, res) => {
       profileImage = await uploadToImgBB(req.file.path);
     }
 
-    const isAdmin = userId.toLowerCase() === 'admin';
-
     const user = await User.create({
       userId: userId.toLowerCase(),
       displayName,
       password: hashedPassword,
       profileImage,
       instagramLink: instagramLink || '',
-      role: isAdmin ? 'admin' : 'user',
+      role: 'user',
     });
 
     res.status(201).json({
@@ -80,7 +78,8 @@ const register = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Auth error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -122,7 +121,8 @@ const login = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Auth error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 

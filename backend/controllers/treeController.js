@@ -65,7 +65,8 @@ const plantTree = async (req, res) => {
     const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
     res.status(201).json({ ...tree.toObject(), co2Absorbed, o2Produced });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -78,7 +79,8 @@ const getAllTrees = async (req, res) => {
     });
     res.json(treesWithImpact);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -91,7 +93,8 @@ const getMyTrees = async (req, res) => {
     });
     res.json(treesWithImpact);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -128,7 +131,8 @@ const updateTree = async (req, res) => {
     const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
     res.json({ ...tree.toObject(), co2Absorbed, o2Produced });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -145,7 +149,8 @@ const deleteTree = async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, { $inc: { treesCount: -1 } });
     res.json({ message: 'Tree deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -210,7 +215,8 @@ const getGovernoratesStats = async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -253,7 +259,8 @@ const getGovTopContributors = async (req, res) => {
 
     res.json(top3);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 
@@ -272,7 +279,8 @@ const getSiteStats = async (req, res) => {
       totalO2:  parseFloat(totalO2.toFixed(1)),
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Tree error:', error);
+    res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
   }
 };
 

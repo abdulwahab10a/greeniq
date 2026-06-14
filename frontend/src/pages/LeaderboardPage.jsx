@@ -133,18 +133,21 @@ export default function LeaderboardPage() {
                   <img src={user.profileImage} alt={user.displayName} style={{
                     width: '44px', height: '44px', borderRadius: '50%',
                     objectFit: 'cover', border: `2px solid ${s.accent}55`,
+                  }} onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
                   }} />
-                ) : (
-                  <div style={{
-                    width: '44px', height: '44px', borderRadius: '50%',
-                    background: `linear-gradient(135deg, ${s.accent}22, ${s.accent}44)`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: '800', color: s.accent, fontSize: '1.1rem',
-                    border: `2px solid ${s.accent}44`,
-                  }}>
-                    {user.displayName?.[0]?.toUpperCase()}
-                  </div>
-                )}
+                ) : null}
+                <div style={{
+                  width: '44px', height: '44px', borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${s.accent}22, ${s.accent}44)`,
+                  display: user.profileImage ? 'none' : 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  fontWeight: '800', color: s.accent, fontSize: '1.1rem',
+                  border: `2px solid ${s.accent}44`,
+                }}>
+                  {user.displayName?.[0]?.toUpperCase()}
+                </div>
               </div>
 
               {/* Info */}
