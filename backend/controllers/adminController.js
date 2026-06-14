@@ -7,7 +7,7 @@ const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const getUsers = async (req, res) => {
   try {
     const page  = Math.max(1, parseInt(req.query.page)  || 1);
-    const limit = Math.min(50, parseInt(req.query.limit) || 20);
+    const limit = Math.min(500, parseInt(req.query.limit) || 50);
     const raw   = (req.query.search || '').trim().slice(0, 50);
     const search = raw ? escapeRegex(raw) : '';
 

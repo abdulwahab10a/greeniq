@@ -84,7 +84,7 @@ export default function AdminDashboard() {
   const fetchUsers = useCallback(async (q, p) => {
     setLoading(true);
     try {
-      const { data } = await api.get('/admin/users', { params: { search: q, page: p, limit: 20 } });
+      const { data } = await api.get('/admin/users', { params: { search: q, page: p, limit: 200 } });
       setUsers(data.users);
       setTotal(data.total);
       setPages(data.pages);
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
           لوحة التحكم
         </h1>
         <p style={{ margin: '4px 0 0', color: 'rgba(207,225,185,0.45)', fontSize: '0.85rem' }}>
-          إدارة حسابات المستخدمين
+          إدارة حسابات جميع المستخدمين المسجّلين منذ إطلاق التطبيق
         </p>
       </motion.div>
 
