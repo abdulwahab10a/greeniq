@@ -62,7 +62,7 @@ export default function MapPage() {
         setLocating(false);
       }
     );
-  }, [showPlantForm]);
+  }, [showPlantForm, t]);
 
   const handlePlantSubmit = async (e) => {
     e.preventDefault();

@@ -211,7 +211,7 @@ export default function GovernoratesPage() {
       .then(res => setData(res.data))
       .catch(() => setError(t('تعذّر تحميل البيانات')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   if (loading) return (
     <div className="max-w-2xl mx-auto space-y-4">

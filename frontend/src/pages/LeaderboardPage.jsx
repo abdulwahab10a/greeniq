@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
       .then(res => setLeaders(res.data))
       .catch(() => setError(t('تعذّر تحميل البيانات')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   if (loading) return (
     <div className="max-w-2xl mx-auto space-y-4">

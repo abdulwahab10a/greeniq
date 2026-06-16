@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EN, builders } from '../i18n/translations';
 
 const LanguageContext = createContext();
@@ -18,16 +18,18 @@ export function LanguageProvider({ children }) {
   const toggle = () => setLang(l => (l === 'ar' ? 'en' : 'ar'));
 
   // Arabic is the source/default: in Arabic, return the key unchanged.
-  const t = (key) => {
+  // Memoized on `lang` so consumers' effect/callback deps stay stable between
+  // renders and only re-run when the language actually changes.
+  const t = useCallback((key) => {
     if (key == null) return key;
     if (lang === 'ar') return key;
     return EN[key] ?? key;
-  };
+  }, [lang]);
 
   // Language-aware builders for dynamic/interpolated strings.
-  const b = Object.fromEntries(
+  const b = useMemo(() => Object.fromEntries(
     Object.entries(builders).map(([name, fn]) => [name, (...args) => fn(lang, ...args)])
-  );
+  ), [lang]);
 
   return (
     <LanguageContext.Provider value={{ lang, toggle, t, b }}>

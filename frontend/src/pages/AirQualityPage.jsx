@@ -159,7 +159,7 @@ export default function AirQualityPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { load(false); }, [load]);
 

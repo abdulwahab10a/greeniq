@@ -176,6 +176,9 @@ function QRScannerModal({ onClose, onResult }) {
       () => {}
     );
     return () => { scanner.clear().catch(() => {}); };
+    // The QR scanner must initialize exactly once; re-running on onResult/onClose
+    // identity changes would tear down and recreate the camera stream.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
