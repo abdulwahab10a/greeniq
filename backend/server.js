@@ -83,6 +83,28 @@ app.get('/', (req, res) => {
   res.json({ message: '🌱 Green Iraq API is running' });
 });
 
+// 404 — unmatched routes return JSON like the rest of the API
+app.use((req, res) => {
+  res.status(404).json({ message: 'المسار غير موجود' });
+});
+
+// Centralized error handler — keeps responses as JSON and hides stack
+// traces in production so internal details are never leaked to clients.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error('❌ Unhandled error:', err.message);
+
+  // Multer upload errors (e.g. file too large) map to 400
+  const status = err.status || (err.name === 'MulterError' ? 400 : 500);
+
+  res.status(status).json({
+    message:
+      process.env.NODE_ENV === 'production'
+        ? 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً'
+        : err.message,
+  });
+});
+
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
