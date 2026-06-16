@@ -2,8 +2,9 @@ import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon } from 'lucide-react';
+import { LogOut, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages } from 'lucide-react';
 
 /* ── Color tokens ── */
 const C = {
@@ -16,13 +17,14 @@ const C = {
 
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { t } = useLang();
   const isLight = theme === 'light';
   return (
     <motion.button
       onClick={toggle}
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.92 }}
-      title={isLight ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح'}
+      title={isLight ? t('تفعيل الوضع الداكن') : t('تفعيل الوضع الفاتح')}
       style={{
         background: isLight ? 'rgba(113,131,85,0.15)' : 'rgba(233,245,219,0.08)',
         border: isLight ? '1px solid rgba(113,131,85,0.3)' : '1px solid rgba(233,245,219,0.15)',
@@ -46,9 +48,45 @@ function ThemeToggle() {
   );
 }
 
+function LangToggle() {
+  const { theme } = useTheme();
+  const { lang, toggle } = useLang();
+  const isLight = theme === 'light';
+  const next = lang === 'ar' ? 'EN' : 'ع';
+  return (
+    <motion.button
+      onClick={toggle}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      title={lang === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
+      style={{
+        background: isLight ? 'rgba(113,131,85,0.15)' : 'rgba(233,245,219,0.08)',
+        border: isLight ? '1px solid rgba(113,131,85,0.3)' : '1px solid rgba(233,245,219,0.15)',
+        borderRadius: '10px', padding: '7px 9px', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: '5px',
+        color: isLight ? '#4a5e33' : '#cfe1b9',
+        transition: 'all 0.25s', flexShrink: 0,
+        fontSize: '0.78rem', fontWeight: '700', lineHeight: 1,
+      }}
+    >
+      <Languages size={15} />
+      <motion.span
+        key={lang}
+        initial={{ y: -6, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        style={{ minWidth: '14px', textAlign: 'center' }}
+      >
+        {next}
+      </motion.span>
+    </motion.button>
+  );
+}
+
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const { theme } = useTheme();
+  const { t } = useLang();
   const isLight = theme === 'light';
   const navigate = useNavigate();
   const location = useLocation();
@@ -109,6 +147,7 @@ export default function Navbar() {
           {user && (
             <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.4rem' }}>
               <ThemeToggle />
+              <LangToggle />
               {navLinks.map(({ to, label, icon: Icon }) => {
                 const active = location.pathname === to;
                 return (
@@ -128,7 +167,7 @@ export default function Navbar() {
                       }}
                     >
                       <Icon size={14} color={active ? C.palmLeaf : 'rgba(135,152,106,0.7)'} />
-                      {label}
+                      {t(label)}
                     </motion.div>
                   </Link>
                 );
@@ -181,7 +220,7 @@ export default function Navbar() {
                   display: 'flex', alignItems: 'center', gap: '6px',
                 }}
               >
-                <LogOut size={14} /> خروج
+                <LogOut size={14} /> {t('خروج')}
               </motion.button>
             </div>
           )}
@@ -190,8 +229,9 @@ export default function Navbar() {
           {!user && (
             <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.75rem' }}>
               <ThemeToggle />
+              <LangToggle />
               <Link to="/login" style={{ textDecoration: 'none', color: isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)', fontSize: '0.92rem' }}>
-                دخول
+                {t('دخول')}
               </Link>
               <Link to="/register" style={{ textDecoration: 'none' }}>
                 <motion.div
@@ -204,7 +244,7 @@ export default function Navbar() {
                     boxShadow: '0 4px 16px rgba(113,131,85,0.38)',
                   }}
                 >
-                  تسجيل جديد
+                  {t('تسجيل جديد')}
                 </motion.div>
               </Link>
             </div>
@@ -213,11 +253,12 @@ export default function Navbar() {
           {/* ── Mobile auth (not logged in) ── */}
           {!user && (
             <div className="flex md:hidden" style={{ alignItems: 'center', gap: '0.5rem' }}>
+              <LangToggle />
               <Link to="/login" style={{
                 textDecoration: 'none', color: 'rgba(207,225,185,0.65)',
                 fontSize: '0.88rem', padding: '6px 10px',
               }}>
-                دخول
+                {t('دخول')}
               </Link>
               <Link to="/register" style={{ textDecoration: 'none' }}>
                 <div style={{
@@ -225,7 +266,7 @@ export default function Navbar() {
                   color: C.frostedMint, padding: '7px 14px', borderRadius: '10px',
                   fontSize: '0.82rem', fontWeight: '700',
                 }}>
-                  تسجيل
+                  {t('تسجيل')}
                 </div>
               </Link>
             </div>
@@ -235,6 +276,7 @@ export default function Navbar() {
           {user && (
             <div className="flex md:hidden" style={{ alignItems: 'center', gap: '8px' }}>
             <ThemeToggle />
+            <LangToggle />
             <motion.button
               className="flex"
               onClick={() => setMobileOpen(o => !o)}
@@ -246,7 +288,7 @@ export default function Navbar() {
                 color: C.teaGreen, alignItems: 'center', justifyContent: 'center',
                 transition: 'all 0.2s',
               }}
-              aria-label="القائمة"
+              aria-label={t('القائمة')}
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </motion.button>
@@ -345,7 +387,7 @@ export default function Navbar() {
                         }}
                       >
                         <Icon size={18} color={active ? C.palmLeaf : 'rgba(135,152,106,0.55)'} />
-                        {label}
+                        {t(label)}
                       </motion.div>
                     </Link>
                   );
@@ -385,7 +427,7 @@ export default function Navbar() {
                         {user.displayName}
                       </p>
                       <p style={{ margin: 0, color: isLight ? 'rgba(45,58,31,0.55)' : 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
-                        الملف الشخصي
+                        {t('الملف الشخصي')}
                       </p>
                     </div>
                   </div>
@@ -402,7 +444,7 @@ export default function Navbar() {
                     cursor: 'pointer',
                   }}
                 >
-                  <LogOut size={18} /> خروج من الحساب
+                  <LogOut size={18} /> {t('خروج من الحساب')}
                 </button>
               </div>
             </motion.div>

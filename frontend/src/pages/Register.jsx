@@ -2,6 +2,7 @@ import { useState, useContext, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, AtSign, Link2, Camera, AlertCircle, Loader2, X } from 'lucide-react';
@@ -9,6 +10,7 @@ import { User, Lock, AtSign, Link2, Camera, AlertCircle, Loader2, X } from 'luci
 export default function Register() {
   const { login } = useContext(AuthContext);
   const C = useColors();
+  const { t } = useLang();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -54,12 +56,12 @@ export default function Register() {
     const displayName = form.displayName.trim();
     const socialLink = form.socialLink.trim();
 
-    if (userId.length < 3 || userId.length > 20) return setErr('userId', 'المعرف يجب أن يكون بين 3 و 20 حرفاً');
-    if (!/^[a-zA-Z0-9_.]+$/.test(userId)) return setErr('userId', 'المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ و . فقط');
-    if (displayName.length < 2 || displayName.length > 30) return setErr('displayName', 'الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً');
-    if (form.password.length < 8) return setErr('password', 'كلمة المرور يجب أن تكون 8 أحرف على الأقل');
-    if (form.password !== form.confirmPassword) return setErr('confirmPassword', 'كلمتا المرور غير متطابقتين');
-    if (socialLink && !/^https?:\/\/.+\..+/.test(socialLink)) return setErr('socialLink', 'رابط التواصل الاجتماعي يجب أن يبدأ بـ https://');
+    if (userId.length < 3 || userId.length > 20) return setErr('userId', t('المعرف يجب أن يكون بين 3 و 20 حرفاً'));
+    if (!/^[a-zA-Z0-9_.]+$/.test(userId)) return setErr('userId', t('المعرف يجب أن يحتوي على أحرف إنجليزية وأرقام و _ و . فقط'));
+    if (displayName.length < 2 || displayName.length > 30) return setErr('displayName', t('الاسم الظاهر يجب أن يكون بين 2 و 30 حرفاً'));
+    if (form.password.length < 8) return setErr('password', t('كلمة المرور يجب أن تكون 8 أحرف على الأقل'));
+    if (form.password !== form.confirmPassword) return setErr('confirmPassword', t('كلمتا المرور غير متطابقتين'));
+    if (socialLink && !/^https?:\/\/.+\..+/.test(socialLink)) return setErr('socialLink', t('رابط التواصل الاجتماعي يجب أن يبدأ بـ https://'));
 
     setLoading(true);
     try {
@@ -76,17 +78,17 @@ export default function Register() {
       login(data);
       navigate('/map');
     } catch (err) {
-      setApiError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
+      setApiError(err.response?.data?.message || t('حدث خطأ، حاول مرة أخرى'));
     } finally {
       setLoading(false);
     }
   };
 
   const textFields = [
-    { name: 'userId',          label: 'معرف المستخدم (UserID)', placeholder: 'مثال: ahmed_ali',         type: 'text',     icon: AtSign, hint: 'أحرف إنجليزية وأرقام و _ و . فقط', dir: 'ltr' },
-    { name: 'displayName',     label: 'الاسم الظاهر',            placeholder: 'مثال: أحمد علي',           type: 'text',     icon: User   },
-    { name: 'password',        label: 'كلمة المرور',              placeholder: '8 أحرف على الأقل',        type: 'password', icon: Lock   },
-    { name: 'confirmPassword', label: 'تأكيد كلمة المرور',        placeholder: 'أعد كتابة كلمة المرور',   type: 'password', icon: Lock   },
+    { name: 'userId',          label: t('معرف المستخدم (UserID)'), placeholder: t('مثال: ahmed_ali'),         type: 'text',     icon: AtSign, hint: t('أحرف إنجليزية وأرقام و _ و . فقط'), dir: 'ltr' },
+    { name: 'displayName',     label: t('الاسم الظاهر'),            placeholder: t('مثال: أحمد علي'),           type: 'text',     icon: User   },
+    { name: 'password',        label: t('كلمة المرور'),              placeholder: t('8 أحرف على الأقل'),        type: 'password', icon: Lock   },
+    { name: 'confirmPassword', label: t('تأكيد كلمة المرور'),        placeholder: t('أعد كتابة كلمة المرور'),   type: 'password', icon: Lock   },
   ];
 
   const inputIconStyle = {
@@ -157,10 +159,10 @@ export default function Register() {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             display: 'inline-block',
           }}>
-            إنشاء حساب جديد
+            {t('إنشاء حساب جديد')}
           </h1>
           <p style={{ color: C.textSubtle, fontSize: '0.88rem', margin: 0 }}>
-            انضم إلى مجتمع GreenIQ
+            {t('انضم إلى مجتمع GreenIQ')}
           </p>
         </div>
 
@@ -217,7 +219,7 @@ export default function Register() {
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '0.78rem', color: C.textSubtle }}>
-                {imagePreview ? 'تم اختيار الصورة' : 'صورة الملف الشخصي (اختياري)'}
+                {imagePreview ? t('تم اختيار الصورة') : t('صورة الملف الشخصي (اختياري)')}
               </span>
               {imagePreview && (
                 <button type="button" onClick={removeImage} style={{
@@ -277,8 +279,8 @@ export default function Register() {
               display: 'block', marginBottom: '0.45rem',
               fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
             }}>
-              رابط التواصل الاجتماعي{' '}
-              <span style={{ color: C.textFaint, fontWeight: '400' }}>(اختياري)</span>
+              {t('رابط التواصل الاجتماعي')}{' '}
+              <span style={{ color: C.textFaint, fontWeight: '400' }}>{t('(اختياري)')}</span>
             </label>
             <div style={{ position: 'relative' }}>
               <div style={inputIconStyle}><Link2 size={16} /></div>
@@ -317,15 +319,15 @@ export default function Register() {
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
                   <Loader2 size={18} />
                 </motion.div>
-                جاري إنشاء الحساب...
+                {t('جاري إنشاء الحساب...')}
               </>
-            ) : 'إنشاء الحساب'}
+            ) : t('إنشاء الحساب')}
           </motion.button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '1.25rem', color: C.textSubtle, fontSize: '0.88rem' }}>
-          لديك حساب؟{' '}
-          <Link to="/login" style={{ color: '#87986a', fontWeight: '700', textDecoration: 'none' }}>سجّل دخول</Link>
+          {t('لديك حساب؟')}{' '}
+          <Link to="/login" style={{ color: '#87986a', fontWeight: '700', textDecoration: 'none' }}>{t('سجّل دخول')}</Link>
         </p>
       </motion.div>
     </div>

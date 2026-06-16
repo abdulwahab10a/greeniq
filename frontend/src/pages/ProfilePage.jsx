@@ -1,6 +1,7 @@
 import { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -81,6 +82,7 @@ function ErrorBanner({ msg }) {
 }
 
 function SubmitBtn({ loading, children }) {
+  const { t } = useLang();
   return (
     <motion.button
       type="submit" disabled={loading}
@@ -97,7 +99,7 @@ function SubmitBtn({ loading, children }) {
           <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
             <Loader2 size={16} />
           </motion.div>
-          جاري الحفظ...
+          {t('جاري الحفظ...')}
         </>
       ) : children}
     </motion.button>
@@ -155,6 +157,7 @@ function ModalShell({ children, onClose, title, titleIcon, wide }) {
 /* ── QR Scanner Modal ───────────────────────────────────── */
 function QRScannerModal({ onClose, onResult }) {
   const C = useColors();
+  const { t } = useLang();
   const scannerId = 'qr-scanner-container';
 
   useEffect(() => {
@@ -196,7 +199,7 @@ function QRScannerModal({ onClose, onResult }) {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <QrCode size={16} color={T.palm} /> امسح رمز QR
+            <QrCode size={16} color={T.palm} /> {t('امسح رمز QR')}
           </h2>
           <button onClick={onClose} style={{
             background: T.huntBg, border: `1px solid ${T.huntBd}`,
@@ -207,7 +210,7 @@ function QRScannerModal({ onClose, onResult }) {
           </button>
         </div>
         <p style={{ color: C.textMuted, fontSize: '0.82rem', marginBottom: '1rem', textAlign: 'center' }}>
-          وجّه الكاميرا نحو رمز QR الخاص بحسابك
+          {t('وجّه الكاميرا نحو رمز QR الخاص بحسابك')}
         </p>
         <div
           id={scannerId}
@@ -220,6 +223,7 @@ function QRScannerModal({ onClose, onResult }) {
 
 /* ── Change Password Modal ──────────────────────────────── */
 function ChangePasswordModal({ onClose }) {
+  const { t } = useLang();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -228,20 +232,20 @@ function ChangePasswordModal({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.newPassword !== form.confirmPassword) return setError('كلمتا المرور الجديدة غير متطابقتين');
-    if (form.newPassword.length < 6) return setError('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+    if (form.newPassword !== form.confirmPassword) return setError(t('كلمتا المرور الجديدة غير متطابقتين'));
+    if (form.newPassword.length < 6) return setError(t('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'));
     setLoading(true);
     try {
       await api.put('/users/change-password', { currentPassword: form.currentPassword, newPassword: form.newPassword });
       setSuccess(true);
       setTimeout(onClose, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
+      setError(err.response?.data?.message || t('حدث خطأ، حاول مرة أخرى'));
     } finally { setLoading(false); }
   };
 
   return (
-    <ModalShell onClose={onClose} title="تغيير كلمة المرور" titleIcon={<Lock size={16} color={T.palm} />}>
+    <ModalShell onClose={onClose} title={t('تغيير كلمة المرور')} titleIcon={<Lock size={16} color={T.palm} />}>
       {success ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
@@ -251,15 +255,15 @@ function ChangePasswordModal({ onClose }) {
           }}
         >
           <CheckCircle2 size={38} color={T.palm} style={{ marginBottom: '0.75rem' }} />
-          <p style={{ color: T.palm, fontWeight: '700', margin: 0 }}>تم تغيير كلمة المرور بنجاح</p>
+          <p style={{ color: T.palm, fontWeight: '700', margin: 0 }}>{t('تم تغيير كلمة المرور بنجاح')}</p>
         </motion.div>
       ) : (
         <form onSubmit={handleSubmit}>
           {error && <ErrorBanner msg={error} />}
           {[
-            { key: 'currentPassword',  label: 'كلمة المرور الحالية',        placeholder: 'أدخل كلمة مرورك الحالية' },
-            { key: 'newPassword',      label: 'كلمة المرور الجديدة',        placeholder: '6 أحرف على الأقل' },
-            { key: 'confirmPassword',  label: 'تأكيد كلمة المرور الجديدة', placeholder: 'أعد كتابة كلمة المرور الجديدة' },
+            { key: 'currentPassword',  label: t('كلمة المرور الحالية'),        placeholder: t('أدخل كلمة مرورك الحالية') },
+            { key: 'newPassword',      label: t('كلمة المرور الجديدة'),        placeholder: t('6 أحرف على الأقل') },
+            { key: 'confirmPassword',  label: t('تأكيد كلمة المرور الجديدة'), placeholder: t('أعد كتابة كلمة المرور الجديدة') },
           ].map(({ key, label, placeholder }, i) => (
             <div key={key} style={{ marginBottom: i === 2 ? '1.5rem' : '1rem' }}>
               <FieldLabel>{label}</FieldLabel>
@@ -269,7 +273,7 @@ function ChangePasswordModal({ onClose }) {
               />
             </div>
           ))}
-          <SubmitBtn loading={loading}>حفظ كلمة المرور الجديدة</SubmitBtn>
+          <SubmitBtn loading={loading}>{t('حفظ كلمة المرور الجديدة')}</SubmitBtn>
         </form>
       )}
     </ModalShell>
@@ -279,6 +283,7 @@ function ChangePasswordModal({ onClose }) {
 /* ── Edit Profile Modal ─────────────────────────────────── */
 function EditProfileModal({ user, onClose, onSaved }) {
   const C = useColors();
+  const { t } = useLang();
   const fileInputRef = useRef(null);
   const [qrTarget, setQrTarget] = useState(null); // which field is being scanned
   const [form, setForm] = useState({
@@ -314,7 +319,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
       onSaved(data);
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
+      setError(err.response?.data?.message || t('حدث خطأ، حاول مرة أخرى'));
     } finally { setLoading(false); }
   };
 
@@ -331,7 +336,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
         />
       )}
     </AnimatePresence>
-    <ModalShell onClose={onClose} title="تعديل الملف الشخصي" titleIcon={<Edit3 size={16} color={T.palm} />} wide>
+    <ModalShell onClose={onClose} title={t('تعديل الملف الشخصي')} titleIcon={<Edit3 size={16} color={T.palm} />} wide>
       <form onSubmit={handleSubmit}>
         {error && <ErrorBanner msg={error} />}
 
@@ -370,17 +375,17 @@ function EditProfileModal({ user, onClose, onSaved }) {
         {/* Basic info — responsive grid */}
         <div className="grid-2-col">
           <div>
-            <FieldLabel>الاسم الظاهر</FieldLabel>
+            <FieldLabel>{t('الاسم الظاهر')}</FieldLabel>
             <div style={{ position: 'relative' }}>
               <IconWrap><User size={14} /></IconWrap>
               <input type="text" value={form.displayName} onChange={e => setForm({ ...form, displayName: e.target.value })}
-                placeholder="الاسم الظاهر" required className="glass-input"
+                placeholder={t('الاسم الظاهر')} required className="glass-input"
                 style={{ width: '100%', padding: '0.68rem 0.85rem 0.68rem 2.3rem', borderRadius: '10px', fontSize: '0.85rem', boxSizing: 'border-box' }}
               />
             </div>
           </div>
           <div>
-            <FieldLabel>رقم الهاتف</FieldLabel>
+            <FieldLabel>{t('رقم الهاتف')}</FieldLabel>
             <div style={{ position: 'relative' }}>
               <IconWrap><Phone size={14} /></IconWrap>
               <input type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
@@ -400,7 +405,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
             color: C.textFaint, fontSize: '0.72rem', fontWeight: '700',
             margin: '0 0 0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em',
           }}>
-            روابط التواصل الاجتماعي
+            {t('روابط التواصل الاجتماعي')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon, color }) => (
@@ -422,7 +427,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
                   type="button"
                   onClick={() => setQrTarget(key)}
                   whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
-                  title="امسح رمز QR"
+                  title={t('امسح رمز QR')}
                   style={{
                     width: '33px', height: '33px', borderRadius: '8px', flexShrink: 0,
                     background: 'rgba(135,152,106,0.12)', border: '1px solid rgba(135,152,106,0.28)',
@@ -437,7 +442,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
           </div>
         </div>
 
-        <SubmitBtn loading={loading}>حفظ التغييرات</SubmitBtn>
+        <SubmitBtn loading={loading}>{t('حفظ التغييرات')}</SubmitBtn>
       </form>
     </ModalShell>
     </>
@@ -446,6 +451,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
 
 /* ── Social chip ────────────────────────────────────────── */
 function SocialChip({ url }) {
+  const { t } = useLang();
   const p = detectPlatform(url);
   if (!p) return null;
   const { name, color, textColor, Icon } = p;
@@ -463,7 +469,7 @@ function SocialChip({ url }) {
       }}
     >
       <Icon size={14} />
-      {name}
+      {t(name)}
       <ExternalLink size={11} style={{ opacity: 0.55 }} />
     </motion.a>
   );
@@ -480,13 +486,14 @@ const BADGES = [
 
 function BadgesSection({ treesCount, isProvChamp }) {
   const C = useColors();
+  const { t } = useLang();
   const earned = BADGES.filter(b => b.check(treesCount, isProvChamp));
   const locked = BADGES.filter(b => !b.check(treesCount, isProvChamp));
 
   return (
     <div style={{ marginBottom: '1.25rem' }}>
       <p style={{ color: C.textFaint, fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        الشارات
+        {t('الشارات')}
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
         {earned.map((b, i) => (
@@ -495,7 +502,7 @@ function BadgesSection({ treesCount, isProvChamp }) {
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.08, type: 'spring', stiffness: 280 }}
-            title={b.desc}
+            title={t(b.desc)}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               background: 'linear-gradient(135deg, rgba(74,94,51,0.5), rgba(113,131,85,0.3))',
@@ -506,13 +513,13 @@ function BadgesSection({ treesCount, isProvChamp }) {
             }}
           >
             <span style={{ fontSize: '1rem' }}>{b.emoji}</span>
-            {b.label}
+            {t(b.label)}
           </motion.div>
         ))}
         {locked.map(b => (
           <div
             key={b.id}
-            title={b.desc}
+            title={t(b.desc)}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               background: 'rgba(30,46,20,0.3)', border: '1px solid rgba(135,152,106,0.1)',
@@ -522,7 +529,7 @@ function BadgesSection({ treesCount, isProvChamp }) {
             }}
           >
             <span style={{ fontSize: '1rem', opacity: 0.3 }}>{b.emoji}</span>
-            {b.label}
+            {t(b.label)}
           </div>
         ))}
       </div>
@@ -533,6 +540,7 @@ function BadgesSection({ treesCount, isProvChamp }) {
 /* ── Main ProfilePage ───────────────────────────────────── */
 export default function ProfilePage() {
   const C = useColors();
+  const { t } = useLang();
   const { user, updateUser } = useContext(AuthContext);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -572,10 +580,10 @@ export default function ProfilePage() {
   ].filter(Boolean);
 
   const infoRows = [
-    { icon: AtSign,   label: 'معرف الحساب',        value: `@${user.userId}`,   dir: 'ltr' },
-    { icon: User,     label: 'الاسم الظاهر',        value: user.displayName                },
-    ...(user.phone ? [{ icon: Phone, label: 'الهاتف', value: user.phone, dir: 'ltr' }] : []),
-    { icon: TreePine, label: 'الأشجار المزروعة',    value: user.treesCount ?? 0, accent: true },
+    { icon: AtSign,   label: t('معرف الحساب'),        value: `@${user.userId}`,   dir: 'ltr' },
+    { icon: User,     label: t('الاسم الظاهر'),        value: user.displayName                },
+    ...(user.phone ? [{ icon: Phone, label: t('الهاتف'), value: user.phone, dir: 'ltr' }] : []),
+    { icon: TreePine, label: t('الأشجار المزروعة'),    value: user.treesCount ?? 0, accent: true },
   ];
 
   return (
@@ -623,7 +631,7 @@ export default function ProfilePage() {
               gap: '6px', fontSize: '0.78rem', fontWeight: '700',
             }}
           >
-            <Edit3 size={12} /> تعديل
+            <Edit3 size={12} /> {t('تعديل')}
           </motion.button>
 
           {/* Avatar */}
@@ -679,7 +687,7 @@ export default function ProfilePage() {
               }}>
                 <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#4ade80' }}>{impact.totalCO2}</div>
                 <div style={{ fontSize: '0.7rem', color: 'rgba(134,239,172,0.55)', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                  <Leaf size={10} /> CO₂ ممتص (كجم)
+                  <Leaf size={10} /> {t('CO₂ ممتص (كجم)')}
                 </div>
               </div>
               <div style={{
@@ -688,7 +696,7 @@ export default function ProfilePage() {
               }}>
                 <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#93c5fd' }}>{impact.totalO2}</div>
                 <div style={{ fontSize: '0.7rem', color: 'rgba(147,197,253,0.55)', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                  <Wind size={10} /> O₂ منتج (كجم)
+                  <Wind size={10} /> {t('O₂ منتج (كجم)')}
                 </div>
               </div>
             </motion.div>
@@ -737,7 +745,7 @@ export default function ProfilePage() {
                 borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               }}
             >
-              <Edit3 size={15} /> تعديل الملف الشخصي
+              <Edit3 size={15} /> {t('تعديل الملف الشخصي')}
             </motion.button>
 
             <motion.button
@@ -752,7 +760,7 @@ export default function ProfilePage() {
                 transition: 'all 0.2s',
               }}
             >
-              <Lock size={14} /> تغيير كلمة المرور
+              <Lock size={14} /> {t('تغيير كلمة المرور')}
             </motion.button>
           </div>
         </div>

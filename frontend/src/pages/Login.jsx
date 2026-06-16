@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import api from '../api/axios';
 import { motion } from 'framer-motion';
 import { User, Lock, AlertCircle, Loader2 } from 'lucide-react';
@@ -9,6 +10,7 @@ import { User, Lock, AlertCircle, Loader2 } from 'lucide-react';
 export default function Login() {
   const { login } = useContext(AuthContext);
   const C = useColors();
+  const { t } = useLang();
   const navigate = useNavigate();
   const [form, setForm] = useState({ userId: '', password: '' });
   const [error, setError] = useState('');
@@ -23,8 +25,8 @@ export default function Login() {
     const userId = form.userId.trim();
     const password = form.password;
 
-    if (userId.length < 3) return setError('المعرف يجب أن يكون 3 أحرف على الأقل');
-    if (password.length < 8) return setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+    if (userId.length < 3) return setError(t('المعرف يجب أن يكون 3 أحرف على الأقل'));
+    if (password.length < 8) return setError(t('كلمة المرور يجب أن تكون 8 أحرف على الأقل'));
 
     setLoading(true);
     try {
@@ -35,7 +37,7 @@ export default function Login() {
       login(data);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
+      setError(err.response?.data?.message || t('حدث خطأ، حاول مرة أخرى'));
     } finally {
       setLoading(false);
     }
@@ -76,10 +78,10 @@ export default function Login() {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             display: 'inline-block',
           }}>
-            تسجيل الدخول
+            {t('تسجيل الدخول')}
           </h1>
           <p style={{ color: C.textMuted, fontSize: '0.9rem', margin: 0 }}>
-            أهلاً بك في <span dir="ltr" style={{ unicodeBidi: 'embed' }}>GreenIQ</span>
+            {t('أهلاً بك في')} <span dir="ltr" style={{ unicodeBidi: 'embed' }}>GreenIQ</span>
           </p>
         </div>
 
@@ -105,7 +107,7 @@ export default function Login() {
               display: 'block', marginBottom: '0.5rem',
               fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
             }}>
-              معرف المستخدم
+              {t('معرف المستخدم')}
             </label>
             <div style={{ position: 'relative' }}>
               <div style={{
@@ -116,7 +118,7 @@ export default function Login() {
               </div>
               <input
                 type="text" name="userId" value={form.userId}
-                onChange={handleChange} placeholder="أدخل معرفك" required
+                onChange={handleChange} placeholder={t('أدخل معرفك')} required
                 className="glass-input"
                 style={{
                   width: '100%', padding: '0.82rem 1rem 0.82rem 2.75rem',
@@ -133,7 +135,7 @@ export default function Login() {
               display: 'block', marginBottom: '0.5rem',
               fontWeight: '600', color: C.textMuted, fontSize: '0.85rem',
             }}>
-              كلمة المرور
+              {t('كلمة المرور')}
             </label>
             <div style={{ position: 'relative' }}>
               <div style={{
@@ -144,7 +146,7 @@ export default function Login() {
               </div>
               <input
                 type="password" name="password" value={form.password}
-                onChange={handleChange} placeholder="أدخل كلمة المرور" required
+                onChange={handleChange} placeholder={t('أدخل كلمة المرور')} required
                 className="glass-input"
                 style={{
                   width: '100%', padding: '0.82rem 1rem 0.82rem 2.75rem',
@@ -170,16 +172,16 @@ export default function Login() {
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
                   <Loader2 size={18} />
                 </motion.div>
-                جاري تسجيل الدخول...
+                {t('جاري تسجيل الدخول...')}
               </>
-            ) : 'تسجيل الدخول'}
+            ) : t('تسجيل الدخول')}
           </motion.button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '1.35rem', color: C.textSubtle, fontSize: '0.88rem' }}>
-          ليس لديك حساب؟{' '}
+          {t('ليس لديك حساب؟')}{' '}
           <Link to="/register" style={{ color: '#87986a', fontWeight: '700', textDecoration: 'none' }}>
-            إنشاء حساب
+            {t('إنشاء حساب')}
           </Link>
         </p>
       </motion.div>

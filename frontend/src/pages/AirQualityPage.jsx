@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Wind, RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
 import api from '../api/axios';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 // EPA formula: PM2.5 µg/m³ → AQI
 function pm25ToAqi(pm) {
@@ -51,6 +52,7 @@ function PurityBar({ purity, color }) {
 }
 
 function ProvinceCard({ province, index, C }) {
+  const { t } = useLang();
   const aqi = province.aqi;
   const { label, color, barColor, purity, emoji } = getAqiCategory(aqi);
 
@@ -71,7 +73,7 @@ function ProvinceCard({ province, index, C }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 style={{ color: C.heading, fontWeight: '700', fontSize: '0.95rem', margin: '0 0 4px' }}>
-            {province.name}
+            {t(province.name)}
           </h3>
           {province.pm25 !== null && (
             <p style={{ color: C.textFaint, fontSize: '0.68rem', margin: 0 }}>
@@ -100,13 +102,13 @@ function ProvinceCard({ province, index, C }) {
           border: `1px solid ${aqi !== null ? color + '30' : 'rgba(107,114,128,0.2)'}`,
           fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px',
         }}>
-          {emoji} {label}
+          {emoji} {t(label)}
         </span>
 
         {purity !== null && (
           <span style={{ color, fontSize: '0.85rem', fontWeight: '800' }}>
             {purity}%
-            <span style={{ color: 'rgba(207,225,185,0.3)', fontSize: '0.65rem', fontWeight: '400', marginRight: '3px' }}>نقاء</span>
+            <span style={{ color: 'rgba(207,225,185,0.3)', fontSize: '0.65rem', fontWeight: '400', marginRight: '3px' }}>{t('نقاء')}</span>
           </span>
         )}
       </div>
@@ -128,6 +130,7 @@ function LoadingSkeleton() {
 
 export default function AirQualityPage() {
   const C = useColors();
+  const { t, b, lang } = useLang();
   const [provinces, setProvinces] = useState([]);
   const [updatedAt, setUpdatedAt] = useState(null);
   const [loading, setLoading]     = useState(true);
@@ -151,7 +154,7 @@ export default function AirQualityPage() {
       setProvinces(enriched);
       setUpdatedAt(new Date(data.updatedAt));
     } catch {
-      setError('تعذّر تحميل بيانات جودة الهواء، يرجى المحاولة لاحقاً');
+      setError(t('تعذّر تحميل بيانات جودة الهواء، يرجى المحاولة لاحقاً'));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -183,10 +186,10 @@ export default function AirQualityPage() {
           <span key={String(C.L)} style={{
             background: C.headingGrad, WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
-          }}>جودة الهواء في العراق</span>
+          }}>{t('جودة الهواء في العراق')}</span>
         </h1>
         <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: '0 0 1rem' }}>
-          قراءات حية للمحافظات الـ 18 · مصدر: Open-Meteo Air Quality API
+          {t('قراءات حية للمحافظات الـ 18 · مصدر: Open-Meteo Air Quality API')}
         </p>
 
         {avgAqi !== null && (
@@ -199,11 +202,11 @@ export default function AirQualityPage() {
               borderRadius: '999px', padding: '6px 18px', fontSize: '0.82rem',
             }}
           >
-            <span style={{ color: avgCat.color, fontWeight: '700' }}>متوسط AQI في العراق: {avgAqi}</span>
+            <span style={{ color: avgCat.color, fontWeight: '700' }}>{t('متوسط AQI في العراق:')} {avgAqi}</span>
             <span style={{ color: 'rgba(207,225,185,0.3)' }}>·</span>
-            <span style={{ color: avgCat.color }}>{avgCat.emoji} {avgCat.label}</span>
+            <span style={{ color: avgCat.color }}>{avgCat.emoji} {t(avgCat.label)}</span>
             <span style={{ color: 'rgba(207,225,185,0.3)' }}>·</span>
-            <span style={{ color: avgCat.color, fontWeight: '700' }}>{avgCat.purity}% نقاء</span>
+            <span style={{ color: avgCat.color, fontWeight: '700' }}>{avgCat.purity}% {t('نقاء')}</span>
           </motion.div>
         )}
       </motion.div>
@@ -225,7 +228,7 @@ export default function AirQualityPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
           <p style={{ color: 'rgba(207,225,185,0.3)', fontSize: '0.72rem', margin: 0 }}>
             {updatedAt
-              ? `آخر تحديث: ${updatedAt.toLocaleTimeString('ar-IQ')} · البيانات مخزنة مؤقتاً لمدة ساعة في السيرفر`
+              ? b.lastUpdated(updatedAt.toLocaleTimeString(lang === 'ar' ? 'ar-IQ' : 'en-US'))
               : ''}
           </p>
 
@@ -242,7 +245,7 @@ export default function AirQualityPage() {
             }}
           >
             <RefreshCw size={13} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
-            {refreshing ? 'جاري التحديث...' : 'تحديث'}
+            {refreshing ? t('جاري التحديث...') : t('تحديث')}
           </motion.button>
         </div>
       )}
@@ -266,7 +269,7 @@ export default function AirQualityPage() {
               color: 'rgba(207,225,185,0.55)',
             }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
-              AQI {item.range}: {item.label}
+              AQI {item.range}: {t(item.label)}
             </span>
           ))}
         </div>
@@ -284,12 +287,12 @@ export default function AirQualityPage() {
       {/* Attribution */}
       {!loading && (
         <p style={{ textAlign: 'center', fontSize: '0.7rem', color: 'rgba(207,225,185,0.2)', marginTop: '1.5rem' }}>
-          البيانات مقدمة من{' '}
+          {t('البيانات مقدمة من')}{' '}
           <a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noreferrer"
             style={{ color: 'rgba(144,169,85,0.5)', textDecoration: 'none' }}>
             Open-Meteo Air Quality API
           </a>
-          {' '}· مؤشر AQI محسوب من PM2.5 بمعادلة EPA الأمريكية
+          {' '}· {t('مؤشر AQI محسوب من PM2.5 بمعادلة EPA الأمريكية')}
         </p>
       )}
 

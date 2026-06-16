@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Search, TreePine, UserCheck, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../api/axios';
+import { useLang } from '../context/LanguageContext';
 
 const C = {
   palmLeaf:    '#87986a',
@@ -66,6 +67,7 @@ function Avatar({ user }) {
 }
 
 export default function AdminDashboard() {
+  const { t, b, lang } = useLang();
   const [stats,   setStats]   = useState(null);
   const [users,   setUsers]   = useState([]);
   const [total,   setTotal]   = useState(0);
@@ -103,7 +105,7 @@ export default function AdminDashboard() {
     setQuery(search);
   };
 
-  const formatDate = (iso) => new Date(iso).toLocaleDateString('ar-IQ', {
+  const formatDate = (iso) => new Date(iso).toLocaleDateString(lang === 'ar' ? 'ar-IQ' : 'en-US', {
     year: 'numeric', month: 'short', day: 'numeric',
   });
 
@@ -119,18 +121,18 @@ export default function AdminDashboard() {
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
         }}>
-          لوحة التحكم
+          {t('لوحة التحكم')}
         </h1>
         <p style={{ margin: '4px 0 0', color: 'rgba(207,225,185,0.45)', fontSize: '0.85rem' }}>
-          إدارة حسابات جميع المستخدمين المسجّلين منذ إطلاق التطبيق
+          {t('إدارة حسابات جميع المستخدمين المسجّلين منذ إطلاق التطبيق')}
         </p>
       </motion.div>
 
       {/* Stats */}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-        <StatCard icon={Users}       label="إجمالي المستخدمين" value={stats?.total}      color={C.palmLeaf}   />
-        <StatCard icon={UserCheck}   label="مسجلون اليوم"      value={stats?.todayCount} color="#60a5fa"      />
-        <StatCard icon={CalendarDays} label="خلال 7 أيام"      value={stats?.weekCount}  color="#a78bfa"      />
+        <StatCard icon={Users}       label={t('إجمالي المستخدمين')} value={stats?.total}      color={C.palmLeaf}   />
+        <StatCard icon={UserCheck}   label={t('مسجلون اليوم')}      value={stats?.todayCount} color="#60a5fa"      />
+        <StatCard icon={CalendarDays} label={t('خلال 7 أيام')}      value={stats?.weekCount}  color="#a78bfa"      />
       </div>
 
       {/* Search */}
@@ -142,7 +144,7 @@ export default function AdminDashboard() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="ابحث باسم المستخدم أو المعرف..."
+            placeholder={t('ابحث باسم المستخدم أو المعرف...')}
             style={{
               width: '100%', padding: '0.7rem 2.6rem 0.7rem 1rem',
               background: C.card, border: `1px solid ${C.border}`,
@@ -161,7 +163,7 @@ export default function AdminDashboard() {
             fontSize: '0.88rem', cursor: 'pointer',
           }}
         >
-          بحث
+          {t('بحث')}
         </motion.button>
       </form>
 
@@ -180,10 +182,10 @@ export default function AdminDashboard() {
           borderBottom: `1px solid ${C.border}`,
           color: 'rgba(207,225,185,0.45)', fontSize: '0.78rem', fontWeight: '600',
         }}>
-          <span>المستخدم</span>
-          <span style={{ textAlign: 'center' }}>المعرف</span>
-          <span style={{ textAlign: 'center' }}>الأشجار</span>
-          <span style={{ textAlign: 'center' }}>تاريخ التسجيل</span>
+          <span>{t('المستخدم')}</span>
+          <span style={{ textAlign: 'center' }}>{t('المعرف')}</span>
+          <span style={{ textAlign: 'center' }}>{t('الأشجار')}</span>
+          <span style={{ textAlign: 'center' }}>{t('تاريخ التسجيل')}</span>
         </div>
 
         <AnimatePresence mode="wait">
@@ -201,7 +203,7 @@ export default function AdminDashboard() {
             </div>
           ) : users.length === 0 ? (
             <p style={{ textAlign: 'center', padding: '3rem', color: 'rgba(207,225,185,0.35)' }}>
-              لا يوجد نتائج
+              {t('لا يوجد نتائج')}
             </p>
           ) : (
             <motion.div key={`${query}-${page}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -228,7 +230,7 @@ export default function AdminDashboard() {
                         fontSize: '0.65rem', fontWeight: '700', padding: '2px 7px',
                         borderRadius: '20px', background: 'rgba(250,204,21,0.15)',
                         border: '1px solid rgba(250,204,21,0.4)', color: '#fbbf24',
-                      }}>أدمن</span>
+                      }}>{t('أدمن')}</span>
                     )}
                   </div>
                   {/* userId */}
@@ -269,7 +271,7 @@ export default function AdminDashboard() {
             <ChevronRight size={16} />
           </motion.button>
           <span style={{ color: 'rgba(207,225,185,0.55)', fontSize: '0.88rem' }}>
-            {page} / {pages} — ({total} مستخدم)
+            {b.pageInfo(page, pages, total)}
           </span>
           <motion.button
             whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}

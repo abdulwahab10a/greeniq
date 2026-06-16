@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TreePine, Leaf, Wind, ExternalLink } from 'lucide-react';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import { FaInstagram, FaFacebook, FaSnapchatGhost, FaTelegram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -18,6 +19,7 @@ function detectPlatform(url) {
 
 export default function UserProfileModal({ userId, onClose }) {
   const C = useColors();
+  const { t, b } = useLang();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
@@ -89,7 +91,7 @@ export default function UserProfileModal({ userId, onClose }) {
           </div>
 
           {loading ? (
-            <div style={{ color: C.modalMuted, fontSize: '0.9rem' }}>جاري التحميل...</div>
+            <div style={{ color: C.modalMuted, fontSize: '0.9rem' }}>{t('جاري التحميل...')}</div>
           ) : (
             <>
               <h2 style={{ color: C.modalText, fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.2rem' }}>
@@ -105,9 +107,9 @@ export default function UserProfileModal({ userId, onClose }) {
           <div style={{ padding: '1.25rem 1.5rem 1.5rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
               {[
-                { icon: TreePine, label: 'الأشجار المزروعة', value: `${profile.treesCount} شجرة`, color: '#4ade80', bg: '#14532d' },
-                { icon: Leaf,     label: 'CO₂ المختزل',      value: `${profile.totalCO2} كجم`,   color: '#86efac', bg: '#14532d' },
-                { icon: Wind,     label: 'O₂ المنبعث',        value: `${profile.totalO2} كجم`,   color: '#93c5fd', bg: '#1e3a5f' },
+                { icon: TreePine, label: t('الأشجار المزروعة'), value: b.trees(profile.treesCount), color: '#4ade80', bg: '#14532d' },
+                { icon: Leaf,     label: t('CO₂ المختزل'),      value: b.kg(profile.totalCO2),   color: '#86efac', bg: '#14532d' },
+                { icon: Wind,     label: t('O₂ المنبعث'),        value: b.kg(profile.totalO2),   color: '#93c5fd', bg: '#1e3a5f' },
               ].map(({ icon: Icon, label, value, color, bg }) => (
                 <div key={label} style={{
                   background: bg, border: `1px solid ${color}22`,
@@ -125,7 +127,7 @@ export default function UserProfileModal({ userId, onClose }) {
             {socialLinks.length > 0 && (
               <div>
                 <p style={{ color: C.modalMuted, fontSize: '0.72rem', fontWeight: '700', margin: '0 0 0.6rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  التواصل الاجتماعي
+                  {t('التواصل الاجتماعي')}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
                   {socialLinks.map((url, i) => {
@@ -143,7 +145,7 @@ export default function UserProfileModal({ userId, onClose }) {
                           color: textColor || color, fontSize: '0.82rem', fontWeight: '600',
                         }}
                       >
-                        <Icon size={14} /> {name} <ExternalLink size={10} style={{ opacity: 0.55 }} />
+                        <Icon size={14} /> {t(name)} <ExternalLink size={10} style={{ opacity: 0.55 }} />
                       </motion.a>
                     );
                   })}

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useColors } from './context/ThemeContext';
+import { useLang } from './context/LanguageContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // Pages
@@ -27,6 +28,7 @@ function AdminRoute({ children }) {
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const { t } = useLang();
   if (loading) return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -41,7 +43,7 @@ function ProtectedRoute({ children }) {
           borderTopColor: '#90a955',
         }}
       />
-      <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.9rem' }}>جاري التحميل...</span>
+      <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.9rem' }}>{t('جاري التحميل...')}</span>
     </div>
   );
   if (!user) return <Navigate to="/login" replace />;
@@ -71,6 +73,7 @@ function AnimatedPage({ children }) {
 function App() {
   const location = useLocation();
   const C = useColors();
+  const { t } = useLang();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -114,11 +117,11 @@ function App() {
           Developed &amp; Engineered by Abdulwahab H.Murad
         </p>
         <p style={{ color: C.textSubtle, fontSize: '0.78rem', marginBottom: '0.6rem' }}>
-          جميع الحقوق محفوظة &copy; GreenIQ 2026
+          {t('جميع الحقوق محفوظة')} &copy; GreenIQ 2026
         </p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <span style={{ color: C.textFaint, fontSize: '0.78rem' }}>
-            تواصل معنا ✉️ greeniq964@gmail.com
+            {t('تواصل معنا ✉️ greeniq964@gmail.com')}
           </span>
           <a
             href="https://mail.google.com/mail/?view=cm&to=greeniq964@gmail.com&su=GreenIQ%20%E2%80%94%20%D9%85%D9%84%D8%A7%D8%AD%D8%B8%D8%A9%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AE%D8%AF%D9%85"
@@ -140,7 +143,7 @@ function App() {
               e.currentTarget.style.borderColor = 'rgba(144,169,85,0.28)';
             }}
           >
-            ✉️ أرسل ملاحظة
+            ✉️ {t('أرسل ملاحظة')}
           </a>
         </div>
       </footer>

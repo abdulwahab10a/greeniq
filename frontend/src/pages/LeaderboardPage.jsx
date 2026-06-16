@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, TreePine, Leaf, Wind } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
@@ -27,6 +28,7 @@ function LoadingSkeleton() {
 
 export default function LeaderboardPage() {
   const C = useColors();
+  const { t, b } = useLang();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -35,7 +37,7 @@ export default function LeaderboardPage() {
   useEffect(() => {
     api.get('/users/leaderboard')
       .then(res => setLeaders(res.data))
-      .catch(() => setError('تعذّر تحميل البيانات'))
+      .catch(() => setError(t('تعذّر تحميل البيانات')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -76,16 +78,16 @@ export default function LeaderboardPage() {
           <span key={String(C.L)} style={{
             background: C.headingGrad, WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
-          }}>أفضل الزارعين</span>
+          }}>{t('أفضل الزارعين')}</span>
         </h1>
         <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: 0 }}>
-          أفضل 100 مستخدم حسب عدد الأشجار المزروعة
+          {t('أفضل 100 مستخدم حسب عدد الأشجار المزروعة')}
         </p>
       </motion.div>
 
       {leaders.length === 0 && (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: C.textFaint }}>
-          لا يوجد زارعون بعد، كن الأول! 🌱
+          {t('لا يوجد زارعون بعد، كن الأول! 🌱')}
         </div>
       )}
 
@@ -157,9 +159,9 @@ export default function LeaderboardPage() {
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                   {[
-                    { icon: TreePine, label: `${user.treesCount} شجرة`,    bg: 'rgba(135,152,106,0.12)', border: 'rgba(135,152,106,0.24)', color: '#b5c99a' },
-                    { icon: Leaf,     label: `CO₂: ${user.totalCO2} كجم`, bg: 'rgba(113,131,85,0.14)',  border: 'rgba(113,131,85,0.26)',  color: '#97a97c' },
-                    { icon: Wind,     label: `O₂: ${user.totalO2} كجم`,   bg: 'rgba(59,130,246,0.1)',   border: 'rgba(59,130,246,0.2)',   color: '#93c5fd' },
+                    { icon: TreePine, label: b.trees(user.treesCount),    bg: 'rgba(135,152,106,0.12)', border: 'rgba(135,152,106,0.24)', color: '#b5c99a' },
+                    { icon: Leaf,     label: `CO₂: ${b.kg(user.totalCO2)}`, bg: 'rgba(113,131,85,0.14)',  border: 'rgba(113,131,85,0.26)',  color: '#97a97c' },
+                    { icon: Wind,     label: `O₂: ${b.kg(user.totalO2)}`,   bg: 'rgba(59,130,246,0.1)',   border: 'rgba(59,130,246,0.2)',   color: '#93c5fd' },
                   ].map(({ icon: Icon, label, bg, border, color }) => (
                     <span key={label} style={{
                       fontSize: '0.72rem', padding: '2px 9px', borderRadius: '20px',

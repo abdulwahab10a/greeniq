@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf, Clock } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 const PROVINCES = [
   { name: 'بغداد', lat: 33.3152, lng: 44.3661 },
@@ -36,17 +37,6 @@ function nearestProvince(lat, lng) {
   return best.name;
 }
 
-function treeAge(createdAt) {
-  if (!createdAt) return null;
-  const days = Math.floor((Date.now() - new Date(createdAt)) / 86400000);
-  if (days < 1)   return 'أقل من يوم';
-  if (days < 30)  return `${days} يوم`;
-  if (days < 365) return `${Math.floor(days / 30)} شهر`;
-  const yrs = Math.floor(days / 365);
-  const rem = Math.floor((days % 365) / 30);
-  return rem > 0 ? `${yrs} سنة و${rem} شهر` : `${yrs} سنة`;
-}
-
 export default function MapPage() {
   const [selectedTree, setSelectedTree] = useState(null);
   const [showPlantForm, setShowPlantForm] = useState(false);
@@ -68,7 +58,7 @@ export default function MapPage() {
         setLocating(false);
       },
       () => {
-        setLocError('تعذّر تحديد موقعك، يرجى السماح بالوصول إلى الموقع');
+        setLocError(t('تعذّر تحديد موقعك، يرجى السماح بالوصول إلى الموقع'));
         setLocating(false);
       }
     );
@@ -76,9 +66,9 @@ export default function MapPage() {
 
   const handlePlantSubmit = async (e) => {
     e.preventDefault();
-    if (!plantData.latitude || !plantData.longitude) { setLocError('لم يتم تحديد موقعك بعد'); return; }
-    if (plantData.name.length > 100) { setLocError('اسم الشجرة يجب ألا يتجاوز 100 حرف'); return; }
-    if (plantData.notes.length > 500) { setLocError('الملاحظات يجب ألا تتجاوز 500 حرف'); return; }
+    if (!plantData.latitude || !plantData.longitude) { setLocError(t('لم يتم تحديد موقعك بعد')); return; }
+    if (plantData.name.length > 100) { setLocError(t('اسم الشجرة يجب ألا يتجاوز 100 حرف')); return; }
+    if (plantData.notes.length > 500) { setLocError(t('الملاحظات يجب ألا تتجاوز 500 حرف')); return; }
     setLoading(true);
     try {
       const formData = new FormData();
@@ -96,13 +86,14 @@ export default function MapPage() {
       setSuccessMsg(prov);
       setTimeout(() => setSuccessMsg(null), 5000);
     } catch (err) {
-      setLocError(err.response?.data?.message || 'حدث خطأ');
+      setLocError(err.response?.data?.message || t('حدث خطأ'));
     } finally {
       setLoading(false);
     }
   };
 
   const C = useColors();
+  const { t, b, lang } = useLang();
   /* shared style tokens */
   const palmBorder  = '1px solid rgba(135,152,106,0.25)';
   const palmBg      = 'rgba(135,152,106,0.08)';
@@ -137,10 +128,10 @@ export default function MapPage() {
             </motion.div>
             <div style={{ flex: 1 }}>
               <p style={{ fontWeight: '800', fontSize: '1rem', color: '#4ade80', margin: '0 0 3px' }}>
-                أحسنت! زرعت شجرتك في {successMsg} 🎉
+                {b.plantedSuccess(t(successMsg))}
               </p>
               <p style={{ fontSize: '0.78rem', color: 'rgba(134,239,172,0.6)', margin: 0 }}>
-                تم إضافة شجرتك على الخارطة — استمر في المساهمة!
+                {t('تم إضافة شجرتك على الخارطة — استمر في المساهمة!')}
               </p>
             </div>
             <button onClick={() => setSuccessMsg(null)}
@@ -161,7 +152,7 @@ export default function MapPage() {
           <span key={String(C.L)} style={{
             background: C.headingGrad, WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
-          }}>خريطة الأشجار</span>
+          }}>{t('خريطة الأشجار')}</span>
         </h1>
         <motion.button
           onClick={() => { setShowPlantForm(!showPlantForm); setLocError(''); }}
@@ -172,7 +163,7 @@ export default function MapPage() {
             display: 'flex', alignItems: 'center', gap: '7px',
           }}
         >
-          {showPlantForm ? <><X size={14} /> إلغاء</> : <><TreePine size={14} /> غرس شجرة جديدة</>}
+          {showPlantForm ? <><X size={14} /> {t('إلغاء')}</> : <><TreePine size={14} /> {t('غرس شجرة جديدة')}</>}
         </motion.button>
       </div>
 
@@ -191,7 +182,7 @@ export default function MapPage() {
               fontWeight: '700', fontSize: '1rem', margin: '0 0 1.1rem',
               color: C.heading, display: 'flex', alignItems: 'center', gap: '8px',
             }}>
-              <MapPin size={16} color="#87986a" /> أدخل بيانات الشجرة
+              <MapPin size={16} color="#87986a" /> {t('أدخل بيانات الشجرة')}
             </h3>
 
             {locating && (
@@ -199,7 +190,7 @@ export default function MapPage() {
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
                   <Loader2 size={14} color="#87986a" />
                 </motion.div>
-                جاري تحديد موقعك...
+                {t('جاري تحديد موقعك...')}
               </div>
             )}
             {!locating && plantData.latitude && (
@@ -212,7 +203,7 @@ export default function MapPage() {
                   padding: '0.6rem 0.85rem', borderRadius: '10px',
                 }}
               >
-                <MapPin size={13} color="#87986a" /> تم تحديد موقعك: {Number(plantData.latitude).toFixed(4)}، {Number(plantData.longitude).toFixed(4)}
+                <MapPin size={13} color="#87986a" /> {t('تم تحديد موقعك:')} {Number(plantData.latitude).toFixed(4)}، {Number(plantData.longitude).toFixed(4)}
               </motion.div>
             )}
             {locError && (
@@ -227,7 +218,7 @@ export default function MapPage() {
 
             <form onSubmit={handlePlantSubmit} className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input type="text" placeholder="اسم الشجرة (اختياري)"
+                <input type="text" placeholder={t('اسم الشجرة (اختياري)')}
                   value={plantData.name} onChange={e => setPlantData({ ...plantData, name: e.target.value })}
                   className="glass-input"
                   style={{ padding: '0.7rem 1rem', borderRadius: '10px', fontSize: '0.88rem', width: '100%', boxSizing: 'border-box' }}
@@ -242,7 +233,7 @@ export default function MapPage() {
               <div style={{ position: 'relative' }}>
                 <input
                   type="number" min="0" max="200" step="0.5"
-                  placeholder="ادخل العمر التقريبي للشجرة حاليا (بالسنوات)"
+                  placeholder={t('ادخل العمر التقريبي للشجرة حاليا (بالسنوات)')}
                   value={plantData.ageAtPlanting}
                   onChange={e => setPlantData({ ...plantData, ageAtPlanting: e.target.value })}
                   className="glass-input"
@@ -255,11 +246,11 @@ export default function MapPage() {
                     background: 'rgba(144,169,85,0.12)', border: '1px solid rgba(144,169,85,0.25)',
                     borderRadius: '99px', padding: '1px 8px', pointerEvents: 'none',
                   }}>
-                    ≈ {Math.round(plantData.ageAtPlanting * 365)} يوم
+                    {b.approxDays(Math.round(plantData.ageAtPlanting * 365))}
                   </span>
                 )}
               </div>
-              <textarea placeholder="ملاحظات (اختياري)"
+              <textarea placeholder={t('ملاحظات (اختياري)')}
                 value={plantData.notes} onChange={e => setPlantData({ ...plantData, notes: e.target.value })}
                 rows={3} className="glass-input"
                 style={{ width: '100%', padding: '0.7rem 1rem', borderRadius: '10px', fontSize: '0.88rem', boxSizing: 'border-box', resize: 'vertical' }}
@@ -280,9 +271,9 @@ export default function MapPage() {
                     <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
                       <Loader2 size={15} />
                     </motion.div>
-                    جاري الغرس...
+                    {t('جاري الغرس...')}
                   </>
-                ) : <><TreePine size={15} /> تأكيد الغرس</>}
+                ) : <><TreePine size={15} /> {t('تأكيد الغرس')}</>}
               </motion.button>
             </form>
           </motion.div>
@@ -342,7 +333,7 @@ export default function MapPage() {
                 }}>
                   <img
                     src={selectedTree.image}
-                    alt={selectedTree.name || 'شجرة'}
+                    alt={selectedTree.name || t('شجرة')}
                     style={{
                       width: '100%',
                       maxHeight: '220px',
@@ -361,14 +352,14 @@ export default function MapPage() {
                   color: C.modalText, display: 'flex', alignItems: 'center', gap: '6px',
                 }}>
                   <TreePine size={17} color="#4ade80" />
-                  {selectedTree.name || 'شجرة'}
+                  {selectedTree.name || t('شجرة')}
                 </h4>
 
                 {/* زُرعت بواسطة */}
                 <p style={{ fontSize: '0.78rem', color: C.modalMuted, margin: '0 0 0.5rem' }}>
-                  زُرعت بواسطة:{' '}
+                  {t('زُرعت بواسطة:')}{' '}
                   <span style={{ fontWeight: '700', color: '#4ade80' }}>
-                    {selectedTree.userId?.displayName || 'مستخدم'}
+                    {selectedTree.userId?.displayName || (lang === 'ar' ? 'مستخدم' : 'User')}
                   </span>
                 </p>
 
@@ -381,7 +372,7 @@ export default function MapPage() {
                     fontSize: '0.75rem', color: '#90a955', fontWeight: '600',
                   }}>
                     <Clock size={11} />
-                    عمر الشجرة: {treeAge(selectedTree.createdAt)}
+                    {t('عمر الشجرة:')} {b.treeAge(selectedTree.createdAt)}
                   </div>
                 )}
 
@@ -406,7 +397,7 @@ export default function MapPage() {
                     display: 'flex', alignItems: 'center', gap: '7px', color: '#86efac',
                   }}>
                     <Leaf size={13} />
-                    <span>CO₂ المختزل: <strong>{selectedTree.co2Absorbed} كجم</strong></span>
+                    <span>{t('CO₂ المختزل:')} <strong>{b.kg(selectedTree.co2Absorbed)}</strong></span>
                   </div>
                   <div style={{
                     background: 'rgba(30,58,95,0.6)', border: '1px solid rgba(147,197,253,0.2)',
@@ -414,7 +405,7 @@ export default function MapPage() {
                     display: 'flex', alignItems: 'center', gap: '7px', color: '#93c5fd',
                   }}>
                     <Wind size={13} />
-                    <span>O₂ المنبعث: <strong>{selectedTree.o2Produced} كجم</strong></span>
+                    <span>{t('O₂ المنبعث:')} <strong>{b.kg(selectedTree.o2Produced)}</strong></span>
                   </div>
                 </div>
 
@@ -432,7 +423,7 @@ export default function MapPage() {
                       justifyContent: 'center', gap: '6px',
                     }}
                   >
-                    👤 عرض الملف الشخصي
+                    👤 {t('عرض الملف الشخصي')}
                   </button>
                 )}
               </div>

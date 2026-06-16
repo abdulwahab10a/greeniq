@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { TreePine, Wind, Sprout } from 'lucide-react';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 function useCountUp(target, duration = 1400) {
   const [count, setCount] = useState(0);
@@ -134,6 +135,7 @@ function AqiGauge({ aqi }) {
 // ── Tree Card ────────────────────────────────────────────────────────────────
 function TreeCard({ count, province, loading }) {
   const C = useColors();
+  const { t } = useLang();
   const animated = useCountUp(loading ? 0 : (count ?? 0));
   return (
     <motion.div
@@ -154,7 +156,7 @@ function TreeCard({ count, province, loading }) {
         fontSize: '0.75rem', fontWeight: '700', color: C.textMuted,
         textTransform: 'uppercase', letterSpacing: '0.08em',
       }}>
-        زراعة الأشجار
+        {t('زراعة الأشجار')}
       </div>
 
       <div style={{
@@ -174,7 +176,7 @@ function TreeCard({ count, province, loading }) {
       )}
 
       <div style={{ fontSize: '0.78rem', color: C.textMuted }}>
-        شجرة مزروعة
+        {t('شجرة مزروعة')}
       </div>
 
       {province && (
@@ -184,7 +186,7 @@ function TreeCard({ count, province, loading }) {
           background: 'rgba(144,169,85,0.08)', border: '1px solid rgba(144,169,85,0.18)',
           borderRadius: '99px', padding: '2px 10px',
         }}>
-          {province}
+          {t(province)}
         </div>
       )}
     </motion.div>
@@ -194,6 +196,7 @@ function TreeCard({ count, province, loading }) {
 // ── Air Quality Card ─────────────────────────────────────────────────────────
 function AirCard({ aqi, province, loading }) {
   const C = useColors();
+  const { t } = useLang();
   const { color, label } = aqiMeta(aqi);
 
   return (
@@ -215,7 +218,7 @@ function AirCard({ aqi, province, loading }) {
         fontSize: '0.75rem', fontWeight: '700', color: C.textMuted,
         textTransform: 'uppercase', letterSpacing: '0.08em',
       }}>
-        مؤشر جودة الهواء
+        {t('مؤشر جودة الهواء')}
       </div>
 
       {loading ? (
@@ -226,7 +229,7 @@ function AirCard({ aqi, province, loading }) {
 
       {province && (
         <div style={{ fontSize: '0.72rem', color: C.textSubtle }}>
-          {province}
+          {t(province)}
         </div>
       )}
 
@@ -236,7 +239,7 @@ function AirCard({ aqi, province, loading }) {
         border: `1px solid ${color}28`,
         borderRadius: '99px', padding: '2px 10px',
       }}>
-        {label}
+        {t(label)}
       </span>
 
       <div style={{
@@ -258,6 +261,8 @@ function AirCard({ aqi, province, loading }) {
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const C = useColors();
+  const { t, lang } = useLang();
+  const numLocale = lang === 'ar' ? 'ar-IQ' : 'en-US';
   const { user } = useAuth();
   const navigate = useNavigate();
   const [province, setProvince]     = useState(null);
@@ -353,7 +358,7 @@ export default function HomePage() {
             lineHeight: 1.75,
           }}
         >
-          من أجل مستقبل أخضر لعراقنا
+          {t('من أجل مستقبل أخضر لعراقنا')}
         </motion.p>
 
         {user && (
@@ -363,7 +368,7 @@ export default function HomePage() {
             transition={{ delay: 0.45 }}
             style={{ marginTop: '1.25rem', color: C.textFaint, fontSize: '0.9rem' }}
           >
-            أهلاً بك،{' '}
+            {t('أهلاً بك،')}{' '}
             <span style={{ color: '#90a955', fontWeight: 600 }}>{user.displayName}</span>
           </motion.p>
         )}
@@ -396,18 +401,18 @@ export default function HomePage() {
           }}
         >
           <span style={{ color: C.textMuted, fontWeight: '500' }}>
-            🌍 إجمالي الأشجار في العراق:
-            <span style={{ color: '#4ade80', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalTrees.toLocaleString('ar-IQ')}</span>
+            🌍 {t('إجمالي الأشجار في العراق:')}
+            <span style={{ color: '#4ade80', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalTrees.toLocaleString(numLocale)}</span>
           </span>
           <span style={{ color: C.textFaint }}>|</span>
           <span style={{ color: C.textMuted, fontWeight: '500' }}>
-            CO₂ ممتص:
-            <span style={{ color: '#86efac', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalCO2.toLocaleString('ar-IQ')} كجم</span>
+            {t('CO₂ ممتص:')}
+            <span style={{ color: '#86efac', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalCO2.toLocaleString(numLocale)} {t('كجم')}</span>
           </span>
           <span style={{ color: C.textFaint }}>|</span>
           <span style={{ color: C.textMuted, fontWeight: '500' }}>
-            O₂ منتج:
-            <span style={{ color: '#93c5fd', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalO2.toLocaleString('ar-IQ')} كجم</span>
+            {t('O₂ منتج:')}
+            <span style={{ color: '#93c5fd', fontWeight: '800', marginRight: '5px' }}>{siteStats.totalO2.toLocaleString(numLocale)} {t('كجم')}</span>
           </span>
         </motion.div>
       )}
@@ -430,14 +435,14 @@ export default function HomePage() {
           marginBottom: '0.9rem', padding: '0 0.2rem',
         }}>
           <span style={{ fontWeight: '700', color: C.heading, fontSize: '0.95rem' }}>
-            خريطة العراق الأخضر
+            {t('خريطة العراق الأخضر')}
           </span>
           <span style={{
             fontSize: '0.72rem', color: '#90a955', fontWeight: '600',
             background: 'rgba(144,169,85,0.1)', border: '1px solid rgba(144,169,85,0.22)',
             borderRadius: '99px', padding: '2px 10px',
           }}>
-            مباشر
+            {t('مباشر')}
           </span>
         </div>
 
@@ -462,7 +467,7 @@ export default function HomePage() {
           }}
         >
           <Sprout size={20} />
-          ازرع شجرة الآن
+          {t('ازرع شجرة الآن')}
         </motion.button>
       </motion.div>
     </div>

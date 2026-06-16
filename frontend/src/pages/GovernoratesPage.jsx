@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, TreePine, Leaf, Wind, X, Users, ChevronLeft } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
 import { useColors } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 const RANK_STYLES = [
   { bg: 'rgba(233,245,219,0.07)', border: 'rgba(233,245,219,0.22)', accent: '#e9f5db', medal: '🥇' },
@@ -26,6 +27,7 @@ function LoadingSkeleton() {
 
 function GovContributorsModal({ gov, onClose }) {
   const C = useColors();
+  const { t, b } = useLang();
   const [contributors, setContributors] = useState([]);
   const [loading, setLoading]           = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -85,10 +87,10 @@ function GovContributorsModal({ gov, onClose }) {
               </div>
               <div>
                 <h2 style={{ color: C.modalText, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px' }}>
-                  {gov.name}
+                  {t(gov.name)}
                 </h2>
                 <p style={{ color: C.modalMuted, fontSize: '0.78rem', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Users size={11} /> أفضل 3 مساهمين في تحسين جو المحافظة
+                  <Users size={11} /> {t('أفضل 3 مساهمين في تحسين جو المحافظة')}
                 </p>
               </div>
             </div>
@@ -96,9 +98,9 @@ function GovContributorsModal({ gov, onClose }) {
             {/* Gov stats */}
             <div style={{ display: 'flex', gap: '6px', marginTop: '1rem', flexWrap: 'wrap' }}>
               {[
-                { icon: TreePine, label: `${gov.treesCount} شجرة`, color: '#4ade80', bg: '#14532d' },
-                { icon: Leaf,     label: `CO₂: ${gov.totalCO2} كجم`, color: '#86efac', bg: '#14532d' },
-                { icon: Wind,     label: `O₂: ${gov.totalO2} كجم`,   color: '#93c5fd', bg: '#1e3a5f' },
+                { icon: TreePine, label: b.trees(gov.treesCount), color: '#4ade80', bg: '#14532d' },
+                { icon: Leaf,     label: `CO₂: ${b.kg(gov.totalCO2)}`, color: '#86efac', bg: '#14532d' },
+                { icon: Wind,     label: `O₂: ${b.kg(gov.totalO2)}`,   color: '#93c5fd', bg: '#1e3a5f' },
               ].map(({ icon: Icon, label, color, bg }) => (
                 <span key={label} style={{
                   fontSize: '0.72rem', padding: '3px 9px', borderRadius: '20px',
@@ -121,7 +123,7 @@ function GovContributorsModal({ gov, onClose }) {
               </div>
             ) : contributors.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontSize: '0.9rem' }}>
-                لا يوجد بيانات بعد لهذه المحافظة 🌱
+                {t('لا يوجد بيانات بعد لهذه المحافظة 🌱')}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -170,7 +172,7 @@ function GovContributorsModal({ gov, onClose }) {
                         fontSize: '0.72rem', color: '#4ade80',
                         display: 'flex', alignItems: 'center', gap: '4px',
                       }}>
-                        <TreePine size={10} /> {user.count} شجرة في هذه المحافظة
+                        <TreePine size={10} /> {b.treesInGov(user.count)}
                       </span>
                     </div>
 
@@ -181,7 +183,7 @@ function GovContributorsModal({ gov, onClose }) {
             )}
 
             <p style={{ textAlign: 'center', fontSize: '0.72rem', color: C.textFaint, marginTop: '1rem', marginBottom: 0 }}>
-              اضغط على اسم أي شخص لعرض ملفه الشخصي
+              {t('اضغط على اسم أي شخص لعرض ملفه الشخصي')}
             </p>
           </div>
         </motion.div>
@@ -198,6 +200,7 @@ function GovContributorsModal({ gov, onClose }) {
 
 export default function GovernoratesPage() {
   const C = useColors();
+  const { t, b } = useLang();
   const [data, setData]       = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
@@ -206,7 +209,7 @@ export default function GovernoratesPage() {
   useEffect(() => {
     api.get('/trees/governorates')
       .then(res => setData(res.data))
-      .catch(() => setError('تعذّر تحميل البيانات'))
+      .catch(() => setError(t('تعذّر تحميل البيانات')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -247,16 +250,16 @@ export default function GovernoratesPage() {
           <span key={String(C.L)} style={{
             background: C.headingGrad, WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-block',
-          }}>أفضل المحافظات</span>
+          }}>{t('أفضل المحافظات')}</span>
         </h1>
         <p style={{ fontSize: '0.85rem', color: C.textSubtle, margin: 0 }}>
-          اضغط على أي محافظة لعرض أفضل المساهمين فيها
+          {t('اضغط على أي محافظة لعرض أفضل المساهمين فيها')}
         </p>
       </motion.div>
 
       {data.length === 0 && (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: C.textFaint }}>
-          لا توجد بيانات بعد — كن أول من يزرع! 🌱
+          {t('لا توجد بيانات بعد — كن أول من يزرع! 🌱')}
         </div>
       )}
 
@@ -304,14 +307,14 @@ export default function GovernoratesPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '7px' }}>
                   <Building2 size={15} color={s.accent} />
                   <h2 style={{ fontWeight: '700', color: C.heading, fontSize: '0.97rem', margin: 0 }}>
-                    {gov.name}
+                    {t(gov.name)}
                   </h2>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                   {[
-                    { icon: TreePine, label: `${gov.treesCount} شجرة`,    bg: 'rgba(135,152,106,0.12)', border: 'rgba(135,152,106,0.24)', color: '#b5c99a' },
-                    { icon: Leaf,     label: `CO₂: ${gov.totalCO2} كجم`, bg: 'rgba(113,131,85,0.14)',  border: 'rgba(113,131,85,0.26)',  color: '#97a97c' },
-                    { icon: Wind,     label: `O₂: ${gov.totalO2} كجم`,   bg: 'rgba(59,130,246,0.1)',   border: 'rgba(59,130,246,0.2)',   color: '#93c5fd' },
+                    { icon: TreePine, label: b.trees(gov.treesCount),    bg: 'rgba(135,152,106,0.12)', border: 'rgba(135,152,106,0.24)', color: '#b5c99a' },
+                    { icon: Leaf,     label: `CO₂: ${b.kg(gov.totalCO2)}`, bg: 'rgba(113,131,85,0.14)',  border: 'rgba(113,131,85,0.26)',  color: '#97a97c' },
+                    { icon: Wind,     label: `O₂: ${b.kg(gov.totalO2)}`,   bg: 'rgba(59,130,246,0.1)',   border: 'rgba(59,130,246,0.2)',   color: '#93c5fd' },
                   ].map(({ icon: Icon, label, bg, border, color }) => (
                     <span key={label} style={{
                       fontSize: '0.72rem', padding: '2px 9px', borderRadius: '20px',
@@ -332,7 +335,7 @@ export default function GovernoratesPage() {
 
       {data.length > 0 && (
         <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'rgba(207,225,185,0.22)', paddingTop: '0.5rem' }}>
-          * يتم تصنيف المحافظات بناءً على إحداثيات الأشجار المزروعة
+          {t('* يتم تصنيف المحافظات بناءً على إحداثيات الأشجار المزروعة')}
         </p>
       )}
     </div>
