@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useContext } from 'react';
 
 export const AuthContext = createContext(null);
 
@@ -9,17 +9,18 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('greeniraq_user');
-    const token = localStorage.getItem('token');
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+  // Initialize synchronously from localStorage: auth state is known on the
+  // first render (no blank flash, no setState-in-effect).
+  const [user, setUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('greeniraq_user');
+      const token = localStorage.getItem('token');
+      return storedUser && token ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
     }
-    setLoading(false);
-  }, []);
+  });
+  const [loading] = useState(false);
 
   const login = (userData) => {
     localStorage.setItem('token', userData.token);

@@ -155,6 +155,9 @@ export default function ShareImpactCard({ user, totalCO2, totalO2, onClose }) {
   const co2 = Number(totalCO2 ?? 0);
   const o2 = Number(totalO2 ?? 0);
 
+  // Deps are managed manually (keyed on `lang`, not the unstable `t` identity)
+  // to avoid redrawing the canvas on every render.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const render = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;

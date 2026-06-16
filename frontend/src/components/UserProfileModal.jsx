@@ -25,6 +25,8 @@ export default function UserProfileModal({ userId, onClose }) {
   const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
+    // Reset the stale image-error flag when switching to another profile.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImgError(false);
     api.get(`/users/${userId}`)
       .then(res => setProfile(res.data))

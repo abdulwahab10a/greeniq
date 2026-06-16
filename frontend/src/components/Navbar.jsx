@@ -92,6 +92,8 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Close the mobile menu on navigation — intentional sync reset on route change.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   const handleLogout = () => { logout(); navigate('/login'); };

@@ -409,7 +409,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
             {t('روابط التواصل الاجتماعي')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon, color }) => (
+            {SOCIAL_FIELDS.map(({ key, placeholder, Icon, color }) => (
               <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
                 <div style={{
                   width: '33px', height: '33px', borderRadius: '8px', flexShrink: 0,
@@ -569,7 +569,7 @@ export default function ProfilePage() {
             setIsProvChamp(true);
             break;
           }
-        } catch {}
+        } catch { /* best-effort: ignore governorate-champ check failures */ }
       }
     }).catch(() => {});
   }, [user]);

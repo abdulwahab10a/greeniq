@@ -40,7 +40,6 @@ export const EN = {
 
   // ── HomePage ──
   'زراعة الأشجار': 'Tree Planting',
-  'شجرة مزروعة': 'Trees planted',
   'مؤشر جودة الهواء': 'Air Quality Index',
   'من أجل مستقبل أخضر لعراقنا': 'For a greener future for our Iraq',
   'أهلاً بك،': 'Welcome,',

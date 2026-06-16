@@ -10,6 +10,8 @@ function useCountUp(target, duration = 1400) {
   const rafRef = useRef(null);
 
   useEffect(() => {
+    // Reset the counter when the target changes before re-animating.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (target == null || target === 0) { setCount(0); return; }
     const start = performance.now();
     const animate = (now) => {
