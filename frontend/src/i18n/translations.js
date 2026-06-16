@@ -222,6 +222,18 @@ export const EN = {
   'بطل الغرس! 100 شجرة': 'Planting champion! 100 trees',
   'أفضل في المحافظة': 'Best in Governorate',
   'الأول في محافظتك': 'First in your governorate',
+  // ── Share Impact Card ──
+  'شارك إنجازك': 'Share Your Impact',
+  'بطاقة الأثر البيئي': 'Impact Card',
+  'بصمتي البيئية في العراق': 'My Environmental Impact in Iraq',
+  'شجرة مزروعة': 'Trees Planted',
+  'كجم CO₂ ممتص': 'kg CO₂ absorbed',
+  'كجم O₂ منتج': 'kg O₂ produced',
+  'كن جزءاً من التغيير — إزرع شجرتك': 'Be part of the change — plant your tree',
+  'تنزيل الصورة': 'Download Image',
+  'مشاركة': 'Share',
+  'جارٍ تجهيز البطاقة...': 'Preparing your card...',
+  'تم نسخ نص المشاركة': 'Caption copied to clipboard',
 };
 
 // ── Dynamic / parameterised builders (language-aware) ────────────────────────
@@ -266,6 +278,11 @@ export const builders = {
   // admin pagination: "P / N — (T مستخدم)"
   pageInfo: (lang, page, pages, total) =>
     lang === 'ar' ? `${page} / ${pages} — (${total} مستخدم)` : `${page} / ${pages} — (${total} users)`,
+  // share card caption — image accompanying text for social posts
+  shareCaption: (lang, trees, co2) =>
+    lang === 'ar'
+      ? `🌳 زرعت ${trees} شجرة في العراق وأزلت ${co2} كجم من ثاني أكسيد الكربون من الهواء! انضموا إلينا في GreenIQ 🌱`
+      : `🌳 I planted ${trees} ${trees === 1 ? 'tree' : 'trees'} in Iraq and removed ${co2} kg of CO₂ from the air! Join us on GreenIQ 🌱`,
   // air quality "آخر تحديث: TIME · cached..."
   lastUpdated: (lang, time) =>
     lang === 'ar'

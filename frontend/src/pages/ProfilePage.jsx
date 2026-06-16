@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Lock, X, CheckCircle2, AlertCircle, Loader2,
   TreePine, AtSign, User, Phone, Link2, Camera, Edit3, ExternalLink, QrCode,
-  Leaf, Wind,
+  Leaf, Wind, Share2,
 } from 'lucide-react';
+import ShareImpactCard from '../components/ShareImpactCard';
 import { FaInstagram, FaFacebook, FaSnapchatGhost, FaTelegram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { Html5QrcodeScanner } from 'html5-qrcode';
@@ -544,6 +545,7 @@ export default function ProfilePage() {
   const { user, updateUser } = useContext(AuthContext);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
   const [impact, setImpact] = useState(null);
   const [isProvChamp, setIsProvChamp] = useState(false);
 
@@ -592,6 +594,14 @@ export default function ProfilePage() {
         {showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
         {showEditProfile && (
           <EditProfileModal user={user} onClose={() => setShowEditProfile(false)} onSaved={updateUser} />
+        )}
+        {showShareCard && (
+          <ShareImpactCard
+            user={user}
+            totalCO2={impact?.totalCO2 ?? 0}
+            totalO2={impact?.totalO2 ?? 0}
+            onClose={() => setShowShareCard(false)}
+          />
         )}
       </AnimatePresence>
 
@@ -737,12 +747,27 @@ export default function ProfilePage() {
           {/* Action buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <motion.button
-              onClick={() => setShowEditProfile(true)}
+              onClick={() => setShowShareCard(true)}
               whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
               className="btn-primary"
               style={{
                 width: '100%', padding: '0.8rem', fontSize: '0.93rem', fontWeight: '700',
                 borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              }}
+            >
+              <Share2 size={15} /> {t('شارك إنجازك')}
+            </motion.button>
+
+            <motion.button
+              onClick={() => setShowEditProfile(true)}
+              whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+              style={{
+                width: '100%', padding: '0.78rem',
+                background: C.rowBg, color: C.textMuted,
+                border: `1px solid ${C.rowBorder}`,
+                borderRadius: '12px', fontSize: '0.88rem', fontWeight: '600',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+                transition: 'all 0.2s',
               }}
             >
               <Edit3 size={15} /> {t('تعديل الملف الشخصي')}
