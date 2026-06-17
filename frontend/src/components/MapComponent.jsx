@@ -138,22 +138,34 @@ function TreeMarkers({ onTreeSelect, refreshKey }) {
       chunkedLoading: true,
       showCoverageOnHover: false,
       maxClusterRadius: 50,
-      // فقاعات تجميع بألوان GreenIQ الخضراء، يكبر حجمها مع عدد الأشجار
+      // تجمّع على شكل شجرة (تاج أخضر يحمل العدد + جذع بنّي)، يكبر مع عدد الأشجار
       iconCreateFunction: (cluster) => {
         const count = cluster.getChildCount();
-        const size = count >= 100 ? 52 : count >= 10 ? 44 : 36;
+        const canopy = count >= 100 ? 50 : count >= 10 ? 42 : 34;
+        const trunkW = Math.round(canopy * 0.22);
+        const trunkH = Math.round(canopy * 0.3);
+        const font = count >= 100 ? 13 : 14;
         return L.divIcon({
           className: 'greeniq-cluster',
-          iconSize: L.point(size, size),
-          html: `<div style="
-            width:${size}px;height:${size}px;
-            display:flex;align-items:center;justify-content:center;
-            background:linear-gradient(135deg,#22c55e,#16a34a);
-            color:#fff;font-weight:800;font-size:${count >= 100 ? 13 : 14}px;
-            border:2px solid rgba(255,255,255,0.9);
-            border-radius:50%;
-            box-shadow:0 0 0 5px rgba(34,197,94,0.25), 0 4px 12px rgba(0,0,0,0.35);
-          ">${count}</div>`,
+          iconSize: L.point(canopy, canopy + trunkH),
+          iconAnchor: [canopy / 2, (canopy + trunkH) / 2],
+          html: `<div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="greeniq-cluster-canopy" style="
+              width:${canopy}px;height:${canopy}px;
+              display:flex;align-items:center;justify-content:center;
+              background:linear-gradient(135deg,#22c55e,#16a34a);
+              color:#fff;font-weight:800;font-size:${font}px;
+              border:2px solid rgba(255,255,255,0.9);
+              border-radius:50% 50% 46% 46%;
+              box-shadow:0 0 0 5px rgba(34,197,94,0.25), 0 4px 12px rgba(0,0,0,0.35);
+            ">${count}</div>
+            <div style="
+              width:${trunkW}px;height:${trunkH}px;
+              background:linear-gradient(180deg,#8b5a2b,#5c3a1a);
+              border-radius:0 0 3px 3px;
+              margin-top:-1px;
+            "></div>
+          </div>`,
         });
       },
     });

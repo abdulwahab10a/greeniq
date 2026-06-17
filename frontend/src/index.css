@@ -199,12 +199,14 @@
   }
 }
 
-/* ── Cluster bubble hover pulse (GreenIQ green) ── */
+/* ── Cluster tree hover pulse (GreenIQ green) ── */
 .greeniq-cluster > div {
   transition: transform 0.2s ease;
 }
 .greeniq-cluster:hover > div {
   transform: scale(1.12);
+}
+.greeniq-cluster:hover .greeniq-cluster-canopy {
   animation: cluster-pulse 1.2s ease-out infinite;
 }
 @keyframes cluster-pulse {
