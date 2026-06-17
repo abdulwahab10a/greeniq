@@ -9,7 +9,7 @@ const plantTree = async (req, res) => {
     const { name, notes, latitude, longitude, ageAtPlanting } = req.body;
 
     if (!latitude || !longitude) {
-      return res.status(400).json({ message: 'Location is required' });
+      return res.status(400).json({ message: 'الموقع مطلوب' });
     }
 
     const lat = parseFloat(latitude);
@@ -102,10 +102,10 @@ const getMyTrees = async (req, res) => {
 const updateTree = async (req, res) => {
   try {
     const tree = await Tree.findById(req.params.id);
-    if (!tree) return res.status(404).json({ message: 'Tree not found' });
+    if (!tree) return res.status(404).json({ message: 'لم يتم العثور على الشجرة' });
 
     if (tree.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: 'غير مصرح لك بهذا الإجراء' });
     }
 
     const { name, notes } = req.body;
@@ -140,15 +140,22 @@ const updateTree = async (req, res) => {
 const deleteTree = async (req, res) => {
   try {
     const tree = await Tree.findById(req.params.id);
-    if (!tree) return res.status(404).json({ message: 'Tree not found' });
+    if (!tree) return res.status(404).json({ message: 'لم يتم العثور على الشجرة' });
 
     if (tree.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: 'غير مصرح لك بهذا الإجراء' });
     }
 
     await tree.deleteOne();
     await User.findByIdAndUpdate(req.user._id, { $inc: { treesCount: -1 } });
-    res.json({ message: 'Tree deleted successfully' });
+
+    // ملاحظة: صورة الشجرة على ImgBB لا تُحذف هنا عمداً.
+    // خطة ImgBB المجانية لا توفّر نقطة وصول (API) للحذف البرمجي — رابط delete_url
+    // الذي يُرجَع عند الرفع هو صفحة ويب تتطلب جلسة متصفح، وليس REST endpoint.
+    // النتيجة: الصور تبقى مستضافة على ImgBB حتى بعد حذف الشجرة من قاعدة البيانات.
+    // لتفعيل الحذف الفعلي مستقبلاً: الانتقال لمزوّد يدعم الحذف (Cloudinary مثلاً)
+    // وتخزين معرّف الصورة في نموذج Tree لاستدعاء الحذف هنا.
+    res.json({ message: 'تم حذف الشجرة بنجاح' });
   } catch (error) {
     console.error('Tree error:', error);
     res.status(500).json({ message: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً' });
@@ -194,7 +201,7 @@ const getGovTopContributors = async (req, res) => {
   try {
     const govName = decodeURIComponent(req.params.name);
     const gov = GOVERNORATES.find(g => g.name === govName);
-    if (!gov) return res.status(404).json({ message: 'Governorate not found' });
+    if (!gov) return res.status(404).json({ message: 'لم يتم العثور على المحافظة' });
 
     const trees = await Tree.find({
       location: {

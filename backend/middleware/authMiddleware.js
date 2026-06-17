@@ -12,7 +12,7 @@ const protect = async (req, res, next) => {
   }
 
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'غير مصرح، لا يوجد رمز دخول' });
   }
 
   try {
@@ -20,12 +20,12 @@ const protect = async (req, res, next) => {
     req.user = await User.findById(decoded.id).select('-password');
 
     if (!req.user) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'لم يتم العثور على المستخدم' });
     }
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Not authorized, invalid token' });
+    return res.status(401).json({ message: 'غير مصرح، رمز الدخول غير صالح' });
   }
 };
 

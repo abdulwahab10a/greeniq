@@ -101,7 +101,7 @@ const getLeaderboard = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password -email');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: 'لم يتم العثور على المستخدم' });
 
     const trees = await Tree.find({ userId: user._id });
     let totalCO2 = 0;
