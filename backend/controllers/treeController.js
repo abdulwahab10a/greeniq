@@ -73,10 +73,33 @@ const plantTree = async (req, res) => {
 
 const getAllTrees = async (req, res) => {
   try {
-    const trees = await Tree.find().populate('userId', 'displayName profileImage phone instagramLink');
+    const filter = {};
+
+    // فلتر حسب حدود الخريطة المرئية (viewport): bbox = "minLng,minLat,maxLng,maxLat"
+    // يستفيد من فهرس 2dsphere بحيث لا نجلب إلا الأشجار الظاهرة على الشاشة.
+    if (req.query.bbox) {
+      const parts = String(req.query.bbox).split(',').map(Number);
+      if (parts.length === 4 && parts.every((n) => Number.isFinite(n))) {
+        const [minLng, minLat, maxLng, maxLat] = parts;
+        filter.location = {
+          $geoWithin: { $box: [[minLng, minLat], [maxLng, maxLat]] },
+        };
+      }
+    }
+
+    // سقف لحجم الرد كحماية (مع الـ viewport نادراً ما نقترب منه)
+    const limit = Math.min(5000, Math.max(1, parseInt(req.query.limit) || 5000));
+
+    // نجلب فقط الحقول التي تحتاجها الخريطة، و lean() لأداء أسرع
+    const trees = await Tree.find(filter)
+      .select('name image notes location createdAt ageAtPlanting userId')
+      .populate('userId', 'displayName profileImage')
+      .limit(limit)
+      .lean();
+
     const treesWithImpact = trees.map((tree) => {
       const { co2Absorbed, o2Produced } = calculateImpact(tree.createdAt, tree.ageAtPlanting);
-      return { ...tree.toObject(), co2Absorbed, o2Produced };
+      return { ...tree, co2Absorbed, o2Produced };
     });
     res.json(treesWithImpact);
   } catch (error) {

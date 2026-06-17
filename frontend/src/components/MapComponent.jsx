@@ -1,5 +1,5 @@
-import { MapContainer, TileLayer, Marker, GeoJSON } from 'react-leaflet';
-import { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, GeoJSON, useMapEvents } from 'react-leaflet';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import api from '../api/axios';
 
@@ -72,8 +72,50 @@ async function fetchIraqBorder() {
   return cachedIraqBorder;
 }
 
-export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '600px' }) {
+// Fetches & renders only the trees inside the current map viewport.
+// Refetches (debounced) whenever the user pans/zooms — keeps payloads small
+// even when the dataset grows to thousands of trees.
+function TreeMarkers({ onTreeSelect, refreshKey }) {
   const [trees, setTrees] = useState([]);
+  const debounceRef = useRef(null);
+
+  const fetchInBounds = useCallback((map) => {
+    const b = map.getBounds();
+    const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].join(',');
+    api.get('/trees', { params: { bbox } })
+      .then((res) => setTrees(res.data))
+      .catch((err) => console.log('خطأ في جلب الأشجار:', err));
+  }, []);
+
+  const map = useMapEvents({
+    moveend: () => {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => fetchInBounds(map), 300);
+    },
+  });
+
+  // Initial load + refetch after a new tree is planted (refreshKey changes)
+  useEffect(() => {
+    fetchInBounds(map);
+  }, [refreshKey, fetchInBounds, map]);
+
+  // Cleanup the pending debounce on unmount
+  useEffect(() => () => clearTimeout(debounceRef.current), []);
+
+  return trees.map((tree) => {
+    const [lng, lat] = tree.location.coordinates;
+    return (
+      <Marker
+        key={tree._id}
+        position={[lat, lng]}
+        icon={treeIcon}
+        eventHandlers={{ click: () => onTreeSelect?.(tree) }}
+      />
+    );
+  });
+}
+
+export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '600px' }) {
   const [userLocation, setUserLocation] = useState(null);
   const [iraqBorder, setIraqBorder] = useState(cachedIraqBorder);
   const geolocationDone = useRef(false);
@@ -89,12 +131,6 @@ export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '6
       );
     }
   }, []);
-
-  useEffect(() => {
-    api.get('/trees')
-      .then(res => setTrees(res.data))
-      .catch(err => console.log('خطأ في جلب الأشجار:', err));
-  }, [refreshKey]);
 
   return (
     <MapContainer
@@ -119,17 +155,7 @@ export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '6
         <Marker position={userLocation} icon={userIcon} />
       )}
 
-      {trees.map((tree) => {
-        const [lng, lat] = tree.location.coordinates;
-        return (
-          <Marker
-            key={tree._id}
-            position={[lat, lng]}
-            icon={treeIcon}
-            eventHandlers={{ click: () => onTreeSelect?.(tree) }}
-          />
-        );
-      })}
+      <TreeMarkers onTreeSelect={onTreeSelect} refreshKey={refreshKey} />
     </MapContainer>
   );
 }
