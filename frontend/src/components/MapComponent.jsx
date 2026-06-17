@@ -5,6 +5,7 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -31,6 +32,22 @@ const treeIcon = L.divIcon({
   ">🌳</div>`,
   iconSize: [34, 34],
   iconAnchor: [17, 17],
+});
+
+// The current user's own trees — amber/gold badge to stand out from others' green.
+const myTreeIcon = L.divIcon({
+  className: 'greeniq-tree greeniq-tree-mine',
+  html: `<div style="
+    width:36px;height:36px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#fbbf24,#d97706);
+    border:2px solid rgba(255,255,255,0.95);
+    border-radius:50%;
+    box-shadow:0 0 0 4px rgba(245,158,11,0.3), 0 4px 10px rgba(0,0,0,0.4);
+    font-size:19px;line-height:1;
+  ">🌳</div>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
 });
 
 const userIcon = L.divIcon({
@@ -90,6 +107,8 @@ async function fetchIraqBorder() {
 // into a single counted bubble when zoomed out, and split apart as you zoom in.
 // Keeps both payloads and the number of drawn markers small at any scale.
 function TreeMarkers({ onTreeSelect, refreshKey }) {
+  const { user } = useAuth();
+  const myId = user?._id;
   const [trees, setTrees] = useState([]);
   const debounceRef = useRef(null);
   const clusterRef = useRef(null);
@@ -160,12 +179,13 @@ function TreeMarkers({ onTreeSelect, refreshKey }) {
     group.clearLayers();
     const markers = trees.map((tree) => {
       const [lng, lat] = tree.location.coordinates;
-      const marker = L.marker([lat, lng], { icon: treeIcon });
+      const isMine = myId && tree.userId?._id === myId;
+      const marker = L.marker([lat, lng], { icon: isMine ? myTreeIcon : treeIcon });
       marker.on('click', () => onSelectRef.current?.(tree));
       return marker;
     });
     group.addLayers(markers);
-  }, [trees]);
+  }, [trees, myId]);
 
   return null;
 }
