@@ -81,25 +81,17 @@ function App() {
       <main className="flex-1 container mx-auto px-4 py-6">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={
-              <ProtectedRoute><AnimatedPage><HomePage /></AnimatedPage></ProtectedRoute>
-            } />
+            {/* Public browsing routes — guests can view everything below. */}
+            <Route path="/" element={<AnimatedPage><HomePage /></AnimatedPage>} />
             <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
             <Route path="/register" element={<AnimatedPage><Register /></AnimatedPage>} />
-            <Route path="/map" element={
-              <ProtectedRoute><AnimatedPage><MapPage /></AnimatedPage></ProtectedRoute>
-            } />
-            <Route path="/leaderboard" element={
-              <ProtectedRoute><AnimatedPage><LeaderboardPage /></AnimatedPage></ProtectedRoute>
-            } />
+            <Route path="/map" element={<AnimatedPage><MapPage /></AnimatedPage>} />
+            <Route path="/leaderboard" element={<AnimatedPage><LeaderboardPage /></AnimatedPage>} />
+            <Route path="/governorates" element={<AnimatedPage><GovernoratesPage /></AnimatedPage>} />
+            <Route path="/air-quality" element={<AnimatedPage><AirQualityPage /></AnimatedPage>} />
+            {/* Account-only routes. */}
             <Route path="/profile" element={
               <ProtectedRoute><AnimatedPage><ProfilePage /></AnimatedPage></ProtectedRoute>
-            } />
-            <Route path="/governorates" element={
-              <ProtectedRoute><AnimatedPage><GovernoratesPage /></AnimatedPage></ProtectedRoute>
-            } />
-            <Route path="/air-quality" element={
-              <ProtectedRoute><AnimatedPage><AirQualityPage /></AnimatedPage></ProtectedRoute>
             } />
             <Route path="/admin" element={
               <AdminRoute><AnimatedPage><AdminDashboard /></AnimatedPage></AdminRoute>

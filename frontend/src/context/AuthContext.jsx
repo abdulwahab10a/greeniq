@@ -1,4 +1,5 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useCallback } from 'react';
+import GuestPromptModal from '../components/GuestPromptModal';
 
 export const AuthContext = createContext(null);
 
@@ -21,6 +22,16 @@ export const AuthProvider = ({ children }) => {
     }
   });
   const [loading] = useState(false);
+  // Shown when a guest triggers an account-only action (see requireAuth).
+  const [guestPrompt, setGuestPrompt] = useState(false);
+
+  // Gate for account-only actions: returns true when logged in, otherwise
+  // opens the "create an account" prompt and returns false so callers bail out.
+  const requireAuth = useCallback(() => {
+    if (user) return true;
+    setGuestPrompt(true);
+    return false;
+  }, [user]);
 
   const login = (userData) => {
     localStorage.setItem('token', userData.token);
@@ -41,8 +52,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, loading, requireAuth }}>
       {!loading && children}
+      <GuestPromptModal open={guestPrompt} onClose={() => setGuestPrompt(false)} />
     </AuthContext.Provider>
   );
 };

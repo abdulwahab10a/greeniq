@@ -6,6 +6,7 @@ import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf, Clock } from 'l
 import UserProfileModal from '../components/UserProfileModal';
 import { useColors } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const PROVINCES = [
   { name: 'بغداد', lat: 33.3152, lng: 44.3661 },
@@ -50,6 +51,7 @@ export default function MapPage() {
 
   const C = useColors();
   const { t, b, lang } = useLang();
+  const { requireAuth } = useAuth();
 
   useEffect(() => {
     if (!showPlantForm) return;
@@ -156,7 +158,11 @@ export default function MapPage() {
           }}>{t('خريطة الأشجار')}</span>
         </h1>
         <motion.button
-          onClick={() => { setShowPlantForm(!showPlantForm); setLocError(''); }}
+          onClick={() => {
+            // Opening the form is an account-only action; cancelling is always allowed.
+            if (!showPlantForm && !requireAuth()) return;
+            setShowPlantForm(!showPlantForm); setLocError('');
+          }}
           whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
           className="btn-primary"
           style={{

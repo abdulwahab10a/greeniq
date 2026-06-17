@@ -21,6 +21,12 @@ export const EN = {
   'خروج من الحساب': 'Sign out of account',
   'العربية': 'العربية',
   'الإنجليزية': 'English',
+  'تصفح كزائر': 'Browse as guest',
+
+  // ── Guest auth prompt ──
+  'أنشئ حساباً للمتابعة': 'Create an account to continue',
+  'يمكنك تصفح الموقع والخريطة بحرية، لكن غرس الأشجار والإجراءات الخاصة بحسابك تتطلب إنشاء حساب. انضم إلينا مجاناً وابدأ بترك بصمتك الخضراء في العراق 🌱': 'You can browse the site and map freely, but planting trees and account actions require an account. Join us for free and start leaving your green mark on Iraq 🌱',
+  'ربما لاحقاً': 'Maybe later',
 
   // ── App / footer ──
   'جاري التحميل...': 'Loading...',

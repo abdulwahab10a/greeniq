@@ -265,7 +265,7 @@ export default function HomePage() {
   const C = useColors();
   const { t, lang } = useLang();
   const numLocale = lang === 'ar' ? 'ar-IQ' : 'en-US';
-  const { user } = useAuth();
+  const { user, requireAuth } = useAuth();
   const navigate = useNavigate();
   const [province, setProvince]     = useState(null);
   const [treeCount, setTreeCount]   = useState(null);
@@ -452,7 +452,7 @@ export default function HomePage() {
 
         {/* ── Plant CTA button ── */}
         <motion.button
-          onClick={() => navigate('/map')}
+          onClick={() => { if (!requireAuth()) return; navigate('/map'); }}
           whileHover={{ scale: 1.04, y: -2 }}
           whileTap={{ scale: 0.96 }}
           style={{

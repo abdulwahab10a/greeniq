@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages } from 'lucide-react';
+import { LogOut, LogIn, UserPlus, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages } from 'lucide-react';
 
 /* ── Color tokens ── */
 const C = {
@@ -145,138 +145,112 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* ── Desktop nav (logged in) ── hidden below md */}
-          {user && (
-            <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.4rem' }}>
-              <ThemeToggle />
-              <LangToggle />
-              {navLinks.map(({ to, label, icon: Icon }) => {
-                const active = location.pathname === to;
-                return (
-                  <Link key={to} to={to} style={{ textDecoration: 'none' }}>
-                    <motion.div
-                      whileHover={{ y: -1 }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        padding: '6px 14px', borderRadius: '10px',
-                        background: active ? 'rgba(135,152,106,0.18)' : 'transparent',
-                        border: active ? '1px solid rgba(135,152,106,0.38)' : '1px solid transparent',
-                        color: active
-                          ? (isLight ? '#1a3d0a' : C.frostedMint)
-                          : (isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)'),
-                        fontSize: '0.88rem', fontWeight: active ? '700' : '400',
-                        transition: 'all 0.2s', cursor: 'pointer',
-                      }}
-                    >
-                      <Icon size={14} color={active ? C.palmLeaf : 'rgba(135,152,106,0.7)'} />
-                      {t(label)}
-                    </motion.div>
-                  </Link>
-                );
-              })}
+          {/* ── Desktop nav ── hidden below md (links shown to guests too) */}
+          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.4rem' }}>
+            <ThemeToggle />
+            <LangToggle />
+            {navLinks.map(({ to, label, icon: Icon }) => {
+              const active = location.pathname === to;
+              return (
+                <Link key={to} to={to} style={{ textDecoration: 'none' }}>
+                  <motion.div
+                    whileHover={{ y: -1 }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '6px',
+                      padding: '6px 14px', borderRadius: '10px',
+                      background: active ? 'rgba(135,152,106,0.18)' : 'transparent',
+                      border: active ? '1px solid rgba(135,152,106,0.38)' : '1px solid transparent',
+                      color: active
+                        ? (isLight ? '#1a3d0a' : C.frostedMint)
+                        : (isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)'),
+                      fontSize: '0.88rem', fontWeight: active ? '700' : '400',
+                      transition: 'all 0.2s', cursor: 'pointer',
+                    }}
+                  >
+                    <Icon size={14} color={active ? C.palmLeaf : 'rgba(135,152,106,0.7)'} />
+                    {t(label)}
+                  </motion.div>
+                </Link>
+              );
+            })}
 
-              {/* Profile */}
-              <Link to="/profile" style={{ textDecoration: 'none' }}>
-                <motion.div
-                  whileHover={{ scale: 1.04 }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '5px 10px', borderRadius: '10px',
-                    background: location.pathname === '/profile'
-                      ? 'rgba(135,152,106,0.18)' : 'rgba(74,94,51,0.38)',
-                    border: '1px solid rgba(135,152,106,0.22)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {user.profileImage ? (
-                    <img src={user.profileImage} alt={user.displayName} style={{
-                      width: '30px', height: '30px', borderRadius: '50%',
-                      objectFit: 'cover', border: `2px solid rgba(135,152,106,0.5)`,
-                    }} />
-                  ) : (
-                    <div style={{
-                      width: '30px', height: '30px', borderRadius: '50%',
-                      background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: '700', color: C.frostedMint, fontSize: '0.82rem',
-                      border: `2px solid rgba(135,152,106,0.4)`,
-                    }}>
-                      {user.displayName?.[0]?.toUpperCase()}
-                    </div>
-                  )}
-                  <span style={{ color: isLight ? '#2d3a1f' : C.teaGreen, fontWeight: '600', fontSize: '0.88rem' }}>
-                    {user.displayName}
-                  </span>
-                </motion.div>
-              </Link>
+            {user ? (
+              <>
+                {/* Profile */}
+                <Link to="/profile" style={{ textDecoration: 'none' }}>
+                  <motion.div
+                    whileHover={{ scale: 1.04 }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '5px 10px', borderRadius: '10px',
+                      background: location.pathname === '/profile'
+                        ? 'rgba(135,152,106,0.18)' : 'rgba(74,94,51,0.38)',
+                      border: '1px solid rgba(135,152,106,0.22)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {user.profileImage ? (
+                      <img src={user.profileImage} alt={user.displayName} style={{
+                        width: '30px', height: '30px', borderRadius: '50%',
+                        objectFit: 'cover', border: `2px solid rgba(135,152,106,0.5)`,
+                      }} />
+                    ) : (
+                      <div style={{
+                        width: '30px', height: '30px', borderRadius: '50%',
+                        background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: '700', color: C.frostedMint, fontSize: '0.82rem',
+                        border: `2px solid rgba(135,152,106,0.4)`,
+                      }}>
+                        {user.displayName?.[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <span style={{ color: isLight ? '#2d3a1f' : C.teaGreen, fontWeight: '600', fontSize: '0.88rem' }}>
+                      {user.displayName}
+                    </span>
+                  </motion.div>
+                </Link>
 
-              <motion.button
-                onClick={handleLogout}
-                whileHover={{ scale: 1.04, y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                style={{
-                  background: 'rgba(200, 60, 60, 0.1)',
-                  border: '1px solid rgba(200, 60, 60, 0.28)',
-                  color: '#f87171', padding: '7px 13px', borderRadius: '10px',
-                  cursor: 'pointer', fontSize: '0.85rem', fontWeight: '500',
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                }}
-              >
-                <LogOut size={14} /> {t('خروج')}
-              </motion.button>
-            </div>
-          )}
-
-          {/* ── Desktop auth (not logged in) ── */}
-          {!user && (
-            <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.75rem' }}>
-              <ThemeToggle />
-              <LangToggle />
-              <Link to="/login" style={{ textDecoration: 'none', color: isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)', fontSize: '0.92rem' }}>
-                {t('دخول')}
-              </Link>
-              <Link to="/register" style={{ textDecoration: 'none' }}>
-                <motion.div
+                <motion.button
+                  onClick={handleLogout}
                   whileHover={{ scale: 1.04, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileTap={{ scale: 0.96 }}
                   style={{
-                    background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
-                    color: C.frostedMint, padding: '8px 18px', borderRadius: '10px',
-                    fontSize: '0.88rem', fontWeight: '700',
-                    boxShadow: '0 4px 16px rgba(113,131,85,0.38)',
+                    background: 'rgba(200, 60, 60, 0.1)',
+                    border: '1px solid rgba(200, 60, 60, 0.28)',
+                    color: '#f87171', padding: '7px 13px', borderRadius: '10px',
+                    cursor: 'pointer', fontSize: '0.85rem', fontWeight: '500',
+                    display: 'flex', alignItems: 'center', gap: '6px',
                   }}
                 >
-                  {t('تسجيل جديد')}
-                </motion.div>
-              </Link>
-            </div>
-          )}
+                  <LogOut size={14} /> {t('خروج')}
+                </motion.button>
+              </>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginRight: '0.35rem' }}>
+                <Link to="/login" style={{ textDecoration: 'none', color: isLight ? 'rgba(45,58,31,0.7)' : 'rgba(207,225,185,0.65)', fontSize: '0.92rem' }}>
+                  {t('دخول')}
+                </Link>
+                <Link to="/register" style={{ textDecoration: 'none' }}>
+                  <motion.div
+                    whileHover={{ scale: 1.04, y: -1 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
+                      color: C.frostedMint, padding: '8px 18px', borderRadius: '10px',
+                      fontSize: '0.88rem', fontWeight: '700',
+                      boxShadow: '0 4px 16px rgba(113,131,85,0.38)',
+                    }}
+                  >
+                    {t('تسجيل جديد')}
+                  </motion.div>
+                </Link>
+              </div>
+            )}
+          </div>
 
-          {/* ── Mobile auth (not logged in) ── */}
-          {!user && (
-            <div className="flex md:hidden" style={{ alignItems: 'center', gap: '0.5rem' }}>
-              <LangToggle />
-              <Link to="/login" style={{
-                textDecoration: 'none', color: 'rgba(207,225,185,0.65)',
-                fontSize: '0.88rem', padding: '6px 10px',
-              }}>
-                {t('دخول')}
-              </Link>
-              <Link to="/register" style={{ textDecoration: 'none' }}>
-                <div style={{
-                  background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
-                  color: C.frostedMint, padding: '7px 14px', borderRadius: '10px',
-                  fontSize: '0.82rem', fontWeight: '700',
-                }}>
-                  {t('تسجيل')}
-                </div>
-              </Link>
-            </div>
-          )}
-
-          {/* ── Mobile hamburger (logged in) ── */}
-          {user && (
-            <div className="flex md:hidden" style={{ alignItems: 'center', gap: '8px' }}>
+          {/* ── Mobile toggles + hamburger (guests and members alike) ── */}
+          <div className="flex md:hidden" style={{ alignItems: 'center', gap: '8px' }}>
             <ThemeToggle />
             <LangToggle />
             <motion.button
@@ -294,14 +268,13 @@ export default function Navbar() {
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </motion.button>
-            </div>
-          )}
+          </div>
         </div>
       </nav>
 
       {/* ── Mobile sidebar drawer ── */}
       <AnimatePresence>
-        {mobileOpen && user && (
+        {mobileOpen && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -396,58 +369,86 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* Bottom: Profile + Logout */}
+              {/* Bottom: Profile + Logout (member) — or Login + Register (guest) */}
               <div style={{ padding: '0.75rem' }}>
                 <div style={{ height: '1px', background: 'rgba(135,152,106,0.12)', marginBottom: '0.6rem' }} />
 
-                <Link to="/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '0.72rem 0.9rem', borderRadius: '12px',
-                    background: location.pathname === '/profile'
-                      ? 'rgba(135,152,106,0.16)' : 'rgba(74,94,51,0.15)',
-                    border: '1px solid rgba(135,152,106,0.18)',
-                  }}>
-                    {user.profileImage ? (
-                      <img src={user.profileImage} alt={user.displayName} style={{
-                        width: '34px', height: '34px', borderRadius: '50%',
-                        objectFit: 'cover', border: '2px solid rgba(135,152,106,0.4)', flexShrink: 0,
-                      }} />
-                    ) : (
+                {user ? (
+                  <>
+                    <Link to="/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
                       <div style={{
-                        width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
-                        background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: '700', color: C.frostedMint, fontSize: '0.85rem',
-                        border: '2px solid rgba(135,152,106,0.4)',
+                        display: 'flex', alignItems: 'center', gap: '12px',
+                        padding: '0.72rem 0.9rem', borderRadius: '12px',
+                        background: location.pathname === '/profile'
+                          ? 'rgba(135,152,106,0.16)' : 'rgba(74,94,51,0.15)',
+                        border: '1px solid rgba(135,152,106,0.18)',
                       }}>
-                        {user.displayName?.[0]?.toUpperCase()}
+                        {user.profileImage ? (
+                          <img src={user.profileImage} alt={user.displayName} style={{
+                            width: '34px', height: '34px', borderRadius: '50%',
+                            objectFit: 'cover', border: '2px solid rgba(135,152,106,0.4)', flexShrink: 0,
+                          }} />
+                        ) : (
+                          <div style={{
+                            width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
+                            background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: '700', color: C.frostedMint, fontSize: '0.85rem',
+                            border: '2px solid rgba(135,152,106,0.4)',
+                          }}>
+                            {user.displayName?.[0]?.toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p style={{ margin: 0, color: isLight ? '#1a3d0a' : C.teaGreen, fontWeight: '600', fontSize: '0.9rem' }}>
+                            {user.displayName}
+                          </p>
+                          <p style={{ margin: 0, color: isLight ? 'rgba(45,58,31,0.55)' : 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
+                            {t('الملف الشخصي')}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                    <div>
-                      <p style={{ margin: 0, color: isLight ? '#1a3d0a' : C.teaGreen, fontWeight: '600', fontSize: '0.9rem' }}>
-                        {user.displayName}
-                      </p>
-                      <p style={{ margin: 0, color: isLight ? 'rgba(45,58,31,0.55)' : 'rgba(135,152,106,0.7)', fontSize: '0.75rem' }}>
-                        {t('الملف الشخصي')}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                    </Link>
 
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '0.72rem 0.9rem', borderRadius: '12px',
-                    background: 'rgba(200,60,60,0.08)',
-                    border: '1px solid rgba(200,60,60,0.2)',
-                    color: '#f87171', fontSize: '0.9rem', fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <LogOut size={18} /> {t('خروج من الحساب')}
-                </button>
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                        padding: '0.72rem 0.9rem', borderRadius: '12px',
+                        background: 'rgba(200,60,60,0.08)',
+                        border: '1px solid rgba(200,60,60,0.2)',
+                        color: '#f87171', fontSize: '0.9rem', fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <LogOut size={18} /> {t('خروج من الحساب')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/register" style={{ textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
+                      <div style={{
+                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                        padding: '0.78rem 0.9rem', borderRadius: '12px',
+                        background: `linear-gradient(135deg, ${C.hunter}, ${C.dustyOlive})`,
+                        color: C.frostedMint, fontSize: '0.92rem', fontWeight: '700',
+                      }}>
+                        <UserPlus size={17} /> {t('تسجيل جديد')}
+                      </div>
+                    </Link>
+                    <Link to="/login" style={{ textDecoration: 'none', display: 'block' }}>
+                      <div style={{
+                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                        padding: '0.72rem 0.9rem', borderRadius: '12px',
+                        background: 'rgba(74,94,51,0.15)',
+                        border: '1px solid rgba(135,152,106,0.18)',
+                        color: isLight ? '#1a3d0a' : C.teaGreen, fontSize: '0.9rem', fontWeight: '600',
+                      }}>
+                        <LogIn size={16} /> {t('دخول')}
+                      </div>
+                    </Link>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
