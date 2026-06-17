@@ -6,6 +6,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -191,6 +192,8 @@ function TreeMarkers({ onTreeSelect, refreshKey }) {
 }
 
 export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '600px' }) {
+  const { t } = useLang();
+  const { user } = useAuth();
   const [userLocation, setUserLocation] = useState(null);
   const [iraqBorder, setIraqBorder] = useState(cachedIraqBorder);
   const geolocationDone = useRef(false);
@@ -208,29 +211,63 @@ export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '6
   }, []);
 
   return (
-    <MapContainer
-      center={[33.2232, 43.6793]}
-      zoom={6}
-      minZoom={5}
-      maxZoom={18}
-      maxBounds={[[28.5, 38.0], [38.0, 49.5]]}
-      maxBoundsViscosity={1.0}
-      style={{ height, borderRadius: '12px', zIndex: 0 }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; OpenStreetMap contributors'
-      />
+    <div style={{ position: 'relative' }}>
+      <MapContainer
+        center={[33.2232, 43.6793]}
+        zoom={6}
+        minZoom={5}
+        maxZoom={18}
+        maxBounds={[[28.5, 38.0], [38.0, 49.5]]}
+        maxBoundsViscosity={1.0}
+        style={{ height, borderRadius: '12px', zIndex: 0 }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
+        />
 
-      {iraqBorder && (
-        <GeoJSON data={iraqBorder} style={iraqStyle} />
-      )}
+        {iraqBorder && (
+          <GeoJSON data={iraqBorder} style={iraqStyle} />
+        )}
 
-      {userLocation && (
-        <Marker position={userLocation} icon={userIcon} />
-      )}
+        {userLocation && (
+          <Marker position={userLocation} icon={userIcon} />
+        )}
 
-      <TreeMarkers onTreeSelect={onTreeSelect} refreshKey={refreshKey} />
-    </MapContainer>
+        <TreeMarkers onTreeSelect={onTreeSelect} refreshKey={refreshKey} />
+      </MapContainer>
+
+      {/* مفتاح الألوان — أسفل اليسار لتجنّب التداخل مع بطاقة الشجرة */}
+      <div
+        style={{
+          position: 'absolute', bottom: '12px', left: '12px', zIndex: 1000,
+          background: 'rgba(10,18,7,0.82)', backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(135,152,106,0.3)', borderRadius: '10px',
+          padding: '8px 11px', fontSize: '0.72rem', color: '#cfe1b9',
+          display: 'flex', flexDirection: 'column', gap: '6px', direction: 'rtl',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.35)', pointerEvents: 'none',
+        }}
+      >
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+            <span style={{
+              width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg,#fbbf24,#d97706)',
+              border: '1.5px solid rgba(255,255,255,0.9)',
+            }} />
+            {t('أشجارك')}
+          </div>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <span style={{
+            width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg,#22c55e,#16a34a)',
+            border: '1.5px solid rgba(255,255,255,0.9)',
+          }} />
+          {t('أشجار الآخرين')}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -96,6 +96,8 @@ export const EN = {
   'CO₂ المختزل:': 'CO₂ absorbed:',
   'O₂ المنبعث:': 'O₂ released:',
   'عرض الملف الشخصي': 'View Profile',
+  'أشجارك': 'Your trees',
+  'أشجار الآخرين': 'Others’ trees',
 
   // ── Leaderboard ──
   'تعذّر تحميل البيانات': 'Failed to load data',
