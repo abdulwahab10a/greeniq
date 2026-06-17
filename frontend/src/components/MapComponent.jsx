@@ -16,11 +16,21 @@ L.Icon.Default.mergeOptions({
 // Module-level cache: fetched once per session, never re-downloaded
 let cachedIraqBorder = null;
 
+// Single-tree marker styled with GreenIQ identity — matches the cluster bubbles:
+// green gradient circle, white ring, soft glow + shadow.
 const treeIcon = L.divIcon({
-  className: '',
-  html: `<div style="font-size:22px;line-height:1;">🌳</div>`,
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
+  className: 'greeniq-tree',
+  html: `<div style="
+    width:34px;height:34px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    border:2px solid rgba(255,255,255,0.9);
+    border-radius:50%;
+    box-shadow:0 0 0 4px rgba(34,197,94,0.2), 0 4px 10px rgba(0,0,0,0.35);
+    font-size:18px;line-height:1;
+  ">🌳</div>`,
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
 });
 
 const userIcon = L.divIcon({
