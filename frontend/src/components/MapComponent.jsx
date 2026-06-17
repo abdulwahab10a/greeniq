@@ -108,6 +108,24 @@ function TreeMarkers({ onTreeSelect, refreshKey }) {
       chunkedLoading: true,
       showCoverageOnHover: false,
       maxClusterRadius: 50,
+      // فقاعات تجميع بألوان GreenIQ الخضراء، يكبر حجمها مع عدد الأشجار
+      iconCreateFunction: (cluster) => {
+        const count = cluster.getChildCount();
+        const size = count >= 100 ? 52 : count >= 10 ? 44 : 36;
+        return L.divIcon({
+          className: 'greeniq-cluster',
+          iconSize: L.point(size, size),
+          html: `<div style="
+            width:${size}px;height:${size}px;
+            display:flex;align-items:center;justify-content:center;
+            background:linear-gradient(135deg,#22c55e,#16a34a);
+            color:#fff;font-weight:800;font-size:${count >= 100 ? 13 : 14}px;
+            border:2px solid rgba(255,255,255,0.9);
+            border-radius:50%;
+            box-shadow:0 0 0 5px rgba(34,197,94,0.25), 0 4px 12px rgba(0,0,0,0.35);
+          ">${count}</div>`,
+        });
+      },
     });
     clusterRef.current = group;
     map.addLayer(group);
