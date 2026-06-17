@@ -48,6 +48,9 @@ export default function MapPage() {
   const [locError, setLocError] = useState('');
   const [profileUserId, setProfileUserId] = useState(null);
 
+  const C = useColors();
+  const { t, b, lang } = useLang();
+
   useEffect(() => {
     if (!showPlantForm) return;
     setLocating(true);
@@ -92,8 +95,6 @@ export default function MapPage() {
     }
   };
 
-  const C = useColors();
-  const { t, b, lang } = useLang();
   /* shared style tokens */
   const palmBorder  = '1px solid rgba(135,152,106,0.25)';
   const palmBg      = 'rgba(135,152,106,0.08)';
