@@ -1,6 +1,9 @@
 import { MapContainer, TileLayer, Marker, GeoJSON, useMapEvents } from 'react-leaflet';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import L from 'leaflet';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import api from '../api/axios';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -72,12 +75,17 @@ async function fetchIraqBorder() {
   return cachedIraqBorder;
 }
 
-// Fetches & renders only the trees inside the current map viewport.
-// Refetches (debounced) whenever the user pans/zooms — keeps payloads small
-// even when the dataset grows to thousands of trees.
+// Fetches only the trees inside the current map viewport (debounced on pan/zoom)
+// and renders them into a Leaflet marker-cluster group: nearby trees collapse
+// into a single counted bubble when zoomed out, and split apart as you zoom in.
+// Keeps both payloads and the number of drawn markers small at any scale.
 function TreeMarkers({ onTreeSelect, refreshKey }) {
   const [trees, setTrees] = useState([]);
   const debounceRef = useRef(null);
+  const clusterRef = useRef(null);
+  // Always call the latest onTreeSelect without re-binding every marker
+  const onSelectRef = useRef(onTreeSelect);
+  useEffect(() => { onSelectRef.current = onTreeSelect; }, [onTreeSelect]);
 
   const fetchInBounds = useCallback((map) => {
     const b = map.getBounds();
@@ -94,6 +102,21 @@ function TreeMarkers({ onTreeSelect, refreshKey }) {
     },
   });
 
+  // Create the cluster group once and attach it to the map
+  useEffect(() => {
+    const group = L.markerClusterGroup({
+      chunkedLoading: true,
+      showCoverageOnHover: false,
+      maxClusterRadius: 50,
+    });
+    clusterRef.current = group;
+    map.addLayer(group);
+    return () => {
+      map.removeLayer(group);
+      clusterRef.current = null;
+    };
+  }, [map]);
+
   // Initial load + refetch after a new tree is planted (refreshKey changes)
   useEffect(() => {
     fetchInBounds(map);
@@ -102,17 +125,21 @@ function TreeMarkers({ onTreeSelect, refreshKey }) {
   // Cleanup the pending debounce on unmount
   useEffect(() => () => clearTimeout(debounceRef.current), []);
 
-  return trees.map((tree) => {
-    const [lng, lat] = tree.location.coordinates;
-    return (
-      <Marker
-        key={tree._id}
-        position={[lat, lng]}
-        icon={treeIcon}
-        eventHandlers={{ click: () => onTreeSelect?.(tree) }}
-      />
-    );
-  });
+  // Rebuild the cluster markers whenever the visible trees change
+  useEffect(() => {
+    const group = clusterRef.current;
+    if (!group) return;
+    group.clearLayers();
+    const markers = trees.map((tree) => {
+      const [lng, lat] = tree.location.coordinates;
+      const marker = L.marker([lat, lng], { icon: treeIcon });
+      marker.on('click', () => onSelectRef.current?.(tree));
+      return marker;
+    });
+    group.addLayers(markers);
+  }, [trees]);
+
+  return null;
 }
 
 export default function MapComponent({ onTreeSelect, refreshKey = 0, height = '600px' }) {
