@@ -1,9 +1,35 @@
 const { generateReply } = require('../services/geminiService');
+const Tree = require('../models/Tree');
+const { calculateImpact } = require('../services/impactService');
 
 // عدد الرسائل الأقصى المقبول في الطلب الواحد (حماية من الإساءة)
 const MAX_MESSAGES = 40;
 // أقصى طول لرسالة المستخدم الواحدة
 const MAX_CONTENT_LENGTH = 2000;
+
+// بناء بلوك مختصر ببيانات المستخدم الحقيقية (للمسجّلين فقط) ليخصّص رد نبتة.
+// يبقى صغيراً (أرقام فقط) لتقليل استهلاك التوكنز.
+async function buildUserContext(user) {
+  if (!user) return null;
+  const trees = await Tree.find({ userId: user._id })
+    .select('createdAt ageAtPlanting')
+    .lean();
+
+  let totalCO2 = 0;
+  let totalO2 = 0;
+  for (const t of trees) {
+    const { co2Absorbed, o2Produced } = calculateImpact(t.createdAt, t.ageAtPlanting);
+    totalCO2 += co2Absorbed;
+    totalO2 += o2Produced;
+  }
+
+  return {
+    displayName: user.displayName,
+    treesCount: trees.length,
+    totalCO2: Math.round(totalCO2),
+    totalO2: Math.round(totalO2),
+  };
+}
 
 exports.chat = async (req, res) => {
   try {
@@ -34,7 +60,9 @@ exports.chat = async (req, res) => {
         .json({ message: 'صيغة الرسائل غير صحيحة' });
     }
 
-    const reply = await generateReply(messages);
+    // req.user مُرفق من optionalAuth إن كان المستخدم مسجّلاً (وإلا null)
+    const userContext = await buildUserContext(req.user);
+    const reply = await generateReply(messages, userContext);
     res.json({ reply });
   } catch (err) {
     console.error('❌ خطأ في المساعدة نبتة:', err.message);

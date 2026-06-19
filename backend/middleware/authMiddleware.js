@@ -34,4 +34,27 @@ const adminOnly = (req, res, next) => {
   return res.status(403).json({ message: 'غير مصرح، هذه الصفحة للمسؤول فقط' });
 };
 
-module.exports = { protect, adminOnly };
+// مصادقة اختيارية: إن وُجد رمز صالح نُرفق المستخدم، وإلا نكمل كضيف دون رفض.
+// تُستخدم لنقاط تعمل للجميع لكنها تخصّص الرد للمستخدم المسجّل (مثل /api/chat).
+const optionalAuth = async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+    } catch {
+      // رمز غير صالح → نتجاهله ونكمل كضيف
+    }
+  }
+
+  next();
+};
+
+module.exports = { protect, adminOnly, optionalAuth };

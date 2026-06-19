@@ -118,13 +118,21 @@ async function callGemini(body, attempt = 0) {
   }
 }
 
+// بلوك مختصر ببيانات المستخدم يُلحق بالـ system_instruction (للمسجّلين فقط).
+function buildUserBlock(u) {
+  if (!u) return '';
+  return `\n\n【بيانات المستخدم الحالي — استعمليها للإجابة عن أسئلته الشخصية (مثل: كم شجرة زرعت؟ شنو أثري؟) ونادِيه باسمه أحياناً وشجّعيه؛ ولا تذكريها إن ما كانت ذات صلة بالسؤال】
+الاسم: ${u.displayName} · عدد أشجاره: ${u.treesCount} · إجمالي CO₂ المختزل: ${u.totalCO2}kg · إجمالي O₂ المنتَج: ${u.totalO2}kg`;
+}
+
 /**
  * يرسل تاريخ المحادثة إلى Gemini ويرجّع نص رد "نبتة".
  * عند فشل Gemini يرمي خطأ يحمل `status` (مثل 429) ليُعالَج بلطف في الكنترولر.
  * @param {Array<{role: string, content: string}>} messages
+ * @param {{displayName: string, treesCount: number, totalCO2: number, totalO2: number}|null} [userContext]
  * @returns {Promise<string>}
  */
-async function generateReply(messages) {
+async function generateReply(messages, userContext = null) {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error('GEMINI_API_KEY غير مهيأ في متغيرات البيئة');
   }
@@ -134,10 +142,12 @@ async function generateReply(messages) {
     throw new Error('لا توجد رسالة صالحة لإرسالها');
   }
 
+  const systemText = NABTA_SYSTEM_PROMPT + buildUserBlock(userContext);
+
   let response;
   try {
     response = await callGemini({
-      system_instruction: { parts: [{ text: NABTA_SYSTEM_PROMPT }] },
+      system_instruction: { parts: [{ text: systemText }] },
       contents,
       generationConfig: {
         temperature: 0.7,
