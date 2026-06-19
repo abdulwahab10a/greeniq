@@ -174,4 +174,66 @@ async function generateReply(messages, userContext = null) {
   return reply;
 }
 
-module.exports = { generateReply, NABTA_SYSTEM_PROMPT, GEMINI_MODEL };
+// عنوان البثّ التدفّقي (SSE) من Gemini
+const GEMINI_STREAM_URL =
+  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse`;
+
+/**
+ * يفتح بثّاً تدفّقياً من Gemini ويرجّع تيّار Node (Readable) بصيغة SSE.
+ * يرمي خطأ يحمل `status` (429/...) إن فشل قبل بدء البثّ، ليُعالَج في الكنترولر.
+ * @param {Array<{role: string, content: string}>} messages
+ * @param {object|null} [userContext]
+ * @returns {Promise<import('stream').Readable>}
+ */
+async function openGeminiStream(messages, userContext = null) {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY غير مهيأ في متغيرات البيئة');
+  }
+  const contents = toGeminiContents(messages);
+  if (contents.length === 0) {
+    throw new Error('لا توجد رسالة صالحة لإرسالها');
+  }
+  const systemText = NABTA_SYSTEM_PROMPT + buildUserBlock(userContext);
+
+  try {
+    const response = await axios.post(
+      GEMINI_STREAM_URL,
+      {
+        system_instruction: { parts: [{ text: systemText }] },
+        contents,
+        generationConfig: { temperature: 0.7, maxOutputTokens: 800 },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': process.env.GEMINI_API_KEY,
+        },
+        responseType: 'stream',
+        timeout: 30000,
+      }
+    );
+    return response.data; // تيّار SSE من Gemini
+  } catch (err) {
+    const wrapped = new Error('Gemini stream error: ' + (err.response?.status || err.message));
+    wrapped.status = err.response?.status;
+    throw wrapped;
+  }
+}
+
+// يستخرج أجزاء النص من حدث SSE واحد قادم من Gemini
+function extractTextFromSSE(payload) {
+  try {
+    const json = JSON.parse(payload);
+    return json.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
+  } catch {
+    return '';
+  }
+}
+
+module.exports = {
+  generateReply,
+  openGeminiStream,
+  extractTextFromSSE,
+  NABTA_SYSTEM_PROMPT,
+  GEMINI_MODEL,
+};

@@ -57,6 +57,52 @@ function loadThread(key) {
   return [WELCOME];
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// بثّ الرد كلمة-كلمة عبر SSE. onDelta(النص التراكمي) تُستدعى مع كل دفعة جديدة.
+// يرجّع النص الكامل. يرمي خطأ يحمل status (مثل 429) إن فشل قبل بدء البثّ.
+async function streamChat(payload, onDelta) {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_BASE}/chat/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok || !res.body) {
+    const e = new Error('stream failed');
+    e.status = res.status;
+    throw e;
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let full = '';
+
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const parts = buffer.split('\n\n');
+    buffer = parts.pop(); // الحدث غير المكتمل يبقى للدورة القادمة
+    for (const part of parts) {
+      const line = part.trim();
+      if (!line.startsWith('data:')) continue;
+      const data = line.slice(5).trim();
+      if (data === '[DONE]') return full;
+      try {
+        const { text } = JSON.parse(data);
+        if (text) { full += text; onDelta(full); }
+      } catch { /* تجاهل دفعة غير صالحة */ }
+    }
+  }
+  return full;
+}
+
 export default function ChatBot() {
   const C = useColors();
   const navigate = useNavigate();
@@ -67,7 +113,8 @@ export default function ChatBot() {
   const [open, setOpen]         = useState(false);
   const [messages, setMessages] = useState(() => loadThread(userKey));
   const [input, setInput]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [loading, setLoading]   = useState(false);  // مشغول (يحجب إرسالاً جديداً)
+  const [streaming, setStreaming] = useState(false); // بدأ وصول النص (نُخفي نقاط الكتابة)
   const scrollRef = useRef(null);
   const keyRef         = useRef(userKey);  // المفتاح الذي تنتمي إليه الرسائل الحالية
   const skipPersistRef = useRef(false);    // لتخطّي حفظ واحد عند تبديل المستخدم
@@ -145,6 +192,20 @@ export default function ChatBot() {
     }
   }
 
+  const QUOTA_MSG = 'نبتة عليها ضغط هسة 🌱 جرّب تسألني بعد لحظات قليلة.';
+  const FAIL_MSG  = 'تعذّر الوصول إليّ هسة، جرّب مرة ثانية بعد شوية 🌱';
+
+  // خطة بديلة: الرد الكامل عبر النقطة العادية إن فشل البثّ (لغير الكوتا)
+  const fallbackFull = async (next) => {
+    try {
+      const { data } = await postWithRetry({ messages: next });
+      setMessages([...next, { role: 'assistant', content: data.reply }]);
+    } catch (err) {
+      const status = err.response?.status;
+      setMessages([...next, { role: 'assistant', content: status === 429 ? QUOTA_MSG : FAIL_MSG }]);
+    }
+  };
+
   // textArg اختياري: تمرّره أزرار الاقتراحات السريعة؛ غيره يؤخذ من حقل الإدخال
   const send = async (textArg) => {
     const text = (typeof textArg === 'string' ? textArg : input).trim();
@@ -154,20 +215,39 @@ export default function ChatBot() {
     setMessages(next);
     setInput('');
     setLoading(true);
+    setStreaming(false);
+
+    let started = false;
+    const onDelta = (partial) => {
+      if (!started) { started = true; setStreaming(true); } // أول كلمة → نخفي نقاط الكتابة
+      setMessages([...next, { role: 'assistant', content: partial }]);
+    };
 
     try {
-      // إرسال تاريخ المحادثة كاملاً (baseURL = VITE_API_URL، فالمسار النهائي /api/chat)
-      const { data } = await postWithRetry({ messages: next });
-      setMessages([...next, { role: 'assistant', content: data.reply }]);
+      const full = await streamChat({ messages: next }, onDelta);
+      if (!started || !full) {
+        // ما وصل أي نص عبر البثّ → الخطة البديلة
+        await fallbackFull(next);
+      }
     } catch (err) {
-      const status = err.response?.status;
-      const msg =
-        status === 429
-          ? 'نبتة عليها ضغط هسة 🌱 جرّب تسألني بعد لحظات قليلة.'
-          : 'تعذّر الوصول إليّ هسة، جرّب مرة ثانية بعد شوية 🌱';
-      setMessages([...next, { role: 'assistant', content: msg }]);
+      if (err.status === 429) {
+        setMessages([...next, { role: 'assistant', content: QUOTA_MSG }]);
+      } else if (!started) {
+        // فشل البثّ قبل أي نص لسبب غير الكوتا → نجرّب الرد الكامل
+        await fallbackFull(next);
+      } else {
+        // انقطع البثّ بعد نص جزئي — نُبقي الجزء مع إشارة إلى الانقطاع
+        setMessages((cur) => {
+          const last = cur[cur.length - 1];
+          if (last?.role === 'assistant') {
+            return [...cur.slice(0, -1), { ...last, content: last.content + ' …' }];
+          }
+          return cur;
+        });
+      }
     } finally {
       setLoading(false);
+      setStreaming(false);
     }
   };
 
@@ -352,8 +432,8 @@ export default function ChatBot() {
                 </motion.div>
               )}
 
-              {/* حالة "يكتب..." */}
-              {loading && (
+              {/* حالة "يكتب..." — تظهر حتى وصول أول كلمة من البثّ */}
+              {loading && !streaming && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '4px',
