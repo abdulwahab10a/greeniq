@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sprout, Send, X, Sparkles } from 'lucide-react';
+import { Sprout, Send, X, Sparkles, RotateCcw } from 'lucide-react';
 import api from '../api/axios';
 import { useColors } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 // رسالة الترحيب الأولى من نبتة
 const WELCOME = {
@@ -20,13 +21,36 @@ const QUICK_REPLIES = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// حفظ المحادثة محلياً مقسّمة لكل مستخدم (وللضيف) حتى لا تختلط المحادثات
+// على الجهاز المشترك، ولتبقى بعد إعادة التحميل/التنقّل بين الصفحات.
+const STORAGE_PREFIX = 'greeniq_chat_';
+const MAX_STORED = 40; // مطابق لحد الرسائل في الباك
+
+function loadThread(key) {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + key);
+    const parsed = raw && JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length &&
+        parsed.every((m) => m && typeof m.role === 'string' && typeof m.content === 'string')) {
+      return parsed;
+    }
+  } catch { /* تجاهل بيانات تالفة */ }
+  return [WELCOME];
+}
+
 export default function ChatBot() {
   const C = useColors();
+  const { user } = useAuth();
+  // مفتاح المحادثة: حساب المستخدم أو "guest". AuthContext يهيّئ user تزامنياً.
+  const userKey = user?.userId || user?._id || 'guest';
+
   const [open, setOpen]         = useState(false);
-  const [messages, setMessages] = useState([WELCOME]);
+  const [messages, setMessages] = useState(() => loadThread(userKey));
   const [input, setInput]       = useState('');
   const [loading, setLoading]   = useState(false);
   const scrollRef = useRef(null);
+  const keyRef         = useRef(userKey);  // المفتاح الذي تنتمي إليه الرسائل الحالية
+  const skipPersistRef = useRef(false);    // لتخطّي حفظ واحد عند تبديل المستخدم
   // ارتفاع الكيبورد والمساحة المرئية الفعلية (للتعامل الصحيح مع كيبورد الموبايل)
   const [kbInset, setKbInset]   = useState(0);
   const [vvHeight, setVvHeight] = useState(null);
@@ -35,6 +59,32 @@ export default function ChatBot() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, loading, open]);
+
+  // عند تبديل المستخدم (دخول/خروج) نحمّل محادثة المفتاح الجديد
+  useEffect(() => {
+    if (keyRef.current !== userKey) {
+      keyRef.current = userKey;
+      skipPersistRef.current = true; // الحفظ التالي ناتج عن التحميل، لا نكرره
+      setMessages(loadThread(userKey));
+    }
+  }, [userKey]);
+
+  // حفظ المحادثة عند كل تغيير (مع تخطّي الحفظ الناتج عن تبديل المستخدم)
+  useEffect(() => {
+    if (skipPersistRef.current) {
+      skipPersistRef.current = false;
+      return;
+    }
+    try {
+      localStorage.setItem(STORAGE_PREFIX + keyRef.current, JSON.stringify(messages.slice(-MAX_STORED)));
+    } catch { /* تجاهل تجاوز الحصة */ }
+  }, [messages]);
+
+  // بدء محادثة جديدة (مسح المحفوظة)
+  const clearChat = () => {
+    try { localStorage.removeItem(STORAGE_PREFIX + keyRef.current); } catch { /* تجاهل */ }
+    setMessages([WELCOME]);
+  };
 
   // متابعة المساحة المرئية: عند فتح كيبورد الموبايل ينكمش visualViewport،
   // فنرفع الودجت فوق الكيبورد ونقصّر ارتفاعه حتى لا يختفي أي جزء منه.
@@ -167,19 +217,38 @@ export default function ChatBot() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="إغلاق المحادثة"
-                style={{
-                  background: 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer',
-                  borderRadius: '9px', padding: '5px', color: headerText, display: 'flex',
-                  transition: 'background 0.2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.26)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
-              >
-                <X size={17} />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* محادثة جديدة (تظهر عند وجود سجلّ) */}
+                {messages.length > 1 && (
+                  <button
+                    onClick={clearChat}
+                    aria-label="محادثة جديدة"
+                    title="محادثة جديدة"
+                    style={{
+                      background: 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer',
+                      borderRadius: '9px', padding: '5px', color: headerText, display: 'flex',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.26)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                )}
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="إغلاق المحادثة"
+                  style={{
+                    background: 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer',
+                    borderRadius: '9px', padding: '5px', color: headerText, display: 'flex',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.26)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
+                >
+                  <X size={17} />
+                </button>
+              </div>
             </div>
 
             {/* الرسائل */}
