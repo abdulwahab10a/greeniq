@@ -7,6 +7,7 @@ export const EN = {
   // ── Navbar ──
   'تفعيل الوضع الداكن': 'Switch to dark mode',
   'تفعيل الوضع الفاتح': 'Switch to light mode',
+  'الرئيسية': 'Home',
   'الخريطة': 'Map',
   'أفضل الزارعين': 'Top Planters',
   'المحافظات': 'Governorates',

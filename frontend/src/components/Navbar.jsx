@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, LogIn, UserPlus, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages } from 'lucide-react';
+import { LogOut, LogIn, UserPlus, Home, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages } from 'lucide-react';
 
 /* ── Color tokens ── */
 const C = {
@@ -99,6 +99,7 @@ export default function Navbar() {
   const handleLogout = () => { logout(); navigate('/login'); };
 
   const navLinks = [
+    { to: '/',             label: 'الرئيسية',      icon: Home            },
     { to: '/map',          label: 'الخريطة',       icon: Map             },
     { to: '/leaderboard',  label: 'أفضل الزارعين', icon: Trophy          },
     { to: '/governorates', label: 'المحافظات',      icon: Building2       },
