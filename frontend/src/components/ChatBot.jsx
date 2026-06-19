@@ -57,6 +57,75 @@ function loadThread(key) {
   return [WELCOME];
 }
 
+// ── عرض Markdown خفيف (عريض، كود سطري، قوائم مرقّمة/نقطية، فقرات) ─────────────
+// مصمّم لمخرجات نبتة دون مكتبات إضافية.
+function renderInline(text, keyBase) {
+  const out = [];
+  const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let last = 0, m, i = 0;
+  while ((m = regex.exec(text)) !== null) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    const tok = m[0];
+    if (tok.startsWith('**')) {
+      out.push(<strong key={`${keyBase}-${i}`} style={{ fontWeight: 800 }}>{tok.slice(2, -2)}</strong>);
+    } else {
+      out.push(
+        <code key={`${keyBase}-${i}`} style={{
+          fontFamily: 'monospace', fontSize: '0.85em',
+          background: 'rgba(135,152,106,0.18)', borderRadius: '4px', padding: '1px 4px',
+        }}>{tok.slice(1, -1)}</code>
+      );
+    }
+    last = m.index + tok.length; i++;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+
+function MarkdownLite({ text }) {
+  const lines = String(text).split('\n');
+  const blocks = [];
+  let list = null;
+  const flush = () => { if (list) { blocks.push(list); list = null; } };
+
+  lines.forEach((raw) => {
+    const line = raw.replace(/\s+$/, '');
+    const ol = line.match(/^\s*(\d+)[.)]\s+(.*)$/);
+    const ul = line.match(/^\s*[-*•]\s+(.*)$/);
+    if (ol) {
+      if (!list || list.type !== 'ol') { flush(); list = { type: 'ol', items: [] }; }
+      list.items.push(ol[2]);
+    } else if (ul) {
+      if (!list || list.type !== 'ul') { flush(); list = { type: 'ul', items: [] }; }
+      list.items.push(ul[1]);
+    } else if (line.trim() === '') {
+      flush();
+    } else {
+      flush();
+      blocks.push({ type: 'p', text: line });
+    }
+  });
+  flush();
+
+  return (
+    <div>
+      {blocks.map((b, i) => {
+        if (b.type === 'p') {
+          return <div key={i} style={{ margin: i ? '0.35rem 0 0' : 0 }}>{renderInline(b.text, `p${i}`)}</div>;
+        }
+        const Tag = b.type === 'ol' ? 'ol' : 'ul';
+        return (
+          <Tag key={i} style={{ margin: '0.3rem 0 0', paddingInlineStart: '1.35rem' }}>
+            {b.items.map((it, j) => (
+              <li key={j} style={{ margin: '0.15rem 0' }}>{renderInline(it, `l${i}-${j}`)}</li>
+            ))}
+          </Tag>
+        );
+      })}
+    </div>
+  );
+}
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // بثّ الرد كلمة-كلمة عبر SSE. onDelta(النص التراكمي) تُستدعى مع كل دفعة جديدة.
@@ -369,14 +438,14 @@ export default function ChatBot() {
                 return (
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-start' : 'flex-end', gap: '6px' }}>
                     <div style={{
-                      maxWidth: '82%', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                      maxWidth: '82%', whiteSpace: isUser ? 'pre-wrap' : 'normal', wordBreak: 'break-word',
                       padding: '0.55rem 0.8rem', fontSize: '0.86rem', lineHeight: 1.65,
                       borderRadius: '15px',
                       ...(isUser
                         ? { background: brandGrad, color: headerText, borderBottomRightRadius: '5px', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }
                         : { background: C.innerBg, color: C.text, border: `1px solid ${C.rowBorder}`, borderBottomLeftRadius: '5px' }),
                     }}>
-                      {m.content}
+                      {isUser ? m.content : <MarkdownLite text={m.content} />}
                     </div>
 
                     {/* أزرار تنقّل للصفحات المذكورة في رد نبتة */}

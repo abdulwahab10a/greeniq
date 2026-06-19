@@ -68,8 +68,19 @@ const generalLimiter = rateLimit({
   message: { message: 'طلبات كثيرة جداً، يرجى المحاولة لاحقاً' },
 });
 
+// Chat-specific limiter — protects the shared Gemini free-tier quota from being
+// drained by a single client (per IP). Stricter than the general limiter.
+const chatLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'أرسلت رسائل كثيرة لنبتة 🌱 خذ راحة قصيرة وارجع بعد شوية.' },
+});
+
 // Apply rate limiting
 app.use('/api/auth', authSlowDown, authLimiter);
+app.use('/api/chat', chatLimiter);
 app.use('/api', generalLimiter);
 
 // Routes
