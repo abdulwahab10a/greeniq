@@ -1,9 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sprout, Send, X, Sparkles, RotateCcw } from 'lucide-react';
+import { Sprout, Send, X, Sparkles, RotateCcw, MapPin, Wind, Trophy, BarChart3, User } from 'lucide-react';
 import api from '../api/axios';
 import { useColors } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+
+// صفحات الموقع وكلماتها المفتاحية — لعرض أزرار تنقّل تحت رد نبتة عند ذكرها.
+// auth: لا يظهر إلا للمستخدم المسجّل (الصفحة محمية).
+const PAGE_LINKS = [
+  { to: '/map',         label: 'الخريطة',        Icon: MapPin,    keywords: ['الخريطة', 'الخارطة', 'خريطة الأشجار'] },
+  { to: '/air-quality', label: 'جودة الهواء',    Icon: Wind,      keywords: ['جودة الهواء', 'جوده الهواء'] },
+  { to: '/leaderboard', label: 'اللوحة',         Icon: Trophy,    keywords: ['اللوحة', 'الترتيب', 'لوحة الصدارة', 'المتصدرين', 'المتصدّرين'] },
+  { to: '/governorates',label: 'المحافظات',      Icon: BarChart3, keywords: ['المحافظات'] },
+  { to: '/profile',     label: 'الملف الشخصي',   Icon: User,      keywords: ['الملف الشخصي', 'ملفك الشخصي', 'البروفايل', 'شارك إنجازك', 'الشارات'], auth: true },
+];
+
+// يرجّع أزرار الصفحات المذكورة في نص الرد (بدون تكرار، مع مراعاة تسجيل الدخول)
+function linksForReply(text, isLoggedIn) {
+  if (!text) return [];
+  return PAGE_LINKS.filter(
+    (p) => (!p.auth || isLoggedIn) && p.keywords.some((k) => text.includes(k))
+  );
+}
 
 // رسالة الترحيب الأولى من نبتة
 const WELCOME = {
@@ -40,6 +59,7 @@ function loadThread(key) {
 
 export default function ChatBot() {
   const C = useColors();
+  const navigate = useNavigate();
   const { user } = useAuth();
   // مفتاح المحادثة: حساب المستخدم أو "guest". AuthContext يهيّئ user تزامنياً.
   const userKey = user?.userId || user?._id || 'guest';
@@ -84,6 +104,12 @@ export default function ChatBot() {
   const clearChat = () => {
     try { localStorage.removeItem(STORAGE_PREFIX + keyRef.current); } catch { /* تجاهل */ }
     setMessages([WELCOME]);
+  };
+
+  // الانتقال لصفحة من زر داخل رد نبتة (نسكّر النافذة ليظهر المحتوى)
+  const goTo = (to) => {
+    setOpen(false);
+    navigate(to);
   };
 
   // متابعة المساحة المرئية: عند فتح كيبورد الموبايل ينكمش visualViewport،
@@ -259,8 +285,9 @@ export default function ChatBot() {
             }}>
               {messages.map((m, i) => {
                 const isUser = m.role === 'user';
+                const links = isUser ? [] : linksForReply(m.content, !!user);
                 return (
-                  <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-start' : 'flex-end' }}>
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-start' : 'flex-end', gap: '6px' }}>
                     <div style={{
                       maxWidth: '82%', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                       padding: '0.55rem 0.8rem', fontSize: '0.86rem', lineHeight: 1.65,
@@ -271,6 +298,29 @@ export default function ChatBot() {
                     }}>
                       {m.content}
                     </div>
+
+                    {/* أزرار تنقّل للصفحات المذكورة في رد نبتة */}
+                    {links.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'flex-end', maxWidth: '90%' }}>
+                        {links.map(({ to, label, Icon }) => (
+                          <button
+                            key={to}
+                            onClick={() => goTo(to)}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '5px',
+                              background: C.tagBg, border: `1px solid ${C.accentMid}`, color: C.accentMid,
+                              borderRadius: '999px', padding: '0.32rem 0.7rem', fontSize: '0.78rem',
+                              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s',
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = C.accentMid; e.currentTarget.style.color = '#f4fae8'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = C.tagBg; e.currentTarget.style.color = C.accentMid; }}
+                          >
+                            <Icon size={13} />
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
