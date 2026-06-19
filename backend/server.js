@@ -13,6 +13,7 @@ const treeRoutes       = require('./routes/treeRoutes');
 const userRoutes       = require('./routes/userRoutes');
 const adminRoutes      = require('./routes/adminRoutes');
 const airQualityRoutes = require('./routes/airQualityRoutes');
+const chatRoutes       = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -77,6 +78,7 @@ app.use('/api/trees', treeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/air-quality', airQualityRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/', (req, res) => {

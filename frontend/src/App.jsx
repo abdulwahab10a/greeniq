@@ -17,6 +17,7 @@ import HomePage from './pages/HomePage';
 
 // Components
 import Navbar from './components/Navbar';
+import ChatBot from './components/ChatBot';
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -139,6 +140,7 @@ function App() {
           </a>
         </div>
       </footer>
+      <ChatBot />
     </div>
   );
 }
