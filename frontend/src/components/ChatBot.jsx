@@ -17,11 +17,32 @@ export default function ChatBot() {
   const [input, setInput]       = useState('');
   const [loading, setLoading]   = useState(false);
   const scrollRef = useRef(null);
+  // ارتفاع الكيبورد والمساحة المرئية الفعلية (للتعامل الصحيح مع كيبورد الموبايل)
+  const [kbInset, setKbInset]   = useState(0);
+  const [vvHeight, setVvHeight] = useState(null);
 
   // التمرير لأسفل عند كل رسالة جديدة أو ظهور "يكتب..."
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, loading, open]);
+
+  // متابعة المساحة المرئية: عند فتح كيبورد الموبايل ينكمش visualViewport،
+  // فنرفع الودجت فوق الكيبورد ونقصّر ارتفاعه حتى لا يختفي أي جزء منه.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      setVvHeight(vv.height);
+      setKbInset(Math.max(0, window.innerHeight - vv.height - vv.offsetTop));
+    };
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
 
   const send = async () => {
     const text = input.trim();
@@ -57,8 +78,17 @@ export default function ChatBot() {
   const brandGrad = `linear-gradient(135deg, ${C.accent} 0%, ${C.accentMid} 100%)`;
   const headerText = '#f4fae8';
 
+  // رفع الودجت فوق الكيبورد، وتقصير ارتفاع النافذة لتبقى كاملة داخل المساحة المرئية.
+  // نترك مساحة للزر العائم (~58px) والهوامش (~38px).
+  const containerBottom = `calc(${kbInset}px + 1.25rem)`;
+  // ارتفاع النافذة محدود بالمساحة المرئية ناقص مكان الزر العائم والهوامش (~110px)،
+  // بحد أقصى 512px على الشاشات الكبيرة — لا نفرض حداً أدنى يتجاوز المساحة المتاحة.
+  const panelHeight = vvHeight
+    ? `${Math.min(512, vvHeight - 110)}px`
+    : 'min(32rem, calc(100dvh - 7rem))';
+
   return (
-    <div dir="rtl" style={{ position: 'fixed', bottom: '1.25rem', left: '1.25rem', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+    <div dir="rtl" style={{ position: 'fixed', bottom: containerBottom, left: '1.25rem', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'bottom 0.2s ease' }}>
       {/* نافذة المحادثة */}
       <AnimatePresence>
         {open && (
@@ -71,8 +101,8 @@ export default function ChatBot() {
               marginBottom: '0.85rem',
               width: '22.5rem',
               maxWidth: 'calc(100vw - 2.5rem)',
-              height: '32rem',
-              maxHeight: 'calc(100vh - 7rem)',
+              height: panelHeight,
+              maxHeight: panelHeight,
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
@@ -182,7 +212,9 @@ export default function ChatBot() {
                 placeholder="اكتب رسالتك..."
                 style={{
                   flex: 1, resize: 'none', maxHeight: '6rem',
-                  padding: '0.6rem 0.8rem', fontSize: '0.86rem', lineHeight: 1.5,
+                  padding: '0.6rem 0.8rem', lineHeight: 1.5,
+                  // 16px إلزامي: أي أقل يسبّب تكبير iOS التلقائي عند التركيز ويخرّب أحجام الموقع
+                  fontSize: '16px',
                   borderRadius: '13px', outline: 'none',
                   background: C.innerBg, color: C.text,
                   border: `1px solid ${C.cardBorder}`,
