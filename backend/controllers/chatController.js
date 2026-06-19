@@ -38,6 +38,15 @@ exports.chat = async (req, res) => {
     res.json({ reply });
   } catch (err) {
     console.error('❌ خطأ في المساعدة نبتة:', err.message);
+
+    // حدّ الكوتا/الطلبات (429): رسالة واضحة + ترويسة Retry-After ليعرف الفرونت متى يعيد
+    if (err.status === 429) {
+      res.set('Retry-After', '15');
+      return res.status(429).json({
+        message: 'نبتة عليها ضغط هسة 🌱 جرّب تسألني بعد لحظات قليلة.',
+      });
+    }
+
     res
       .status(503)
       .json({ message: 'تعذّر الوصول إلى نبتة الآن، يرجى المحاولة بعد قليل 🌱' });

@@ -10,6 +10,16 @@ const WELCOME = {
   content: 'مرحباً! آني نبتة 🌱 مساعدتك بمنصة GreenIQ. أكدر أساعدك بزراعة الأشجار، إضافتها على الخارطة، ومتابعة أثرك البيئي. شلون أكدر أساعدك اليوم؟',
 };
 
+// اقتراحات سريعة تظهر بأول فتح ليختار المستخدم بنقرة بدل الكتابة
+const QUICK_REPLIES = [
+  'شلون أزرع شجرة؟',
+  'شلون أعرف أثر شجرتي؟',
+  'وين أشوف جودة الهواء؟',
+  'شلون أكسب الشارات؟',
+];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 export default function ChatBot() {
   const C = useColors();
   const [open, setOpen]         = useState(false);
@@ -44,8 +54,24 @@ export default function ChatBot() {
     };
   }, []);
 
-  const send = async () => {
-    const text = input.trim();
+  // إرسال الطلب مع إعادة محاولة تلقائية على الحمل/الكوتا (503/429)
+  async function postWithRetry(payload, attempt = 0) {
+    try {
+      return await api.post('/chat', payload);
+    } catch (err) {
+      const status = err.response?.status;
+      if ((status === 429 || status === 503) && attempt < 2) {
+        // 429 (ضغط/كوتا) ينتظر أطول من 503 (حمل مؤقّت)
+        await sleep(status === 429 ? 6000 : 2500);
+        return postWithRetry(payload, attempt + 1);
+      }
+      throw err;
+    }
+  }
+
+  // textArg اختياري: تمرّره أزرار الاقتراحات السريعة؛ غيره يؤخذ من حقل الإدخال
+  const send = async (textArg) => {
+    const text = (typeof textArg === 'string' ? textArg : input).trim();
     if (!text || loading) return;
 
     const next = [...messages, { role: 'user', content: text }];
@@ -55,13 +81,15 @@ export default function ChatBot() {
 
     try {
       // إرسال تاريخ المحادثة كاملاً (baseURL = VITE_API_URL، فالمسار النهائي /api/chat)
-      const { data } = await api.post('/chat', { messages: next });
+      const { data } = await postWithRetry({ messages: next });
       setMessages([...next, { role: 'assistant', content: data.reply }]);
-    } catch {
-      setMessages([
-        ...next,
-        { role: 'assistant', content: 'تعذّر الوصول إليّ هسة، جرّب مرة ثانية بعد شوية 🌱' },
-      ]);
+    } catch (err) {
+      const status = err.response?.status;
+      const msg =
+        status === 429
+          ? 'نبتة عليها ضغط هسة 🌱 جرّب تسألني بعد لحظات قليلة.'
+          : 'تعذّر الوصول إليّ هسة، جرّب مرة ثانية بعد شوية 🌱';
+      setMessages([...next, { role: 'assistant', content: msg }]);
     } finally {
       setLoading(false);
     }
@@ -177,6 +205,33 @@ export default function ChatBot() {
                   </div>
                 );
               })}
+
+              {/* اقتراحات سريعة — تظهر بأول فتح فقط (قبل أول رسالة من المستخدم) */}
+              {messages.length === 1 && !loading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', justifyContent: 'flex-end', marginTop: '0.2rem' }}
+                >
+                  {QUICK_REPLIES.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => send(q)}
+                      style={{
+                        background: C.tagBg, border: `1px solid ${C.tagBorder}`, color: C.tagText,
+                        borderRadius: '999px', padding: '0.4rem 0.8rem', fontSize: '0.8rem',
+                        fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                        transition: 'all 0.18s',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = C.accentMid; e.currentTarget.style.color = '#f4fae8'; e.currentTarget.style.borderColor = C.accentMid; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = C.tagBg; e.currentTarget.style.color = C.tagText; e.currentTarget.style.borderColor = C.tagBorder; }}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
 
               {/* حالة "يكتب..." */}
               {loading && (

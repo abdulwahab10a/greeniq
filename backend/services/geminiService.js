@@ -94,8 +94,33 @@ function toGeminiContents(messages) {
     }));
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// نداء Gemini مع إعادة محاولة قصيرة على الحمل المؤقّت (503).
+// لا نعيد المحاولة على 429 (حدّ الكوتا) لأن مدّة الانتظار طويلة — نمرّرها للأعلى فوراً.
+async function callGemini(body, attempt = 0) {
+  try {
+    return await axios.post(GEMINI_URL, body, {
+      // المفتاح يُمرَّر في الترويسة بدل الـ query string حتى لا يُسجَّل في السجلّات
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': process.env.GEMINI_API_KEY,
+      },
+      timeout: 20000, // الفشل سريعاً بدل التعليق إذا تعذّر الوصول إلى Gemini
+    });
+  } catch (err) {
+    const status = err.response?.status;
+    if (status === 503 && attempt < 2) {
+      await sleep(1500 * (attempt + 1)); // 1.5s ثم 3s
+      return callGemini(body, attempt + 1);
+    }
+    throw err;
+  }
+}
+
 /**
  * يرسل تاريخ المحادثة إلى Gemini ويرجّع نص رد "نبتة".
+ * عند فشل Gemini يرمي خطأ يحمل `status` (مثل 429) ليُعالَج بلطف في الكنترولر.
  * @param {Array<{role: string, content: string}>} messages
  * @returns {Promise<string>}
  */
@@ -109,25 +134,22 @@ async function generateReply(messages) {
     throw new Error('لا توجد رسالة صالحة لإرسالها');
   }
 
-  const response = await axios.post(
-    GEMINI_URL,
-    {
+  let response;
+  try {
+    response = await callGemini({
       system_instruction: { parts: [{ text: NABTA_SYSTEM_PROMPT }] },
       contents,
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 800,
       },
-    },
-    {
-      // المفتاح يُمرَّر في الترويسة بدل الـ query string حتى لا يُسجَّل في السجلّات
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': process.env.GEMINI_API_KEY,
-      },
-      timeout: 20000, // الفشل سريعاً بدل التعليق إذا تعذّر الوصول إلى Gemini
-    }
-  );
+    });
+  } catch (err) {
+    // إعادة تغليف الخطأ مع رمز الحالة (429/503/...) حتى يميّزه الكنترولر
+    const wrapped = new Error('Gemini API error: ' + (err.response?.status || err.message));
+    wrapped.status = err.response?.status;
+    throw wrapped;
+  }
 
   const reply =
     response.data?.candidates?.[0]?.content?.parts
