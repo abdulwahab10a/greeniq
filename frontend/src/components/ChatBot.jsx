@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sprout, Send, X, Sparkles, RotateCcw, MapPin, Wind, Trophy, BarChart3, User } from 'lucide-react';
+import { Sprout, Send, X, Sparkles, RotateCcw, MapPin, Wind, Trophy, BarChart3, User, Leaf } from 'lucide-react';
 import api from '../api/axios';
 import { useColors } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 // صفحات الموقع وكلماتها المفتاحية — لعرض أزرار تنقّل تحت رد نبتة عند ذكرها.
 // auth: لا يظهر إلا للمستخدم المسجّل (الصفحة محمية).
 const PAGE_LINKS = [
+  { to: '/recommend',   label: 'أي شجرة أزرع؟',  Icon: Leaf,      keywords: ['أي شجرة أزرع', 'اي شجرة أزرع', 'اقتراح شجرة', 'اقتراح الأشجار', 'الشجرة المناسبة', 'اقترح لي شجرة'] },
   { to: '/map',         label: 'الخريطة',        Icon: MapPin,    keywords: ['الخريطة', 'الخارطة', 'خريطة الأشجار'] },
   { to: '/air-quality', label: 'جودة الهواء',    Icon: Wind,      keywords: ['جودة الهواء', 'جوده الهواء'] },
   { to: '/leaderboard', label: 'اللوحة',         Icon: Trophy,    keywords: ['اللوحة', 'الترتيب', 'لوحة الصدارة', 'المتصدرين', 'المتصدّرين'] },
@@ -32,10 +33,10 @@ const WELCOME = {
 
 // اقتراحات سريعة تظهر بأول فتح ليختار المستخدم بنقرة بدل الكتابة
 const QUICK_REPLIES = [
+  'شنو الشجرة المناسبة لمنطقتي؟',
   'شلون أزرع شجرة؟',
   'شلون أعرف أثر شجرتي؟',
   'وين أشوف جودة الهواء؟',
-  'شلون أكسب الشارات؟',
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
