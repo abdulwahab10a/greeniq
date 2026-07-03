@@ -242,6 +242,35 @@ export const EN = {
   'مشاركة': 'Share',
   'جارٍ تجهيز البطاقة...': 'Preparing your card...',
   'تم نسخ نص المشاركة': 'Caption copied to clipboard',
+
+  // ── Tree Recommendation (أي شجرة أزرع؟) ──
+  'أي شجرة أزرع؟': 'Which tree to plant?',
+  'اختر موقعاً على الخريطة أو استخدم موقعك، ليقترح الذكاء الاصطناعي الشجرة الأنسب لمناخ وتربة وملوحة ذلك المكان في العراق.':
+    'Pick a spot on the map or use your location, and the AI will suggest the tree best suited to the climate, soil and salinity of that place in Iraq.',
+  'استخدم موقعي': 'Use my location',
+  'أو انقر على الخريطة، أو اختر مدينة:': 'or click the map, or pick a city:',
+  'جاري تحليل الموقع...': 'Analysing the location...',
+  'المتصفح لا يدعم تحديد الموقع': 'Your browser does not support geolocation',
+  'تعذّر توليد التوصية، يرجى المحاولة لاحقاً': 'Could not generate a recommendation, please try again later',
+  'نسبة الثقة': 'Confidence',
+  'توصية الذكاء الاصطناعي — 6 أشجار': 'AI recommendation — 6 trees',
+  'الحرارة': 'Temperature',
+  'رطوبة التربة': 'Soil moisture',
+  'أمطار سنوية': 'Annual rainfall',
+  'نوع التربة': 'Soil type',
+  'الملوحة': 'Salinity',
+  'مؤشر الجفاف': 'Aridity index',
+  'أمطار ÷ حرارة': 'rain ÷ heat',
+  'تحذيرات': 'Warnings',
+  'لا تزرع هنا': 'Do not plant here',
+  'شجرة مسجّلة في OpenStreetMap قرب هذا الموقع': 'trees mapped in OpenStreetMap near this location',
+  'لا توجد أشجار مسجّلة — الموقع جاهز للزراعة': 'No mapped trees — the site is ready for planting',
+  'تقدير الملوحة جغرافياً': 'salinity estimated geographically',
+  'حقيقي': 'real',
+  'تقدير': 'estimate',
+  'اقترح لي شجرة': 'Suggest a tree',
+  'جاري الاقتراح...': 'Suggesting...',
+  'نُصح به': 'recommended',
 };
 
 // ── Dynamic / parameterised builders (language-aware) ────────────────────────

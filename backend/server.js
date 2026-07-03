@@ -14,6 +14,7 @@ const userRoutes       = require('./routes/userRoutes');
 const adminRoutes      = require('./routes/adminRoutes');
 const airQualityRoutes = require('./routes/airQualityRoutes');
 const chatRoutes       = require('./routes/chatRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
 
@@ -90,6 +91,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/air-quality', airQualityRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/recommendation', recommendationRoutes);
 
 // Health check
 app.get('/', (req, res) => {

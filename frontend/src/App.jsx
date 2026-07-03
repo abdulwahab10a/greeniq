@@ -12,6 +12,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import GovernoratesPage from './pages/GovernoratesPage';
 import AirQualityPage from './pages/AirQualityPage';
+import RecommendationPage from './pages/RecommendationPage';
 import AdminDashboard from './pages/AdminDashboard';
 import HomePage from './pages/HomePage';
 
@@ -90,6 +91,7 @@ function App() {
             <Route path="/leaderboard" element={<AnimatedPage><LeaderboardPage /></AnimatedPage>} />
             <Route path="/governorates" element={<AnimatedPage><GovernoratesPage /></AnimatedPage>} />
             <Route path="/air-quality" element={<AnimatedPage><AirQualityPage /></AnimatedPage>} />
+            <Route path="/recommend" element={<AnimatedPage><RecommendationPage /></AnimatedPage>} />
             {/* Account-only routes. */}
             <Route path="/profile" element={
               <ProtectedRoute><AnimatedPage><ProfilePage /></AnimatedPage></ProtectedRoute>

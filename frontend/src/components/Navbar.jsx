@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, LogIn, UserPlus, Home, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages } from 'lucide-react';
+import { LogOut, LogIn, UserPlus, Home, Map, Trophy, Building2, Menu, X, LayoutDashboard, Wind, Sun, Moon, Languages, Sparkles } from 'lucide-react';
 
 /* ── Color tokens ── */
 const C = {
@@ -101,6 +101,7 @@ export default function Navbar() {
   const navLinks = [
     { to: '/',             label: 'الرئيسية',      icon: Home            },
     { to: '/map',          label: 'الخريطة',       icon: Map             },
+    { to: '/recommend',    label: 'أي شجرة أزرع؟',  icon: Sparkles        },
     { to: '/leaderboard',  label: 'أفضل الزارعين', icon: Trophy          },
     { to: '/governorates', label: 'المحافظات',      icon: Building2       },
     { to: '/air-quality',  label: 'جودة الهواء',   icon: Wind            },

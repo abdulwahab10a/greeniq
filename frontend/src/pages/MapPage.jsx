@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import MapComponent from '../components/MapComponent';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf, Clock } from 'lucide-react';
+import { TreePine, Loader2, CheckCircle2, MapPin, X, Wind, Leaf, Clock, Sparkles } from 'lucide-react';
 import UserProfileModal from '../components/UserProfileModal';
 import { useColors } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -48,6 +48,8 @@ export default function MapPage() {
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState('');
   const [profileUserId, setProfileUserId] = useState(null);
+  const [recommending, setRecommending] = useState(false);
+  const [suggestion, setSuggestion] = useState(null); // { emoji, name, confidence }
 
   const C = useColors();
   const { t, b, lang } = useLang();
@@ -69,6 +71,23 @@ export default function MapPage() {
     );
   }, [showPlantForm, t]);
 
+  // يقترح الشجرة الأنسب لموقع النموذج المُحدَّد ويملأ حقل الاسم تلقائياً
+  const handleSuggest = async () => {
+    if (!plantData.latitude || !plantData.longitude) { setLocError(t('لم يتم تحديد موقعك بعد')); return; }
+    setRecommending(true); setLocError('');
+    try {
+      const { data } = await api.get('/recommendation', { params: { lat: plantData.latitude, lng: plantData.longitude } });
+      const tr = data.recommendation.tree;
+      const name = lang === 'ar' ? tr.nameAr : tr.nameEn;
+      setPlantData(d => ({ ...d, name }));
+      setSuggestion({ emoji: tr.emoji, name, confidence: data.recommendation.confidence });
+    } catch (err) {
+      setLocError(err.response?.data?.message || t('تعذّر توليد التوصية، يرجى المحاولة لاحقاً'));
+    } finally {
+      setRecommending(false);
+    }
+  };
+
   const handlePlantSubmit = async (e) => {
     e.preventDefault();
     if (!plantData.latitude || !plantData.longitude) { setLocError(t('لم يتم تحديد موقعك بعد')); return; }
@@ -87,6 +106,7 @@ export default function MapPage() {
       const prov = nearestProvince(plantData.latitude, plantData.longitude);
       setShowPlantForm(false);
       setPlantData({ name: '', notes: '', latitude: '', longitude: '', image: null, ageAtPlanting: '' });
+      setSuggestion(null);
       setRefreshKey(k => k + 1);
       setSuccessMsg(prov);
       setTimeout(() => setSuccessMsg(null), 5000);
@@ -235,6 +255,49 @@ export default function MapPage() {
                   className="glass-input"
                   style={{ padding: '0.7rem 1rem', borderRadius: '10px', fontSize: '0.82rem', width: '100%', boxSizing: 'border-box' }}
                 />
+              </div>
+
+              {/* اقتراح ذكي للشجرة الأنسب لهذا الموقع */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <motion.button
+                  type="button"
+                  onClick={handleSuggest}
+                  disabled={recommending || locating || !plantData.latitude}
+                  whileHover={(!recommending && plantData.latitude) ? { y: -2 } : {}}
+                  whileTap={{ scale: 0.97 }}
+                  style={{
+                    padding: '0.55rem 1rem', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', gap: '7px',
+                    background: 'rgba(144,169,85,0.12)', border: '1px solid rgba(144,169,85,0.35)',
+                    color: '#90a955', cursor: (recommending || !plantData.latitude) ? 'default' : 'pointer',
+                    opacity: (recommending || locating || !plantData.latitude) ? 0.55 : 1,
+                  }}
+                >
+                  {recommending ? (
+                    <>
+                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+                        <Loader2 size={14} />
+                      </motion.div>
+                      {t('جاري الاقتراح...')}
+                    </>
+                  ) : <><Sparkles size={14} /> {t('اقترح لي شجرة')}</>}
+                </motion.button>
+
+                <AnimatePresence>
+                  {suggestion && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        fontSize: '0.78rem', fontWeight: 600, color: '#4ade80',
+                        background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)',
+                        borderRadius: '99px', padding: '3px 11px',
+                      }}
+                    >
+                      {suggestion.emoji} {suggestion.name} · {t('نُصح به')} ({suggestion.confidence}%)
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div style={{ position: 'relative' }}>
