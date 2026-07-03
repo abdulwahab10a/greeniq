@@ -1,24 +1,27 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useColors } from './context/ThemeContext';
 import { useLang } from './context/LanguageContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
-// Pages
-import Login from './pages/Login';
-import Register from './pages/Register';
-import MapPage from './pages/MapPage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import ProfilePage from './pages/ProfilePage';
-import GovernoratesPage from './pages/GovernoratesPage';
-import AirQualityPage from './pages/AirQualityPage';
-import RecommendationPage from './pages/RecommendationPage';
-import AdminDashboard from './pages/AdminDashboard';
-import HomePage from './pages/HomePage';
+// Pages — lazy-loaded so each route (and its heavy deps like Leaflet or the
+// QR scanner) ships as a separate chunk fetched only when that page is visited.
+const Login            = lazy(() => import('./pages/Login'));
+const Register         = lazy(() => import('./pages/Register'));
+const MapPage          = lazy(() => import('./pages/MapPage'));
+const LeaderboardPage  = lazy(() => import('./pages/LeaderboardPage'));
+const ProfilePage      = lazy(() => import('./pages/ProfilePage'));
+const GovernoratesPage = lazy(() => import('./pages/GovernoratesPage'));
+const AirQualityPage   = lazy(() => import('./pages/AirQualityPage'));
+const RecommendationPage = lazy(() => import('./pages/RecommendationPage'));
+const AdminDashboard   = lazy(() => import('./pages/AdminDashboard'));
+const HomePage         = lazy(() => import('./pages/HomePage'));
 
-// Components
+// Components — Navbar is eager (always visible); ChatBot is deferred (global
+// overlay, not needed for first paint).
 import Navbar from './components/Navbar';
-import ChatBot from './components/ChatBot';
+const ChatBot = lazy(() => import('./components/ChatBot'));
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -28,10 +31,10 @@ function AdminRoute({ children }) {
   return children;
 }
 
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+// Centered spinner — shown while auth resolves or a lazy page chunk loads.
+function PageLoader() {
   const { t } = useLang();
-  if (loading) return (
+  return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '6rem 1rem', flexDirection: 'column', gap: '16px',
@@ -48,6 +51,11 @@ function ProtectedRoute({ children }) {
       <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.9rem' }}>{t('جاري التحميل...')}</span>
     </div>
   );
+}
+
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <PageLoader />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
@@ -81,7 +89,8 @@ function App() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-6">
-        <AnimatePresence mode="wait">
+        <Suspense fallback={<PageLoader />}>
+          <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             {/* Public browsing routes — guests can view everything below. */}
             <Route path="/" element={<AnimatedPage><HomePage /></AnimatedPage>} />
@@ -100,7 +109,8 @@ function App() {
               <AdminRoute><AnimatedPage><AdminDashboard /></AnimatedPage></AdminRoute>
             } />
           </Routes>
-        </AnimatePresence>
+          </AnimatePresence>
+        </Suspense>
       </main>
       <footer style={{
         textAlign: 'center',
@@ -142,7 +152,9 @@ function App() {
           </a>
         </div>
       </footer>
-      <ChatBot />
+      <Suspense fallback={null}>
+        <ChatBot />
+      </Suspense>
     </div>
   );
 }
