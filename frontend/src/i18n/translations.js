@@ -78,6 +78,22 @@ export const EN = {
   'القادسية': 'Al-Qadisiyah',
   'صلاح الدين': 'Saladin',
 
+  // ── Cities (recommendation quick-pick chips) ──
+  'الموصل': 'Mosul',
+  'الناصرية': 'Nasiriyah',
+  'العمارة': 'Amarah',
+  'الحلة': 'Hillah',
+  'الرمادي': 'Ramadi',
+  'بعقوبة': 'Baqubah',
+  'السماوة': 'Samawah',
+  'الديوانية': 'Diwaniyah',
+  'تكريت': 'Tikrit',
+  'الفلوجة': 'Fallujah',
+  'الرطبة': 'Rutba',
+  'حلبجة': 'Halabja',
+  'الفاو': 'Al-Faw',
+  'الزبير': 'Zubair',
+
   // ── MapPage ──
   'تعذّر تحديد موقعك، يرجى السماح بالوصول إلى الموقع': 'Could not determine your location, please allow location access',
   'لم يتم تحديد موقعك بعد': 'Your location has not been determined yet',
