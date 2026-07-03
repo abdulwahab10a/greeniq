@@ -119,7 +119,7 @@ function App() {
         marginTop: 'auto',
       }}>
         <p style={{ color: C.textMuted, fontSize: '0.85rem', marginBottom: '0.25rem', fontWeight: 500 }}>
-          Developed &amp; Engineered by Abdulwahab H.Murad
+          Developed &amp; Engineered by Innovators Team
         </p>
         <p style={{ color: C.textSubtle, fontSize: '0.78rem', marginBottom: '0.6rem' }}>
           {t('جميع الحقوق محفوظة')} &copy; GreenIQ 2026
